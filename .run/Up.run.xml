@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Up" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+    <deployment type="docker-compose.yml">
+      <settings>
+        <option name="envFilePath" value="C:\PhpstormProjects\dc_vars\local.env" />
+        <option name="removeImagesOnComposeDown" value="LOCAL" />
+        <option name="commandLineOptions" value="--build" />
+        <option name="sourceFilePath" value="deploy/haur.local.yml" />
+        <option name="upForceRecreate" value="true" />
+      </settings>
+    </deployment>
+    <method v="2" />
+  </configuration>
+</component>
