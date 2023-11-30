@@ -12,6 +12,7 @@ services:
       #CONFIG SERVER
       CONFIG_SERVER_URL: http://config_server
       SERVICE_NAME: haur
+      NAMESPACE: prod
       M_TOKEN: ${M_TOKEN}
       #END CONFIG SERVER
 
