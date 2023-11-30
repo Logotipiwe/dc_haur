@@ -1,45 +1,46 @@
 package main
 
 import (
-	"fmt"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/logotipiwe/dc_go_utils/src/config"
-	"net/http"
+	"log"
 )
 
 func main() {
 	err := initializeApp()
-
-	println(config.GetConfig("DB_NAME"))
-
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "ok")
-	})
-
-	//err = http.ListenAndServe(":"+config.GetConfig("CONTAINER_PORT"), nil)
-	err = http.ListenAndServe(":8080", nil)
+	tgBot()
+	println("Tg bot started!")
 	println("Server up!")
 	if err != nil {
 		panic("Lol server fell")
 	}
 }
+func tgBot() {
+	bot, err := tgbotapi.NewBotAPI(config.GetConfig("BOT_TOKEN"))
+	if err != nil {
+		log.Panic(err)
+	}
 
-type appError struct {
-	Error   error
-	Message string
-	Code    int
-}
+	bot.Debug = true
 
-func (a *appError) ErrorJson() string {
-	return fmt.Sprintf("{\"error\":\"%s\"}", a.Message)
-}
+	log.Printf("Authorized on account %s", bot.Self.UserName)
 
-type appHandler func(http.ResponseWriter, *http.Request) *appError
+	u := tgbotapi.NewUpdate(0)
+	u.Timeout = 60
 
-func (fn appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	appErr := fn(w, r)
-	if appErr != nil {
-		println(appErr.Message + " -- " + appErr.Error.Error())
-		http.Error(w, appErr.ErrorJson(), appErr.Code)
+	updates := bot.GetUpdatesChan(u)
+
+	for update := range updates {
+		if update.Message != nil {
+			reply := HandleMessageAndReply(update)
+			if reply != nil {
+				_, err := bot.Send(*reply)
+				if err != nil {
+					println("ERROR WHILE SENDING MESSAGE!")
+					println(err)
+				}
+			}
+		}
 	}
 }
 

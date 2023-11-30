@@ -5,6 +5,9 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	. "github.com/logotipiwe/dc_go_utils/src/config"
+	"log"
+	"math/rand"
+	"time"
 )
 
 var db *sql.DB
@@ -23,4 +26,26 @@ func InitDb() error {
 	db = conn
 	println("Database connected!")
 	return nil
+}
+
+func GetRandQuestionByLevel(level string) (error, *Question) {
+	// Seed the random number generator
+	rand.Int63n(time.Now().UnixNano())
+
+	// Query to select a random row with the specified level
+	query := `
+		SELECT id, level, deck_id, text
+		FROM questions
+		WHERE level = ?
+		ORDER BY rand()
+		LIMIT 1`
+
+	var result Question
+	err := db.QueryRow(query, level).Scan(&result.ID, &result.Level, &result.DeckID, &result.Text)
+	if err != nil {
+		log.Println("Error getting question from DB.")
+		log.Println(err)
+		return err, nil
+	}
+	return nil, &result
 }
