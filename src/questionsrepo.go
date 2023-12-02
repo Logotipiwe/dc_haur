@@ -5,10 +5,9 @@ import (
 	"log"
 )
 
-func GetLevels( /*deckID*/ ) (error, []string) {
-	deckID := "1"
+func GetLevels(deckName string) (error, []string) {
 	var ans []string
-	res, err := db.Query("SELECT distinct level FROM questions WHERE deck_id = ?", deckID)
+	res, err := db.Query("SELECT distinct q.level FROM questions q LEFT JOIN haur.decks d on d.id = q.deck_id WHERE d.name = ?", deckName)
 	if err != nil {
 		return err, nil
 	}
@@ -22,21 +21,22 @@ func GetLevels( /*deckID*/ ) (error, []string) {
 		ans = append(ans, level)
 	}
 	if len(ans) == 0 {
-		return errors.New("NoLevels from deck " + deckID), nil
+		return errors.New("NoLevels from deck " + deckName), nil
 	}
 	return nil, ans
 }
 
-func GetRandQuestionByLevel(level string) (error, *Question) {
+func GetRandQuestion(deckName string, levelName string) (error, *Question) {
 	query := `
-		SELECT id, level, deck_id, text
-		FROM questions
-		WHERE level = ?
+		SELECT q.id, q.level, q.deck_id, q.text
+		FROM questions q
+		LEFT JOIN decks d on d.id = q.deck_id
+		WHERE level = ? AND d.name = ?
 		ORDER BY rand()
 		LIMIT 1`
 
 	var result Question
-	err := db.QueryRow(query, level).Scan(&result.ID, &result.Level, &result.DeckID, &result.Text)
+	err := db.QueryRow(query, levelName, deckName).Scan(&result.ID, &result.Level, &result.DeckID, &result.Text)
 	if err != nil {
 		log.Println("Error getting question from DB.")
 		log.Println(err)

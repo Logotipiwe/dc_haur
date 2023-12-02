@@ -15,6 +15,7 @@ func main() {
 		panic("Lol server fell")
 	}
 }
+
 func tgBot() {
 	bot, err := tgbotapi.NewBotAPI(config.GetConfig("BOT_TOKEN"))
 	if err != nil {
@@ -32,7 +33,11 @@ func tgBot() {
 
 	for update := range updates {
 		if update.Message != nil {
-			reply := HandleMessageAndReply(update)
+			err, reply := HandleMessageAndReply(update)
+			if err != nil {
+				println(err.Error())
+				reply = sendUnknownCommandAnswer(update)
+			}
 			if reply != nil {
 				_, err := bot.Send(*reply)
 				if err != nil {
@@ -42,6 +47,12 @@ func tgBot() {
 			}
 		}
 	}
+}
+
+func sendUnknownCommandAnswer(update tgbotapi.Update) *tgbotapi.MessageConfig {
+	println("UnknownCommand")
+	ans := tgbotapi.NewMessage(update.Message.Chat.ID, "Не совсем понял команду, либо произошла ошибка(\r\nПопробуй заново /start")
+	return &ans
 }
 
 func initializeApp() error {
