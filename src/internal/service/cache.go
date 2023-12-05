@@ -2,6 +2,7 @@ package service
 
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"strconv"
 )
 
 type CacheService struct {
@@ -15,15 +16,15 @@ func NewCacheService() *CacheService {
 }
 
 func (s *CacheService) AssignDeckToChat(update tgbotapi.Update, deckName string) {
-	//s.chatIdToDeckName[strconv.FormatInt(update.Message.Chat.ID, 10)] = deckName
+	s.chatIdToDeckName[strconv.FormatInt(update.Message.Chat.ID, 10)] = deckName
 }
 
 func (s *CacheService) RemoveDeckFromChat(update tgbotapi.Update) {
-	//delete(s.chatIdToDeckName, strconv.FormatInt(update.Message.Chat.ID, 10))
+	delete(s.chatIdToDeckName, strconv.FormatInt(update.Message.Chat.ID, 10))
 }
 
 func (s *CacheService) GetCurrentChatDeckName(update tgbotapi.Update) (found bool, deckName string) {
-	//deckName, exists := s.chatIdToDeckName[strconv.FormatInt(update.Message.Chat.ID, 10)]
-	//return exists, deckName
-	return true, DefaultDeckName
+	deckName, exists := s.chatIdToDeckName[strconv.FormatInt(update.Message.Chat.ID, 10)]
+	return exists, deckName
+	//return true, DefaultDeckName
 }

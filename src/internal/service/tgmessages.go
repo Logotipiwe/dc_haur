@@ -25,12 +25,12 @@ func (s *TgMessageService) HandleStart(update Update) (error, *MessageConfig) {
 	println("StartCommand")
 	message := update.Message
 
-	//uncomment when enable many decks
-	//msg := NewMessage(message.Chat.ID, "Привет! Это игра \"How Are You Really?\" на знакомство и сближение! Каждая колода имеет несколько уровней вопросов. Выбирай колоду которая понравится и бери вопросы комфортного для тебя уровня, чтобы приятно провести время двоем или в компании! \r\n\r\n Выбери колоду, чтобы начать!")
-	msg := NewMessage(message.Chat.ID, "Привет! Это игра \"How Are You Really?\" на знакомство и сближение. Состоит из карточек с вопросами разных уровней. Выбирай подходящий уровень, зачитывай вопрос и отвечай на него. Можете устроить обсуждение и послушать других участников.")
+	msg := NewMessage(message.Chat.ID, "Привет! Это игра \"How Are You Really?\" на знакомство и сближение! Каждая колода имеет несколько уровней вопросов. Выбирай колоду которая понравится и бери вопросы комфортного для тебя уровня, чтобы приятно провести время двоем или в компании! \r\n\r\n Выбери колоду, чтобы начать!")
+	//uncomment when disable many decks
+	//msg := NewMessage(message.Chat.ID, "Привет! Это игра \"How Are You Really?\" на знакомство и сближение. Состоит из карточек с вопросами разных уровней. Выбирай подходящий уровень, зачитывай вопрос и отвечай на него. Можете устроить обсуждение и послушать других участников.")
 
-	//err, keyboard := GetDecksKeyboard() uncomment when enable many decks
-	err, keyboard := s.keyboards.GetLevelsKeyboard(DefaultDeckName)
+	err, keyboard := s.keyboards.GetDecksKeyboard() //uncomment when enable many decks
+	//err, keyboard := s.keyboards.GetLevelsKeyboard(DefaultDeckName)
 	if err != nil {
 		return err, nil
 	}
