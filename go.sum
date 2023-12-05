@@ -1,5 +1,5 @@
-github.com/Logotipiwe/dc_go_auth_lib v0.0.9 h1:VYaoFWaeQY0J4TELFXKwODYMEbwX42huH7ctqduzWrE=
-github.com/Logotipiwe/dc_go_auth_lib v0.0.9/go.mod h1:MQF1FZnYBsn+UuVM115Qq4QkmHC9S5iaoI6SALG+MRE=
+github.com/DATA-DOG/go-sqlmock v1.5.0 h1:Shsta01QNfFxHCfpW6YH2STWB0MudeXXEWMr20OEh60=
+github.com/DATA-DOG/go-sqlmock v1.5.0/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/go-sql-driver/mysql v1.7.1 h1:lUIinVbN1DY0xBg0eMOzmmtGoHwWBbvnWubQUrtU8EI=
 github.com/go-sql-driver/mysql v1.7.1/go.mod h1:OXbVy3sEdcQ2Doequ6Z5BW6fXNQTmx+9S1MCJN5yJMI=
 github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1 h1:wG8n/XJQ07TmjbITcGiUaOtXxdrINDz1b0J1w0SzqDc=

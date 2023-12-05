@@ -1,4 +1,4 @@
-package main
+package pkg
 
 import (
 	"database/sql"
@@ -7,20 +7,17 @@ import (
 	. "github.com/logotipiwe/dc_go_utils/src/config"
 )
 
-var db *sql.DB
-
-func InitDb() error {
+func InitDb() (error, *sql.DB) {
 	connectionStr := fmt.Sprintf("%v:%v@tcp(%v)/%v", GetConfig("DB_LOGIN"), GetConfig("DB_PASS"),
 		GetConfig("DB_HOST"), GetConfig("DB_NAME"))
 	conn, err := sql.Open("mysql", connectionStr)
 	if err != nil {
-		return err
+		return err, nil
 	}
 	if err := conn.Ping(); err != nil {
 		println(fmt.Sprintf("Error connecting database: %s", err))
-		return err
+		return err, nil
 	}
-	db = conn
 	println("Database connected!")
-	return nil
+	return nil, conn
 }

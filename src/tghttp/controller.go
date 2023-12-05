@@ -1,14 +1,19 @@
-package main
+package tghttp
 
 import (
+	"database/sql"
+	handler "dc_haur/src/internal"
+	"dc_haur/src/internal/repo"
+	"dc_haur/src/internal/service"
+	"dc_haur/src/pkg"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/logotipiwe/dc_go_utils/src/config"
 	"log"
 )
 
-func main() {
-	err := initializeApp()
-	tgBot()
+func Start() {
+	err, db := initializeApp()
+	tgBot(db)
 	println("Tg bot started!")
 	println("Server up!")
 	if err != nil {
@@ -16,24 +21,25 @@ func main() {
 	}
 }
 
-func tgBot() {
+func tgBot(db *sql.DB) {
 	bot, err := tgbotapi.NewBotAPI(config.GetConfig("BOT_TOKEN"))
 	if err != nil {
 		log.Panic(err)
 	}
-
 	bot.Debug = true
-
 	log.Printf("Authorized on account %s", bot.Self.UserName)
-
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
-
 	updates := bot.GetUpdatesChan(u)
+
+	repos := repo.NewRepositories(db)
+	services := service.NewServices(repos.Questions, repos.Decks)
+
+	tgHandler := handler.NewHandler(services.TgMessages, services.Cache)
 
 	for update := range updates {
 		if update.Message != nil {
-			err, reply := HandleMessageAndReply(update)
+			err, reply := tgHandler.HandleMessageAndReply(update)
 			if err != nil {
 				println(err.Error())
 				reply = sendUnknownCommandAnswer(update)
@@ -55,11 +61,11 @@ func sendUnknownCommandAnswer(update tgbotapi.Update) *tgbotapi.MessageConfig {
 	return &ans
 }
 
-func initializeApp() error {
+func initializeApp() (error, *sql.DB) {
 	config.LoadDcConfig()
-	err := InitDb()
+	err, db := pkg.InitDb()
 	if err != nil {
 		panic(err)
 	}
-	return err
+	return err, db
 }

@@ -1,4 +1,4 @@
-package main
+package domain
 
 type Question struct {
 	ID     string `db:"id"`

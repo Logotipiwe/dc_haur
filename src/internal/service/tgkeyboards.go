@@ -1,16 +1,32 @@
-package main
+package service
 
 import (
+	"dc_haur/src/internal/domain"
+	"dc_haur/src/internal/repo"
+	"dc_haur/src/pkg"
 	. "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	utils "github.com/logotipiwe/dc_go_utils/src"
 )
 
-func GetLevelsKeyboard(deckName string) (error, ReplyKeyboardMarkup) {
-	err, levels := GetLevels(deckName)
+type TgKeyboardService struct {
+	levelsRepo repo.Questions
+	decksRepo  repo.Decks
+}
+
+func NewTgKeyboardsService(levelRepo repo.Questions, decksRepo repo.Decks) *TgKeyboardService {
+	return &TgKeyboardService{
+		levelsRepo: levelRepo,
+		decksRepo:  decksRepo,
+	}
+
+}
+
+func (s *TgKeyboardService) GetLevelsKeyboard(deckName string) (error, ReplyKeyboardMarkup) {
+	err, levels := s.levelsRepo.GetLevels(deckName)
 	if err != nil {
 		return err, ReplyKeyboardMarkup{}
 	}
-	levelsChunked := ChunkStrings(levels, 3)
+	levelsChunked := pkg.ChunkStrings(levels, 3)
 	keyboard := utils.Map(levelsChunked, func(chunk []string) []KeyboardButton {
 		return utils.Map(chunk, func(level string) KeyboardButton {
 			return NewKeyboardButton(level)
@@ -25,12 +41,12 @@ func GetLevelsKeyboard(deckName string) (error, ReplyKeyboardMarkup) {
 	}
 }
 
-func GetDecksKeyboard() (error, ReplyKeyboardMarkup) {
-	err, decks := GetDecks()
+func (s *TgKeyboardService) GetDecksKeyboard() (error, ReplyKeyboardMarkup) {
+	err, decks := s.decksRepo.GetDecks()
 	if err != nil {
 		return err, ReplyKeyboardMarkup{}
 	}
-	keyboard := utils.Map(decks, func(deck Deck) []KeyboardButton {
+	keyboard := utils.Map(decks, func(deck domain.Deck) []KeyboardButton {
 		return []KeyboardButton{NewKeyboardButton(deck.Name)}
 	})
 	return nil, ReplyKeyboardMarkup{

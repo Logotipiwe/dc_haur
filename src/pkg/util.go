@@ -1,4 +1,4 @@
-package main
+package pkg
 
 func ExistsInArr(target string, array []string) bool {
 	for _, element := range array {
