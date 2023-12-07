@@ -98,3 +98,26 @@ func TestGetRandQuestion_Success(t *testing.T) {
 		t.Errorf("Question %v not equals to expected %v", *question, expectedQuestion)
 	}
 }
+
+func TestGetLevels_QueryError(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("Failed to open a stub database connection: %v", err)
+	}
+	defer db.Close()
+
+	questionsRepo := NewQuestionsRepo(db)
+
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT distinct q.level FROM questions q LEFT JOIN haur.decks d on d.id = q.deck_id WHERE d.name = ?")).
+		WithArgs("testDeck").
+		WillReturnError(errors.New("database error"))
+
+	err, _ = questionsRepo.GetLevels("testDeck")
+	if err == nil || err.Error() != "database error" {
+		t.Errorf("Expected database error, but got %v", err)
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Unfulfilled expectations: %s", err)
+	}
+}
