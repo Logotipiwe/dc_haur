@@ -11,7 +11,7 @@ type Services struct {
 func NewServices(questions repo.Questions, decks repo.Decks) *Services {
 	cache := NewCacheService()
 	tgKeyboard := NewTgKeyboardsService(questions, decks)
-	tgMessages := NewTgMessageService(*tgKeyboard, *cache, questions)
+	tgMessages := NewTgMessageService(*tgKeyboard, *cache, questions, decks)
 	return &Services{
 		Cache:      cache,
 		TgKeyboard: tgKeyboard,

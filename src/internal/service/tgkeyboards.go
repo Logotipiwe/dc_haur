@@ -9,30 +9,26 @@ import (
 )
 
 type TgKeyboardService struct {
-	levelsRepo repo.Questions
-	decksRepo  repo.Decks
+	questionsRepo repo.Questions
+	decksRepo     repo.Decks
 }
 
-func NewTgKeyboardsService(levelRepo repo.Questions, decksRepo repo.Decks) *TgKeyboardService {
+func NewTgKeyboardsService(questionsRepo repo.Questions, decksRepo repo.Decks) *TgKeyboardService {
 	return &TgKeyboardService{
-		levelsRepo: levelRepo,
-		decksRepo:  decksRepo,
+		questionsRepo: questionsRepo,
+		decksRepo:     decksRepo,
 	}
 
 }
 
-func (s *TgKeyboardService) GetLevelsKeyboard(deckName string) (error, ReplyKeyboardMarkup) {
-	err, levels := s.levelsRepo.GetLevels(deckName)
-	if err != nil {
-		return err, ReplyKeyboardMarkup{}
-	}
+func (s *TgKeyboardService) GetLevelsKeyboard(levels []string) ReplyKeyboardMarkup {
 	levelsChunked := pkg.ChunkStrings(levels, 3)
 	keyboard := utils.Map(levelsChunked, func(chunk []string) []KeyboardButton {
 		return utils.Map(chunk, func(level string) KeyboardButton {
 			return NewKeyboardButton(level)
 		})
 	})
-	return nil, ReplyKeyboardMarkup{
+	return ReplyKeyboardMarkup{
 		Keyboard:              keyboard,
 		ResizeKeyboard:        true,
 		OneTimeKeyboard:       false,
@@ -41,15 +37,11 @@ func (s *TgKeyboardService) GetLevelsKeyboard(deckName string) (error, ReplyKeyb
 	}
 }
 
-func (s *TgKeyboardService) GetDecksKeyboard() (error, ReplyKeyboardMarkup) {
-	err, decks := s.decksRepo.GetDecks()
-	if err != nil {
-		return err, ReplyKeyboardMarkup{}
-	}
+func (s *TgKeyboardService) GetDecksKeyboard(decks []domain.Deck) ReplyKeyboardMarkup {
 	keyboard := utils.Map(decks, func(deck domain.Deck) []KeyboardButton {
 		return []KeyboardButton{NewKeyboardButton(deck.Name)}
 	})
-	return nil, ReplyKeyboardMarkup{
+	return ReplyKeyboardMarkup{
 		Keyboard:              keyboard,
 		ResizeKeyboard:        true,
 		OneTimeKeyboard:       false,

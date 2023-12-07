@@ -5,20 +5,13 @@ import (
 	handler "dc_haur/src/internal"
 	"dc_haur/src/internal/repo"
 	"dc_haur/src/internal/service"
-	"dc_haur/src/pkg"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/logotipiwe/dc_go_utils/src/config"
 	"log"
 )
 
-func Start() {
-	err, db := initializeApp()
+func StartTgBot(db *sql.DB) {
 	tgBot(db)
-	println("Tg bot started!")
-	println("Server up!")
-	if err != nil {
-		panic("Lol server fell")
-	}
 }
 
 func tgBot(db *sql.DB) {
@@ -59,13 +52,4 @@ func sendUnknownCommandAnswer(update tgbotapi.Update) *tgbotapi.MessageConfig {
 	println("UnknownCommand")
 	ans := tgbotapi.NewMessage(update.Message.Chat.ID, "Не совсем понял команду, либо произошла ошибка(\r\nПопробуй заново /start")
 	return &ans
-}
-
-func initializeApp() (error, *sql.DB) {
-	config.LoadDcConfig()
-	err, db := pkg.InitDb()
-	if err != nil {
-		panic(err)
-	}
-	return err, db
 }

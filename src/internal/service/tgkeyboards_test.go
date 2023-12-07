@@ -1,7 +1,9 @@
 package service
 
 import (
+	"dc_haur/src/internal/domain"
 	"dc_haur/src/internal/mocks"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -9,29 +11,72 @@ import (
 var tgkbTestRepoMocks = mocks.NewMocks()
 
 func TestGetLevelsKeyboard(t *testing.T) {
+	levels := []string{"a", "b", "c", "d"}
+	expected := tgbotapi.ReplyKeyboardMarkup{
+		Keyboard: [][]tgbotapi.KeyboardButton{
+			{
+				tgbotapi.NewKeyboardButton("a"),
+				tgbotapi.NewKeyboardButton("b"),
+				tgbotapi.NewKeyboardButton("c"),
+			},
+			{
+				tgbotapi.NewKeyboardButton("d"),
+			},
+		},
+		ResizeKeyboard:        true,
+		OneTimeKeyboard:       false,
+		InputFieldPlaceholder: "",
+		Selective:             false,
+	}
 	service := NewTgKeyboardsService(tgkbTestRepoMocks.QuestionRepo, tgkbTestRepoMocks.DeckRepo)
-	err, keyboard := service.GetLevelsKeyboard("TestDeck")
-	assert.Nil(t, err)
-	assert.NotNil(t, keyboard)
-	assert.True(t, len(keyboard.Keyboard) > 0)
+	keyboard := service.GetLevelsKeyboard(levels)
+	assert.Equal(t, expected, keyboard)
 }
 
 func TestGetDecksKeyboard(t *testing.T) {
+	decks := []domain.Deck{
+		{
+			ID:          "",
+			Name:        "1",
+			Description: "",
+		},
+		{
+			ID:          "",
+			Name:        "2",
+			Description: "",
+		},
+		{
+			ID:          "",
+			Name:        "3",
+			Description: "",
+		},
+		{
+			ID:          "",
+			Name:        "4",
+			Description: "",
+		},
+	}
+	expected := tgbotapi.ReplyKeyboardMarkup{
+		Keyboard: [][]tgbotapi.KeyboardButton{
+			{
+				tgbotapi.NewKeyboardButton("1"),
+			},
+			{
+				tgbotapi.NewKeyboardButton("2"),
+			},
+			{
+				tgbotapi.NewKeyboardButton("3"),
+			},
+			{
+				tgbotapi.NewKeyboardButton("4"),
+			},
+		},
+		ResizeKeyboard:        true,
+		OneTimeKeyboard:       false,
+		InputFieldPlaceholder: "",
+		Selective:             false,
+	}
 	service := NewTgKeyboardsService(tgkbTestRepoMocks.QuestionRepo, tgkbTestRepoMocks.DeckRepo)
-	err, keyboard := service.GetDecksKeyboard()
-	assert.Nil(t, err)
-	assert.NotNil(t, keyboard)
-	assert.True(t, len(keyboard.Keyboard) > 0)
-}
-
-func TestGetLevelsKeyboardWithError(t *testing.T) {
-	service := NewTgKeyboardsService(tgkbTestRepoMocks.QuestionRepoWithErr, tgkbTestRepoMocks.DeckRepo)
-	err, _ := service.GetLevelsKeyboard("TestDeck")
-	assert.NotNil(t, err)
-}
-
-func TestGetDecksKeyboardWithError(t *testing.T) {
-	service := NewTgKeyboardsService(tgkbTestRepoMocks.QuestionRepo, tgkbTestRepoMocks.DeckRepoWithErr)
-	err, _ := service.GetDecksKeyboard()
-	assert.NotNil(t, err)
+	keyboard := service.GetDecksKeyboard(decks)
+	assert.Equal(t, expected, keyboard)
 }

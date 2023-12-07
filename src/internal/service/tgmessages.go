@@ -11,43 +11,44 @@ type TgMessageService struct {
 	keyboards     TgKeyboardService
 	cache         CacheService
 	questionsRepo repo.Questions
+	decksRepo     repo.Decks
 }
 
-func NewTgMessageService(tgKeyboardService TgKeyboardService, cache CacheService, questions repo.Questions) *TgMessageService {
+func NewTgMessageService(tgKeyboardService TgKeyboardService, cache CacheService, questions repo.Questions,
+	decks repo.Decks) *TgMessageService {
 	return &TgMessageService{
 		keyboards:     tgKeyboardService,
 		cache:         cache,
 		questionsRepo: questions,
+		decksRepo:     decks,
 	}
 }
 
 func (s *TgMessageService) HandleStart(update Update) (error, *MessageConfig) {
-	println("StartCommand")
 	message := update.Message
 
-	msg := NewMessage(message.Chat.ID, "Привет! Это игра \"How Are You Really?\" на знакомство и сближение! Каждая колода имеет несколько уровней вопросов. Выбирай колоду которая понравится и бери вопросы комфортного для тебя уровня, чтобы приятно провести время двоем или в компании! \r\n\r\n Выбери колоду, чтобы начать!")
-	//uncomment when disable many decks
-	//msg := NewMessage(message.Chat.ID, "Привет! Это игра \"How Are You Really?\" на знакомство и сближение. Состоит из карточек с вопросами разных уровней. Выбирай подходящий уровень, зачитывай вопрос и отвечай на него. Можете устроить обсуждение и послушать других участников.")
-
-	err, keyboard := s.keyboards.GetDecksKeyboard() //uncomment when enable many decks
-	//err, keyboard := s.keyboards.GetLevelsKeyboard(DefaultDeckName)
+	err, decks := s.decksRepo.GetDecks()
 	if err != nil {
 		return err, nil
 	}
-	msg.ReplyMarkup = keyboard
 
+	msg := NewMessage(message.Chat.ID, "Привет! Это игра \"How Are You Really?\" на знакомство и сближение! Каждая колода имеет несколько уровней вопросов. Выбирай колоду которая понравится и бери вопросы комфортного для тебя уровня, чтобы приятно провести время двоем или в компании! \r\n\r\n Выбери колоду, чтобы начать!")
+	msg.ReplyMarkup = s.keyboards.GetDecksKeyboard(decks)
 	s.cache.RemoveDeckFromChat(update)
-
 	return nil, &msg
 }
 
 func (s *TgMessageService) GetLevelsMessage(update Update, deckName string) (error, *MessageConfig) {
 	println("GetLevelsMessage")
-	message := NewMessage(update.Message.Chat.ID, "Вот твои уровни")
-	err, markup := s.keyboards.GetLevelsKeyboard(deckName)
+
+	err, levels := s.questionsRepo.GetLevels(deckName)
 	if err != nil {
 		return err, nil
 	}
+
+	markup := s.keyboards.GetLevelsKeyboard(levels)
+
+	message := NewMessage(update.Message.Chat.ID, "Вот твои уровни")
 	message.ReplyMarkup = markup
 	s.cache.AssignDeckToChat(update, deckName)
 	return nil, &message
