@@ -44,21 +44,12 @@ func drawGradient(img *image.RGBA, startColor, endColor color.RGBA, startX, star
 
 	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
 		for x := bounds.Min.X; x < bounds.Max.X; x++ {
-			// Calculate the interpolation factors based on the x and y coordinates
-			tX := (float64(x-bounds.Min.X) / float64(bounds.Max.X-bounds.Min.X))
-			tY := (float64(y-bounds.Min.Y) / float64(bounds.Max.Y-bounds.Min.Y))
 
-			// Calculate the position along the line defined by start and end points
-			lerpX := startX + tX*dx
-			lerpY := startY + tY*dy
-
-			// Calculate the distance between the current point and the line
-			distance := math.Sqrt(math.Pow(lerpX-float64(x), 2) + math.Pow(lerpY-float64(y), 2))
-
-			// Calculate the weight for interpolation based on the distance
-			weight := 1 - distance/math.Sqrt(math.Pow(dx, 2)+math.Pow(dy, 2))
+			distance := math.Abs((float64(x)-startX)*dy-(float64(y)-startY)*dx) / math.Sqrt(dx*dx+dy*dy)
 
 			// Interpolate between startColor and endColor
+			weight := 1.0 - distance/math.Sqrt(math.Pow(dx, 2)+math.Pow(dy, 2))
+
 			r := uint8(float64(startColor.R)*(1-weight) + float64(endColor.R)*weight)
 			g := uint8(float64(startColor.G)*(1-weight) + float64(endColor.G)*weight)
 			b := uint8(float64(startColor.B)*(1-weight) + float64(endColor.B)*weight)
