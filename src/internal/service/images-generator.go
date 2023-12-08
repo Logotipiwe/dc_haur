@@ -1,11 +1,10 @@
 package service
 
 import (
+	"dc_haur/src/internal/service/gradient"
 	"image"
 	"image/color"
-	"image/png"
 	"log"
-	"math"
 	"net/http"
 	"strconv"
 )
@@ -13,51 +12,33 @@ import (
 type ImageGenerator struct {
 }
 
-func (g *ImageGenerator) HandleGradientRequest(w http.ResponseWriter, r *http.Request) {
+func (g *ImageGenerator) HandleGradientRequest(w http.ResponseWriter, r *http.Request) *image.RGBA {
 	width, height := getFloatQueryParam(r, "w", 1280), getFloatQueryParam(r, "h", 720)
 	startX, startY := getFloatQueryParam(r, "sx", 0.0), getFloatQueryParam(r, "sy", 0.0)
 	endX, endY := getFloatQueryParam(r, "ex", 1.0), getFloatQueryParam(r, "ey", 1.0)
 
 	img := image.NewRGBA(image.Rect(0, 0, int(width), int(height)))
 
-	startColor := color.RGBA{74, 62, 255, 255}
-	endColor := color.RGBA{219, 100, 0, 255}
+	startColor := color.RGBA{getUint8QueryParam(r, "r1", 0), getUint8QueryParam(r, "g1", 0), getUint8QueryParam(r, "b1", 0), 255}
+	endColor := color.RGBA{getUint8QueryParam(r, "r2", 0), getUint8QueryParam(r, "g2", 0), getUint8QueryParam(r, "b2", 0), 255}
 
 	// Draw gradient background
 	drawGradient(img, startColor, endColor, startX, startY, endX, endY)
 
-	// Set the Content-Type header
-	w.Header().Set("Content-Type", "image/png")
-
-	// Encode the image and write it to the response writer
-	err := png.Encode(w, img)
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
+	return img
 }
 
 func drawGradient(img *image.RGBA, startColor, endColor color.RGBA, startX, startY, endX, endY float64) {
-	bounds := img.Bounds()
-	dx := endX - startX
-	dy := endY - startY
-
-	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
-		for x := bounds.Min.X; x < bounds.Max.X; x++ {
-
-			distance := math.Abs((float64(x)-startX)*dy-(float64(y)-startY)*dx) / math.Sqrt(dx*dx+dy*dy)
-
-			// Interpolate between startColor and endColor
-			weight := 1.0 - distance/math.Sqrt(math.Pow(dx, 2)+math.Pow(dy, 2))
-
-			r := uint8(float64(startColor.R)*(1-weight) + float64(endColor.R)*weight)
-			g := uint8(float64(startColor.G)*(1-weight) + float64(endColor.G)*weight)
-			b := uint8(float64(startColor.B)*(1-weight) + float64(endColor.B)*weight)
-			a := uint8(float64(startColor.A)*(1-weight) + float64(endColor.A)*weight)
-
-			img.SetRGBA(x, y, color.RGBA{r, g, b, a})
-		}
-	}
+	//if startY > endY {
+	//	panic(fmt.Sprintf("invalid bounds y0(%f)>y1(%f)", y0, y1))
+	//}
+	//if sta {
+	//	panic(fmt.Sprintf("invalid bounds x0(%f)>x1(%f)", x0, x1))
+	//}
+	gradient.DrawLinear(img, startX, startY, endX, endY, []gradient.Stop{
+		{X: 0, Col: startColor},
+		{X: 1, Col: endColor},
+	})
 }
 
 func getFloatQueryParam(r *http.Request, key string, defaultValue float64) float64 {
@@ -71,6 +52,19 @@ func getFloatQueryParam(r *http.Request, key string, defaultValue float64) float
 		return defaultValue
 	}
 	return floatValue
+}
+
+func getUint8QueryParam(r *http.Request, key string, defaultValue int) uint8 {
+	value := r.URL.Query().Get(key)
+	if value == "" {
+		return uint8(defaultValue)
+	}
+	intValue, err := strconv.Atoi(value)
+	if err != nil {
+		log.Printf("Invalid int value for %s. Using default.", key)
+		return uint8(defaultValue)
+	}
+	return uint8(intValue)
 }
 
 /*
