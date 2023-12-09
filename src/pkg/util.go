@@ -1,5 +1,11 @@
 package pkg
 
+import (
+	"bytes"
+	"image"
+	"image/png"
+)
+
 func ExistsInArr(target string, array []string) bool {
 	for _, element := range array {
 		if element == target {
@@ -27,4 +33,13 @@ func ChunkStrings(input []string, chunkSize int) [][]string {
 		result = append(result, input[i:end])
 	}
 	return result
+}
+
+func EncodeImageToBytes(img *image.RGBA) ([]byte, error) {
+	var buf bytes.Buffer
+	err := png.Encode(&buf, img)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }

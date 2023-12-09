@@ -18,7 +18,7 @@ func NewHandler(messageService *service.TgMessageService, cacheService *service.
 	}
 }
 
-func (h *Handler) HandleMessageAndReply(update Update) (error, *MessageConfig) {
+func (h *Handler) HandleMessageAndReply(update Update) (error, Chattable) {
 	message := update.Message
 
 	log.Printf("[%s] %s", message.From.UserName, message.Text)

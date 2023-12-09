@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"dc_haur/src/http"
 	"dc_haur/src/pkg"
 	"dc_haur/src/tghttp"
 	"github.com/logotipiwe/dc_go_utils/src/config"
@@ -10,8 +9,6 @@ import (
 
 func main() {
 	err, db := initializeApp()
-
-	go http.StartHttpServer(db)
 
 	tghttp.StartTgBot(db)
 

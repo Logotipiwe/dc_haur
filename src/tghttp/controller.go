@@ -38,7 +38,7 @@ func tgBot(db *sql.DB) {
 				reply = sendUnknownCommandAnswer(update)
 			}
 			if reply != nil {
-				_, err := bot.Send(*reply)
+				_, err := bot.Send(reply)
 				if err != nil {
 					println("ERROR WHILE SENDING MESSAGE!")
 					println(err)

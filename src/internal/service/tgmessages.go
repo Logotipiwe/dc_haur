@@ -2,7 +2,11 @@ package service
 
 import (
 	"dc_haur/src/internal/repo"
+	"dc_haur/src/pkg"
 	. "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/google/uuid"
+	"github.com/logotipiwe/dc_go_utils/src/config"
+	"strconv"
 )
 
 const DefaultDeckName = "😉 Для пары"
@@ -54,12 +58,34 @@ func (s *TgMessageService) GetLevelsMessage(update Update, deckName string) (err
 	return nil, &message
 }
 
-func (s *TgMessageService) GetQuestionMessage(update Update, deckName string, levelName string) (error, *MessageConfig) {
+func (s *TgMessageService) GetQuestionMessage(update Update, deckName string, levelName string) (error, Chattable) {
 	println("getQuestionMessage")
 	err, question := s.questionsRepo.GetRandQuestion(deckName, levelName)
 	if err != nil {
 		return err, nil
 	}
-	msg := NewMessage(update.Message.Chat.ID, question.Text)
-	return nil, &msg
+
+	if imagesEnabled() {
+		bytes, err := pkg.EncodeImageToBytes(CreateImageCard("STUB"))
+		if err != nil {
+			return err, nil
+		}
+		return nil, PhotoConfig{
+			BaseFile: BaseFile{
+				BaseChat: BaseChat{ChatID: update.Message.Chat.ID},
+				File:     FileBytes{Name: uuid.New().String() + ".jpg", Bytes: bytes},
+			},
+			Caption: question.Text,
+		}
+	} else {
+		return nil, NewMessage(update.Message.Chat.ID, question.Text)
+	}
+}
+
+func imagesEnabled() bool {
+	imagesEnabled, err := strconv.ParseBool(config.GetConfig("ENABLE_IMAGES"))
+	if err != nil {
+		imagesEnabled = false
+	}
+	return imagesEnabled
 }
