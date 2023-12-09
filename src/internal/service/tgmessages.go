@@ -66,7 +66,11 @@ func (s *TgMessageService) GetQuestionMessage(update Update, deckName string, le
 	}
 
 	if imagesEnabled() {
-		bytes, err := pkg.EncodeImageToBytes(CreateImageCard(question.Text))
+		err, cardImage := CreateImageCard(question.Text)
+		if err != nil {
+			return err, nil
+		}
+		bytes, err := pkg.EncodeImageToBytes(cardImage)
 		if err != nil {
 			return err, nil
 		}

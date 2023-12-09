@@ -35,7 +35,7 @@ func ChunkStrings(input []string, chunkSize int) [][]string {
 	return result
 }
 
-func EncodeImageToBytes(img *image.RGBA) ([]byte, error) {
+func EncodeImageToBytes(img image.Image) ([]byte, error) {
 	var buf bytes.Buffer
 	err := png.Encode(&buf, img)
 	if err != nil {
