@@ -33,5 +33,4 @@ func TestGetQuestionMessage(t *testing.T) {
 	err, messageConfig := service.GetQuestionMessage(Update{Message: &Message{Chat: &Chat{ID: 123}}}, DefaultDeckName, "Level1")
 	assert.Nil(t, err)
 	assert.NotNil(t, messageConfig)
-	assert.NotNil(t, messageConfig.Text)
 }
