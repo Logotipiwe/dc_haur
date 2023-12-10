@@ -18,7 +18,7 @@ func TestGetDecks_Success(t *testing.T) {
 		AddRow(1, "Deck 1", "Description 1").
 		AddRow(2, "Deck 2", "Description 2")
 	mock.ExpectQuery(`SELECT id, name, description FROM decks`).WillReturnRows(rows)
-	err, decks := repo.GetDecks()
+	decks, err := repo.GetDecks()
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
@@ -41,7 +41,7 @@ func TestGetDecks_ErrorOnQuery(t *testing.T) {
 	defer mockDB.Close()
 	repo := NewDecksRepo(mockDB)
 	mock.ExpectQuery(`SELECT id, name, description FROM decks`).WillReturnError(errors.New("mocked error"))
-	err, decks := repo.GetDecks()
+	decks, err := repo.GetDecks()
 	if err == nil {
 		t.Error("Expected an error, but got nil")
 	}
@@ -61,7 +61,7 @@ func TestGetDecks_ErrorOnScanWithoutDescriptionField(t *testing.T) {
 		AddRow(1, "Deck 1").
 		AddRow(2, "Deck 2")
 	mock.ExpectQuery(`SELECT id, name, description FROM decks`).WillReturnRows(rows)
-	err, decks := repo.GetDecks()
+	decks, err := repo.GetDecks()
 	if err == nil {
 		t.Error("Error expected")
 	}
@@ -78,7 +78,7 @@ func TestGetDecks_ErrorOnEmptyScan(t *testing.T) {
 	defer mockDB.Close()
 	repo := NewDecksRepo(mockDB)
 	mock.ExpectQuery(`SELECT id, name, description FROM decks`).WillReturnRows(sqlmock.NewRows([]string{"id", "name", "description"}))
-	err, decks := repo.GetDecks()
+	decks, err := repo.GetDecks()
 	if decks == nil {
 		t.Error("Expected decks to be an empty slice, but it's nil")
 	} else if len(decks) != 0 {

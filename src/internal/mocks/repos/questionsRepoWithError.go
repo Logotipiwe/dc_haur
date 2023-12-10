@@ -11,10 +11,10 @@ func NewMockQuestionsRepoWithError() *MockQuestionsRepoWithError {
 	return &MockQuestionsRepoWithError{}
 }
 
-func (m *MockQuestionsRepoWithError) GetRandQuestion(deckName string, levelName string) (error, *domain.Question) {
-	return errors.New("err"), nil
+func (m *MockQuestionsRepoWithError) GetRandQuestion(_ string, levelName string) (*domain.Question, error) {
+	return nil, errors.New("err")
 }
 
-func (m *MockQuestionsRepoWithError) GetLevels(deckName string) (error, []string) {
-	return errors.New("err"), nil
+func (m *MockQuestionsRepoWithError) GetLevels(_ string) ([]string, error) {
+	return nil, errors.New("err")
 }

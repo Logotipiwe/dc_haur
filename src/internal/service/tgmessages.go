@@ -6,6 +6,7 @@ import (
 	. "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/google/uuid"
 	"github.com/logotipiwe/dc_go_utils/src/config"
+	"log"
 	"strconv"
 )
 
@@ -28,26 +29,28 @@ func NewTgMessageService(tgKeyboardService TgKeyboardService, cache CacheService
 	}
 }
 
-func (s *TgMessageService) HandleStart(update Update) (error, *MessageConfig) {
+const WelcomeMessage = "Привет! Это игра \"How Are You Really?\" на знакомство и сближение! Каждая колода имеет несколько уровней вопросов. Выбирай колоду которая понравится и бери вопросы комфортного для тебя уровня, чтобы приятно провести время двоем или в компании! \r\n\r\n Выбери колоду, чтобы начать!"
+
+func (s *TgMessageService) HandleStart(update Update) (*MessageConfig, error) {
 	message := update.Message
 
-	err, decks := s.decksRepo.GetDecks()
+	decks, err := s.decksRepo.GetDecks()
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
 
-	msg := NewMessage(message.Chat.ID, "Привет! Это игра \"How Are You Really?\" на знакомство и сближение! Каждая колода имеет несколько уровней вопросов. Выбирай колоду которая понравится и бери вопросы комфортного для тебя уровня, чтобы приятно провести время двоем или в компании! \r\n\r\n Выбери колоду, чтобы начать!")
+	msg := NewMessage(message.Chat.ID, WelcomeMessage)
 	msg.ReplyMarkup = s.keyboards.GetDecksKeyboard(decks)
 	s.cache.RemoveDeckFromChat(update)
-	return nil, &msg
+	return &msg, nil
 }
 
-func (s *TgMessageService) GetLevelsMessage(update Update, deckName string) (error, *MessageConfig) {
-	println("GetLevelsMessage")
+func (s *TgMessageService) GetLevelsMessage(update Update, deckName string) (*MessageConfig, error) {
+	log.Println("GetLevelsMessage")
 
-	err, levels := s.questionsRepo.GetLevels(deckName)
+	levels, err := s.questionsRepo.GetLevels(deckName)
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
 
 	markup := s.keyboards.GetLevelsKeyboard(levels)
@@ -55,33 +58,34 @@ func (s *TgMessageService) GetLevelsMessage(update Update, deckName string) (err
 	message := NewMessage(update.Message.Chat.ID, "Вот твои уровни")
 	message.ReplyMarkup = markup
 	s.cache.AssignDeckToChat(update, deckName)
-	return nil, &message
+	return &message, nil
 }
 
-func (s *TgMessageService) GetQuestionMessage(update Update, deckName string, levelName string) (error, Chattable) {
-	println("getQuestionMessage")
-	err, question := s.questionsRepo.GetRandQuestion(deckName, levelName)
+func (s *TgMessageService) GetQuestionMessage(update Update, deckName string, levelName string) (Chattable, error) {
+	log.Println("GetQuestionMessage")
+
+	question, err := s.questionsRepo.GetRandQuestion(deckName, levelName)
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
 
 	if imagesEnabled() {
-		err, cardImage := CreateImageCard(question.Text)
+		cardImage, err := CreateImageCard(question.Text)
 		if err != nil {
-			return err, nil
+			return nil, err
 		}
 		bytes, err := pkg.EncodeImageToBytes(cardImage)
 		if err != nil {
-			return err, nil
+			return nil, err
 		}
-		return nil, PhotoConfig{
+		return PhotoConfig{
 			BaseFile: BaseFile{
 				BaseChat: BaseChat{ChatID: update.Message.Chat.ID},
 				File:     FileBytes{Name: uuid.New().String() + ".jpg", Bytes: bytes},
 			},
-		}
+		}, nil
 	} else {
-		return nil, NewMessage(update.Message.Chat.ID, question.Text)
+		return NewMessage(update.Message.Chat.ID, question.Text), nil
 	}
 }
 

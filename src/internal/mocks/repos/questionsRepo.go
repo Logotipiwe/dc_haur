@@ -8,15 +8,15 @@ func NewMockQuestionsRepo() *MockQuestionsRepo {
 	return &MockQuestionsRepo{}
 }
 
-func (m *MockQuestionsRepo) GetRandQuestion(deckName string, levelName string) (error, *domain.Question) {
-	return nil, &domain.Question{
+func (m *MockQuestionsRepo) GetRandQuestion(_ string, _ string) (*domain.Question, error) {
+	return &domain.Question{
 		ID:     "1",
 		Level:  "2",
 		DeckID: "3",
 		Text:   "some rand text",
-	}
+	}, nil
 }
 
-func (m *MockQuestionsRepo) GetLevels(deckName string) (error, []string) {
-	return nil, []string{"Level1", "Level2", "Level3"}
+func (m *MockQuestionsRepo) GetLevels(_ string) ([]string, error) {
+	return []string{"Level1", "Level2", "Level3"}, nil
 }

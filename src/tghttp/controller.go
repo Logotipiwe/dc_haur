@@ -32,7 +32,7 @@ func tgBot(db *sql.DB) {
 
 	for update := range updates {
 		if update.Message != nil {
-			err, reply := tgHandler.HandleMessageAndReply(update)
+			reply, err := tgHandler.HandleMessageAndReply(update)
 			if err != nil {
 				println(err.Error())
 				reply = sendUnknownCommandAnswer(update)

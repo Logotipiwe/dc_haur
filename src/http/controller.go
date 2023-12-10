@@ -9,7 +9,7 @@ import (
 
 func StartServer() {
 	http.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
-		err, card := service.CreateImageCard("Отвечает человек слева: Как ты думаешь, что самое сложное в том деле, которым я зарабатываю себе на жизнь?")
+		card, err := service.CreateImageCard("Отвечает человек слева: Как ты думаешь, что самое сложное в том деле, которым я зарабатываю себе на жизнь?")
 		if err != nil {
 			sendErr(w, err)
 			return

@@ -11,6 +11,6 @@ func NewMockDecksRepoWithError() *MockDecksRepoWithError {
 	return &MockDecksRepoWithError{}
 }
 
-func (m *MockDecksRepoWithError) GetDecks() (error, []domain.Deck) {
-	return errors.New("err"), nil
+func (m *MockDecksRepoWithError) GetDecks() ([]domain.Deck, error) {
+	return nil, errors.New("err")
 }
