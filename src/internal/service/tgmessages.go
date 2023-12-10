@@ -5,7 +5,7 @@ import (
 	"dc_haur/src/pkg"
 	. "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/google/uuid"
-	config "github.com/logotipiwe/dc_go_config_lib/src"
+	config "github.com/logotipiwe/dc_go_config_lib"
 	"log"
 	"strconv"
 )

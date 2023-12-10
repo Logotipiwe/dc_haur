@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	. "github.com/logotipiwe/dc_go_config_lib/src"
+	. "github.com/logotipiwe/dc_go_config_lib"
 )
 
 func InitDb() (error, *sql.DB) {

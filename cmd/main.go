@@ -5,7 +5,7 @@ import (
 	"dc_haur/src/http"
 	"dc_haur/src/pkg"
 	"dc_haur/src/tghttp"
-	config "github.com/logotipiwe/dc_go_config_lib/src"
+	config "github.com/logotipiwe/dc_go_config_lib"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 }
 
 func initializeApp() (error, *sql.DB) {
-	config.LoadDcConfig()
+	config.LoadDcConfigDynamically(3)
 	err, db := utils.InitDb()
 	if err != nil {
 		panic(err)

@@ -7,7 +7,7 @@ require (
 	github.com/fogleman/gg v1.3.0
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/google/uuid v1.4.0
-	github.com/logotipiwe/dc_go_config_lib v1.0.0
+	github.com/logotipiwe/dc_go_config_lib v1.0.3
 	github.com/stretchr/testify v1.8.4
 )
 

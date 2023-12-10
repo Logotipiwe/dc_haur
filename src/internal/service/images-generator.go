@@ -3,7 +3,7 @@ package service
 import (
 	"dc_haur/src/pkg/gradient"
 	"github.com/fogleman/gg"
-	config "github.com/logotipiwe/dc_go_config_lib/src"
+	config "github.com/logotipiwe/dc_go_config_lib"
 	"image"
 	"image/color"
 )
