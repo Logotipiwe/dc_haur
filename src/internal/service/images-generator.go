@@ -3,7 +3,7 @@ package service
 import (
 	"dc_haur/src/pkg/gradient"
 	"github.com/fogleman/gg"
-	"github.com/logotipiwe/dc_go_utils/src/config"
+	config "github.com/logotipiwe/dc_go_config_lib/src"
 	"image"
 	"image/color"
 )
@@ -30,7 +30,7 @@ func putTextOnImage(img *image.RGBA, text string) (image.Image, error) {
 	h := float64(img.Rect.Max.Y)
 	w := float64(img.Rect.Max.X)
 	// TODO test it in dev-dc!
-	if err := dc.LoadFontFace(config.GetConfig("FONTS_DIR")+"/helvetica_bold.ttf", w/25); err != nil {
+	if err := dc.LoadFontFace(config.GetConfig("FONTS_PATH"), w/25); err != nil {
 		return nil, err
 	}
 	dc.SetColor(color.White)

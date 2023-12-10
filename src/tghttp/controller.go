@@ -6,7 +6,7 @@ import (
 	"dc_haur/src/internal/repo"
 	"dc_haur/src/internal/service"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/logotipiwe/dc_go_utils/src/config"
+	config "github.com/logotipiwe/dc_go_config_lib/src"
 	"log"
 )
 

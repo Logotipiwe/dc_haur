@@ -5,7 +5,7 @@ import (
 	"dc_haur/src/pkg"
 	. "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/google/uuid"
-	"github.com/logotipiwe/dc_go_utils/src/config"
+	config "github.com/logotipiwe/dc_go_config_lib/src"
 	"log"
 	"strconv"
 )
@@ -74,7 +74,7 @@ func (s *TgMessageService) GetQuestionMessage(update Update, deckName string, le
 		if err != nil {
 			return nil, err
 		}
-		bytes, err := pkg.EncodeImageToBytes(cardImage)
+		bytes, err := utils.EncodeImageToBytes(cardImage)
 		if err != nil {
 			return nil, err
 		}

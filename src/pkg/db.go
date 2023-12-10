@@ -1,10 +1,10 @@
-package pkg
+package utils
 
 import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	. "github.com/logotipiwe/dc_go_utils/src/config"
+	. "github.com/logotipiwe/dc_go_config_lib/src"
 )
 
 func InitDb() (error, *sql.DB) {
