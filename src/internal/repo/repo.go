@@ -6,12 +6,12 @@ import (
 )
 
 type Decks interface {
-	GetDecks() (error, []domain.Deck)
+	GetDecks() ([]domain.Deck, error)
 }
 
 type Questions interface {
-	GetLevels(deckName string) (error, []string)
-	GetRandQuestion(deckName string, levelName string) (error, *domain.Question)
+	GetLevels(deckName string) ([]string, error)
+	GetRandQuestion(deckName string, levelName string) (*domain.Question, error)
 }
 
 type Repositories struct {

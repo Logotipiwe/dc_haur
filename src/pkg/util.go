@@ -1,4 +1,10 @@
-package pkg
+package utils
+
+import (
+	"bytes"
+	"image"
+	"image/png"
+)
 
 func ExistsInArr(target string, array []string) bool {
 	for _, element := range array {
@@ -27,4 +33,30 @@ func ChunkStrings(input []string, chunkSize int) [][]string {
 		result = append(result, input[i:end])
 	}
 	return result
+}
+
+func Map[T, U any](ts []T, f func(T) U) []U {
+	us := make([]U, len(ts))
+	for i := range ts {
+		us[i] = f(ts[i])
+	}
+	return us
+}
+
+func ToMap[K string, V any](arr []V, groupingFunc func(val V) K) map[K]V {
+	result := make(map[K]V)
+	for _, v := range arr {
+		key := groupingFunc(v)
+		result[key] = v
+	}
+	return result
+}
+
+func EncodeImageToBytes(img image.Image) ([]byte, error) {
+	var buf bytes.Buffer
+	err := png.Encode(&buf, img)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }

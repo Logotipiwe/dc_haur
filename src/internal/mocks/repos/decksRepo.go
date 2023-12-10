@@ -8,6 +8,6 @@ func NewMockDecksRepo() *MockDecksRepo {
 	return &MockDecksRepo{}
 }
 
-func (m *MockDecksRepo) GetDecks() (error, []domain.Deck) {
-	return nil, []domain.Deck{{Name: "Deck1"}, {Name: "Deck2"}}
+func (m *MockDecksRepo) GetDecks() ([]domain.Deck, error) {
+	return []domain.Deck{{Name: "Deck1"}, {Name: "Deck2"}}, nil
 }

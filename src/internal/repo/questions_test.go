@@ -20,7 +20,7 @@ func TestGetLevels_Success(t *testing.T) {
 	mock.ExpectQuery(regexp.QuoteMeta(getLevelsSql)).
 		WithArgs("ExampleDeck").
 		WillReturnRows(rows)
-	err, levels := repo.GetLevels("ExampleDeck")
+	levels, err := repo.GetLevels("ExampleDeck")
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
@@ -40,7 +40,7 @@ func TestGetLevels_NoLevels(t *testing.T) {
 	mock.ExpectQuery(regexp.QuoteMeta(getLevelsSql)).
 		WithArgs("NoLevelsDeck").
 		WillReturnRows(sqlmock.NewRows([]string{"level"}))
-	err, levels := repo.GetLevels("NoLevelsDeck")
+	levels, err := repo.GetLevels("NoLevelsDeck")
 	if err == nil {
 		t.Error("Expected an error, but got nil")
 	}
@@ -59,7 +59,7 @@ func TestGetRandQuestion_Error(t *testing.T) {
 	mock.ExpectQuery(regexp.QuoteMeta(getRandQuestionSql)).
 		WithArgs("Hard", "ErrorDeck").
 		WillReturnError(errors.New("mocked error"))
-	err, question := repo.GetRandQuestion("ErrorDeck", "Hard")
+	question, err := repo.GetRandQuestion("ErrorDeck", "Hard")
 	if err == nil {
 		t.Error("Expected an error, but got nil")
 	}
@@ -80,7 +80,7 @@ func TestGetRandQuestion_Success(t *testing.T) {
 	mock.ExpectQuery(regexp.QuoteMeta(getRandQuestionSql)).
 		WithArgs("Hard", "ExampleDeck").
 		WillReturnRows(rows)
-	err, question := repo.GetRandQuestion("ExampleDeck", "Hard")
+	question, err := repo.GetRandQuestion("ExampleDeck", "Hard")
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
@@ -111,7 +111,7 @@ func TestGetLevels_QueryError(t *testing.T) {
 		WithArgs("testDeck").
 		WillReturnError(errors.New("database error"))
 
-	err, _ = questionsRepo.GetLevels("testDeck")
+	_, err = questionsRepo.GetLevels("testDeck")
 	if err == nil || err.Error() != "database error" {
 		t.Errorf("Expected database error, but got %v", err)
 	}

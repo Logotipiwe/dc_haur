@@ -5,20 +5,13 @@ import (
 	handler "dc_haur/src/internal"
 	"dc_haur/src/internal/repo"
 	"dc_haur/src/internal/service"
-	"dc_haur/src/pkg"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/logotipiwe/dc_go_utils/src/config"
+	config "github.com/logotipiwe/dc_go_config_lib"
 	"log"
 )
 
-func Start() {
-	err, db := initializeApp()
+func StartTgBot(db *sql.DB) {
 	tgBot(db)
-	println("Tg bot started!")
-	println("Server up!")
-	if err != nil {
-		panic("Lol server fell")
-	}
 }
 
 func tgBot(db *sql.DB) {
@@ -39,13 +32,13 @@ func tgBot(db *sql.DB) {
 
 	for update := range updates {
 		if update.Message != nil {
-			err, reply := tgHandler.HandleMessageAndReply(update)
+			reply, err := tgHandler.HandleMessageAndReply(update)
 			if err != nil {
 				println(err.Error())
 				reply = sendUnknownCommandAnswer(update)
 			}
 			if reply != nil {
-				_, err := bot.Send(*reply)
+				_, err := bot.Send(reply)
 				if err != nil {
 					println("ERROR WHILE SENDING MESSAGE!")
 					println(err)
@@ -59,13 +52,4 @@ func sendUnknownCommandAnswer(update tgbotapi.Update) *tgbotapi.MessageConfig {
 	println("UnknownCommand")
 	ans := tgbotapi.NewMessage(update.Message.Chat.ID, "Не совсем понял команду, либо произошла ошибка(\r\nПопробуй заново /start")
 	return &ans
-}
-
-func initializeApp() (error, *sql.DB) {
-	config.LoadDcConfig()
-	err, db := pkg.InitDb()
-	if err != nil {
-		panic(err)
-	}
-	return err, db
 }

@@ -18,11 +18,12 @@ func NewHandler(messageService *service.TgMessageService, cacheService *service.
 	}
 }
 
-func (h *Handler) HandleMessageAndReply(update Update) (error, *MessageConfig) {
+func (h *Handler) HandleMessageAndReply(update Update) (Chattable, error) {
 	message := update.Message
 
 	log.Printf("[%s] %s", message.From.UserName, message.Text)
 	if message.Text == "/start" {
+		println("StartCommand")
 		return h.messagesService.HandleStart(update)
 	} else if found, deckName := h.cache.GetCurrentChatDeckName(update); found {
 		return h.messagesService.GetQuestionMessage(update, deckName, update.Message.Text)
