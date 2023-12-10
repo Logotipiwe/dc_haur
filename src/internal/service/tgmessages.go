@@ -90,7 +90,7 @@ func (s *TgMessageService) GetQuestionMessage(update Update, deckName string, le
 }
 
 func imagesEnabled() bool {
-	imagesEnabled, err := strconv.ParseBool(config.GetConfig("ENABLE_IMAGES"))
+	imagesEnabled, err := strconv.ParseBool(config.GetConfigOr("ENABLE_IMAGES", "false"))
 	if err != nil {
 		imagesEnabled = false
 	}
