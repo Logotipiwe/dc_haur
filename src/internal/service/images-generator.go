@@ -32,7 +32,7 @@ func putTextOnImage(img *image.RGBA, text string) (error, image.Image) {
 	if err := dc.LoadFontFace(config.GetConfig("FONTS_DIR")+"/helvetica_bold.ttf", w/25); err != nil {
 		return err, nil
 	}
-	dc.SetColor(color.Black)
+	dc.SetColor(color.White)
 	dc.DrawStringWrapped(text, w/2, h/2, 0.5, 0.5, w*0.8, 2, gg.AlignCenter)
 	dc.Stroke()
 	return nil, img

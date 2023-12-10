@@ -79,7 +79,6 @@ func (s *TgMessageService) GetQuestionMessage(update Update, deckName string, le
 				BaseChat: BaseChat{ChatID: update.Message.Chat.ID},
 				File:     FileBytes{Name: uuid.New().String() + ".jpg", Bytes: bytes},
 			},
-			Caption: question.Text,
 		}
 	} else {
 		return nil, NewMessage(update.Message.Chat.ID, question.Text)
