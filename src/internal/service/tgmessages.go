@@ -1,6 +1,7 @@
 package service
 
 import (
+	"dc_haur/src/internal/domain"
 	"dc_haur/src/internal/repo"
 	"dc_haur/src/pkg"
 	. "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -17,15 +18,16 @@ type TgMessageService struct {
 	cache         CacheService
 	questionsRepo repo.Questions
 	decksRepo     repo.Decks
+	bot           domain.Bot
 }
 
-func NewTgMessageService(tgKeyboardService TgKeyboardService, cache CacheService, questions repo.Questions,
-	decks repo.Decks) *TgMessageService {
+func NewTgMessageService(tgKeyboardService TgKeyboardService, cache CacheService, questions repo.Questions, decks repo.Decks, bot domain.Bot) *TgMessageService {
 	return &TgMessageService{
 		keyboards:     tgKeyboardService,
 		cache:         cache,
 		questionsRepo: questions,
 		decksRepo:     decks,
+		bot:           bot,
 	}
 }
 
@@ -41,7 +43,7 @@ func (s *TgMessageService) HandleStart(update Update) (*MessageConfig, error) {
 
 	msg := NewMessage(message.Chat.ID, WelcomeMessage)
 	msg.ReplyMarkup = s.keyboards.GetDecksKeyboard(decks)
-	s.cache.RemoveDeckFromChat(update)
+	s.cache.RemoveChatFromCaches(update)
 	return &msg, nil
 }
 
@@ -87,6 +89,42 @@ func (s *TgMessageService) GetQuestionMessage(update Update, deckName string, le
 	} else {
 		return NewMessage(update.Message.Chat.ID, question.Text), nil
 	}
+}
+
+func (s *TgMessageService) AcceptFeedbackCommand(update Update) (*MessageConfig, error) {
+	msg := NewMessage(update.Message.Chat.ID, "Отправьте свой отзыв одним сообщением. Мы получим его и учтём в будущем ❤️")
+	msg.ReplyMarkup = ReplyKeyboardRemove{RemoveKeyboard: true}
+	s.cache.AssignFeedbackToChat(update)
+	return &msg, nil
+}
+
+func (s *TgMessageService) AcceptFeedback(update Update) (*MessageConfig, error) {
+	msg := NewMessage(update.Message.Chat.ID, "Спасибо за отзыв! Мы его учтем ❤️. Отправьте /start, чтобы играть дальше.")
+	userLink := "@" + update.Message.From.UserName
+	err := s.bot.SendToOwner("Фидбек от " + userLink + ".\r\n" + update.Message.Text)
+	if err != nil {
+		return nil, err
+	}
+	s.cache.RemoveFeedbackFromChat(update)
+	return &msg, nil
+}
+
+func (s *TgMessageService) AcceptNewQuestionCommand(update Update) (*MessageConfig, error) {
+	msg := NewMessage(update.Message.Chat.ID, "Отправьте свой вопрос одним сообщением. Мы получим его и добавим в колоду вопросов ❤️")
+	msg.ReplyMarkup = ReplyKeyboardRemove{RemoveKeyboard: true}
+	s.cache.AssignNewQuestionToChat(update)
+	return &msg, nil
+}
+
+func (s *TgMessageService) AcceptNewQuestion(update Update) (*MessageConfig, error) {
+	msg := NewMessage(update.Message.Chat.ID, "Спасибо за вопрос! Мы его добавим в колоду вопросов ❤️. Отправьте /start, чтобы играть дальше.")
+	userLink := "@" + update.Message.From.UserName
+	err := s.bot.SendToOwner("Предложенный вопрос от " + userLink + ".\r\n" + update.Message.Text)
+	if err != nil {
+		return nil, err
+	}
+	s.cache.RemoveNewQuestionFromChat(update)
+	return &msg, nil
 }
 
 func imagesEnabled() bool {

@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	config "github.com/logotipiwe/dc_go_config_lib"
 	"image"
 	"image/png"
 )
@@ -59,4 +60,8 @@ func EncodeImageToBytes(img image.Image) ([]byte, error) {
 		return nil, err
 	}
 	return buf.Bytes(), nil
+}
+
+func GetOwnerChatID() string {
+	return config.GetConfig("OWNER_TG_CHAT_ID")
 }
