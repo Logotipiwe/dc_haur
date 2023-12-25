@@ -12,16 +12,26 @@ import (
 )
 
 const DefaultDeckName = "😉 Для пары"
+const GotLevelsMessage = "Вот твои уровни"
 
 type TgMessageService struct {
 	keyboards     TgKeyboardService
 	cache         CacheService
 	questionsRepo repo.Questions
 	decksRepo     repo.Decks
-	bot           domain.Bot
+	bot           domain.BotInteractor
 }
 
-func NewTgMessageService(tgKeyboardService TgKeyboardService, cache CacheService, questions repo.Questions, decks repo.Decks, bot domain.Bot) *TgMessageService {
+const (
+	AcceptFeedbackText    = "Спасибо за отзыв! Мы его учтем ❤️. Отправьте /start, чтобы играть дальше."
+	AcceptNewQuestionText = "Спасибо за вопрос! Мы его добавим в колоду вопросов ❤️. Отправьте /start, чтобы играть дальше."
+	AssignNewQuestionText = "Отправьте свой вопрос одним сообщением. Мы получим его и добавим в колоду вопросов ❤️"
+	AssignFeedbackText    = "Отправьте свой отзыв одним сообщением. Мы получим его и учтём в будущем ❤️"
+	WelcomeMessage        = "Привет! Это игра \"How Are You Really?\" на знакомство и сближение! Каждая колода имеет несколько уровней вопросов. Выбирай колоду которая понравится и бери вопросы комфортного для тебя уровня, чтобы приятно провести время двоем или в компании! \r\n\r\n Выбери колоду, чтобы начать!"
+)
+
+func NewTgMessageService(tgKeyboardService TgKeyboardService, cache CacheService, questions repo.Questions,
+	decks repo.Decks, bot domain.BotInteractor) *TgMessageService {
 	return &TgMessageService{
 		keyboards:     tgKeyboardService,
 		cache:         cache,
@@ -30,8 +40,6 @@ func NewTgMessageService(tgKeyboardService TgKeyboardService, cache CacheService
 		bot:           bot,
 	}
 }
-
-const WelcomeMessage = "Привет! Это игра \"How Are You Really?\" на знакомство и сближение! Каждая колода имеет несколько уровней вопросов. Выбирай колоду которая понравится и бери вопросы комфортного для тебя уровня, чтобы приятно провести время двоем или в компании! \r\n\r\n Выбери колоду, чтобы начать!"
 
 func (s *TgMessageService) HandleStart(update Update) (*MessageConfig, error) {
 	message := update.Message
@@ -57,7 +65,7 @@ func (s *TgMessageService) GetLevelsMessage(update Update, deckName string) (*Me
 
 	markup := s.keyboards.GetLevelsKeyboard(levels)
 
-	message := NewMessage(update.Message.Chat.ID, "Вот твои уровни")
+	message := NewMessage(update.Message.Chat.ID, GotLevelsMessage)
 	message.ReplyMarkup = markup
 	s.cache.AssignDeckToChat(update, deckName)
 	return &message, nil
@@ -87,19 +95,20 @@ func (s *TgMessageService) GetQuestionMessage(update Update, deckName string, le
 			},
 		}, nil
 	} else {
-		return NewMessage(update.Message.Chat.ID, question.Text), nil
+		msg := NewMessage(update.Message.Chat.ID, question.Text)
+		return &msg, nil
 	}
 }
 
 func (s *TgMessageService) AcceptFeedbackCommand(update Update) (*MessageConfig, error) {
-	msg := NewMessage(update.Message.Chat.ID, "Отправьте свой отзыв одним сообщением. Мы получим его и учтём в будущем ❤️")
+	msg := NewMessage(update.Message.Chat.ID, AssignFeedbackText)
 	msg.ReplyMarkup = ReplyKeyboardRemove{RemoveKeyboard: true}
 	s.cache.AssignFeedbackToChat(update)
 	return &msg, nil
 }
 
 func (s *TgMessageService) AcceptFeedback(update Update) (*MessageConfig, error) {
-	msg := NewMessage(update.Message.Chat.ID, "Спасибо за отзыв! Мы его учтем ❤️. Отправьте /start, чтобы играть дальше.")
+	msg := NewMessage(update.Message.Chat.ID, AcceptFeedbackText)
 	userLink := "@" + update.Message.From.UserName
 	err := s.bot.SendToOwner("Фидбек от " + userLink + ".\r\n" + update.Message.Text)
 	if err != nil {
@@ -110,14 +119,14 @@ func (s *TgMessageService) AcceptFeedback(update Update) (*MessageConfig, error)
 }
 
 func (s *TgMessageService) AcceptNewQuestionCommand(update Update) (*MessageConfig, error) {
-	msg := NewMessage(update.Message.Chat.ID, "Отправьте свой вопрос одним сообщением. Мы получим его и добавим в колоду вопросов ❤️")
+	msg := NewMessage(update.Message.Chat.ID, AssignNewQuestionText)
 	msg.ReplyMarkup = ReplyKeyboardRemove{RemoveKeyboard: true}
 	s.cache.AssignNewQuestionToChat(update)
 	return &msg, nil
 }
 
 func (s *TgMessageService) AcceptNewQuestion(update Update) (*MessageConfig, error) {
-	msg := NewMessage(update.Message.Chat.ID, "Спасибо за вопрос! Мы его добавим в колоду вопросов ❤️. Отправьте /start, чтобы играть дальше.")
+	msg := NewMessage(update.Message.Chat.ID, AcceptNewQuestionText)
 	userLink := "@" + update.Message.From.UserName
 	err := s.bot.SendToOwner("Предложенный вопрос от " + userLink + ".\r\n" + update.Message.Text)
 	if err != nil {

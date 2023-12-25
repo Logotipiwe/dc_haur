@@ -13,8 +13,10 @@ func NewDecksRepo(db *sql.DB) *DecksRepo {
 	return &DecksRepo{db: db}
 }
 
+const GetDecksQuery = `SELECT id, name, description FROM decks`
+
 func (r *DecksRepo) GetDecks() ([]domain.Deck, error) {
-	res, err := r.db.Query(`SELECT id, name, description FROM decks`)
+	res, err := r.db.Query(GetDecksQuery)
 	if err != nil {
 		return nil, err
 	}

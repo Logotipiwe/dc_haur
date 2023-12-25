@@ -22,6 +22,20 @@ func StartServer() {
 		}
 	})
 
+	/*	http.HandleFunc("/chat", func(w http.ResponseWriter, r *http.Request) {
+
+		if err != nil {
+			sendErr(w, err)
+			return
+		}
+		w.Header().Set("Content-Type", "image/png")
+		err = png.Encode(w, card)
+		if err != nil {
+			sendErr(w, err)
+			return
+		}
+	})*/
+
 	err := http.ListenAndServe(":8081", nil)
 	if err != nil {
 		panic(err)

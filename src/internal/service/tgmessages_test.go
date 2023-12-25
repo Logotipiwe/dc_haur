@@ -10,11 +10,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var tgmsgTestRepoMocks = mocks.NewMocks()
-var services = NewServices(tgkbTestRepoMocks.QuestionRepo, tgkbTestRepoMocks.DeckRepo, domain.Bot{})
+var tgmsgTestRepoMocks = mocks.NewRepoMocks()
+var services = NewServices(tgkbTestRepoMocks.QuestionRepo, tgkbTestRepoMocks.DeckRepo, domain.TgBotInteractor{})
 
 func TestHandleStart(t *testing.T) {
-	service := NewTgMessageService(*services.TgKeyboard, *services.Cache, tgmsgTestRepoMocks.QuestionRepo, tgmsgTestRepoMocks.DeckRepo, domain.Bot{})
+	service := NewTgMessageService(*services.TgKeyboard, *services.Cache, tgmsgTestRepoMocks.QuestionRepo, tgmsgTestRepoMocks.DeckRepo, domain.TgBotInteractor{})
 	messageConfig, err := service.HandleStart(Update{Message: &Message{Chat: &Chat{ID: 123}}})
 	assert.Nil(t, err)
 	assert.NotNil(t, messageConfig)
@@ -22,7 +22,7 @@ func TestHandleStart(t *testing.T) {
 }
 
 func TestGetLevelsMessage(t *testing.T) {
-	service := NewTgMessageService(*services.TgKeyboard, *services.Cache, tgkbTestRepoMocks.QuestionRepo, tgmsgTestRepoMocks.DeckRepo, domain.Bot{})
+	service := NewTgMessageService(*services.TgKeyboard, *services.Cache, tgkbTestRepoMocks.QuestionRepo, tgmsgTestRepoMocks.DeckRepo, domain.TgBotInteractor{})
 	messageConfig, err := service.GetLevelsMessage(Update{Message: &Message{Chat: &Chat{ID: 123}}}, DefaultDeckName)
 	assert.Nil(t, err)
 	assert.NotNil(t, messageConfig)
@@ -30,7 +30,7 @@ func TestGetLevelsMessage(t *testing.T) {
 }
 
 func TestGetQuestionMessage(t *testing.T) {
-	service := NewTgMessageService(*services.TgKeyboard, *services.Cache, tgkbTestRepoMocks.QuestionRepo, tgmsgTestRepoMocks.DeckRepo, domain.Bot{})
+	service := NewTgMessageService(*services.TgKeyboard, *services.Cache, tgkbTestRepoMocks.QuestionRepo, tgmsgTestRepoMocks.DeckRepo, domain.TgBotInteractor{})
 	messageConfig, err := service.GetQuestionMessage(Update{Message: &Message{Chat: &Chat{ID: 123}}}, DefaultDeckName, "Level1")
 	assert.Nil(t, err)
 	assert.NotNil(t, messageConfig)

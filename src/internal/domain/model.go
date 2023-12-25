@@ -20,11 +20,24 @@ type Deck struct {
 	Description string `db:"description"`
 }
 
-type Bot struct {
-	Instance *tgbotapi.BotAPI
+type BotInteractor interface {
+	SendToOwner(text string) error
+	GetBot() *tgbotapi.BotAPI
 }
 
-func (bot Bot) SendToOwner(text string) error {
+type TgBotInteractor struct {
+	instance *tgbotapi.BotAPI
+}
+
+func (bot TgBotInteractor) GetBot() *tgbotapi.BotAPI {
+	return bot.instance
+}
+
+func NewBotInteractor(instance *tgbotapi.BotAPI) BotInteractor {
+	return TgBotInteractor{instance: instance}
+}
+
+func (bot TgBotInteractor) SendToOwner(text string) error {
 	ownerChatIdStr := utils.GetOwnerChatID()
 	if ownerChatIdStr == "" {
 		return errors.New("empty owner chat, unable to send message")
@@ -34,6 +47,6 @@ func (bot Bot) SendToOwner(text string) error {
 		return err
 	}
 	msg := tgbotapi.NewMessage(ownerChatID, text)
-	_, err = bot.Instance.Send(msg)
+	_, err = bot.instance.Send(msg)
 	return err
 }

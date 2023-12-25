@@ -1,17 +1,16 @@
-package internal
+package service
 
 import (
-	"dc_haur/src/internal/service"
 	. "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
 )
 
 type Handler struct {
-	messagesService *service.TgMessageService
-	cache           *service.CacheService
+	messagesService *TgMessageService
+	cache           *CacheService
 }
 
-func NewHandler(messageService *service.TgMessageService, cacheService *service.CacheService) *Handler {
+func NewHandler(messageService *TgMessageService, cacheService *CacheService) *Handler {
 	return &Handler{
 		messagesService: messageService,
 		cache:           cacheService,
