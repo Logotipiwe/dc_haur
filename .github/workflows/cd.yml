@@ -58,3 +58,9 @@ jobs:
           
           docker-compose -f /kuber/haur/haur.yml down --remove-orphans
           docker-compose -f /kuber/haur/haur.yml up -d
+    - name: Generate Label
+      id: label_generate
+      uses: actions-ecosystem/action-add-labels@v1
+      with:
+        github_token: ${{ secrets.PAT }}
+        labels: "deployed"
