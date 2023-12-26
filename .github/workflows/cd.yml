@@ -58,14 +58,3 @@ jobs:
           
           docker-compose -f /kuber/haur/haur.yml down --remove-orphans
           docker-compose -f /kuber/haur/haur.yml up -d
-    - name: Add deployed tag to commit
-      uses: actions/github-script@v5
-      with:
-        github-token: ${{secrets.PAT}}
-        script: |
-          await github.rest.git.createRef({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            ref: `refs/tags/deployed-${context.sha.substring(0,8)}`,
-            sha: context.sha
-          });
