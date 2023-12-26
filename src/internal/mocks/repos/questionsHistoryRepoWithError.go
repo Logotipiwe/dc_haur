@@ -7,6 +7,10 @@ import (
 
 type MockHistoryRepoWithError struct{}
 
+func (m *MockHistoryRepoWithError) Truncate() error {
+	return errors.New("planned error")
+}
+
 func NewMockHistoryRepoWithError() *MockHistoryRepoWithError {
 	return &MockHistoryRepoWithError{}
 }

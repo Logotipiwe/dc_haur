@@ -20,3 +20,9 @@ func (repo *QuestionsHistoryRepo) Insert(chatID int64, question *domain.Question
 	_, err := repo.DB.Exec(query, uuid.NewString(), question.DeckID, question.Level, question.ID, chatID)
 	return err
 }
+
+func (repo *QuestionsHistoryRepo) Truncate() error {
+	query := `TRUNCATE TABLE questions_history`
+	_, err := repo.DB.Exec(query)
+	return err
+}

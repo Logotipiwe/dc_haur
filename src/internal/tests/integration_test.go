@@ -98,6 +98,7 @@ func TestChatHandler(t *testing.T) {
 
 	t.Run("questions in level are ordered", func(t *testing.T) {
 		defer failOnPanic(t)
+		clearHistory(t)
 		questions := []string{"question d1l1q1 text", "question d1l1q2 text", "question d1l1q3 text"}
 		update := createUpdateObject("/start")
 		ans := sendUpdate(t, update)
@@ -121,6 +122,8 @@ func TestChatHandler(t *testing.T) {
 			assert.NotEqual(t, -1, ansIndex3)
 			assert.NotEqual(t, ansIndex1, ansIndex3)
 			assert.NotEqual(t, ansIndex2, ansIndex3)
+			println("ORDER CHECK FINISHED")
+			time.Sleep(100 * time.Millisecond)
 		}
 	})
 
@@ -179,7 +182,7 @@ func createUpdateObject(text string) *tgbotapi.Update {
 	}
 
 	chat := &tgbotapi.Chat{
-		ID:        int64(rand.Int()),
+		ID:        1111111,
 		FirstName: firstName,
 		LastName:  lastName,
 		UserName:  userName,
@@ -252,4 +255,16 @@ func sendUpdate(t *testing.T, update *tgbotapi.Update) *tgbotapi.MessageConfig {
 	println("Got and decoded answer")
 
 	return &result
+}
+
+func clearHistory(t *testing.T) {
+	appUrl := config.GetConfig("TEST_URL")
+	println("Clearing questions history")
+	req, err := http.NewRequest("GET", appUrl+"/clear-history", nil)
+	assert.NoError(t, err)
+	client := &http.Client{}
+	response, err := client.Do(req)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, response.StatusCode)
+	println("History cleared")
 }

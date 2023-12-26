@@ -16,6 +16,7 @@ type Questions interface {
 
 type History interface {
 	Insert(int64, *domain.Question) error
+	Truncate() error
 }
 
 type Repositories struct {

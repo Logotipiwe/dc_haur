@@ -18,6 +18,7 @@ func NewRepoMocksWithErrors() repo.Repositories {
 	return repo.Repositories{
 		Questions: repos.NewMockQuestionsRepoWithError(),
 		Decks:     repos.NewMockDecksRepoWithError(),
+		History:   repos.NewMockHistoryRepoWithError(),
 	}
 }
 

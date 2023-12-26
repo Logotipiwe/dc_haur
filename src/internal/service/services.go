@@ -11,6 +11,7 @@ type Services struct {
 	TgMessages       *TgMessageService
 	TgUpdatesHandler *Handler
 	TgBotInteractor  domain.BotInteractor
+	Repos            *repo.Repositories
 }
 
 func NewServices(repos *repo.Repositories, bot domain.BotInteractor) *Services {
@@ -24,5 +25,6 @@ func NewServices(repos *repo.Repositories, bot domain.BotInteractor) *Services {
 		TgMessages:       tgMessages,
 		TgUpdatesHandler: tgHandler,
 		TgBotInteractor:  bot,
+		Repos:            repos,
 	}
 }
