@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Go" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="dc_haur" />
-    <working_directory value="$PROJECT_DIR$/cmd" />
+      <working_directory value="$PROJECT_DIR$/src"/>
     <envs>
       <env name="M_TOKEN" value="4321" />
       <env name="CONFIG_SERVER_URL" value="http://localhost/config_server" />
@@ -9,7 +9,7 @@
       <env name="SERVICE_NAME" value="haur" />
     </envs>
     <kind value="PACKAGE" />
-    <package value="dc_haur/cmd" />
+      <package value="dc_haur/src"/>
     <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$" />
     <output_directory value="build" />

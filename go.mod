@@ -22,3 +22,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+//replace (
+//	github.com/logotipiwe/dc_go_config_lib => ../logotipiwe.ru/dc_go_config_lib
+//)

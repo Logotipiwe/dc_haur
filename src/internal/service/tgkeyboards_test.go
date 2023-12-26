@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-var tgkbTestRepoMocks = mocks.NewMocks()
+var tgkbTestRepoMocks = mocks.NewRepoMocks()
 
 func TestGetLevelsKeyboard(t *testing.T) {
 	levels := []string{"a", "b", "c", "d"}

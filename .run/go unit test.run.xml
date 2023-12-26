@@ -1,7 +1,10 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="go test" type="GoTestRunConfiguration" factoryName="Go Test">
+    <configuration default="false" name="go unit test" type="GoTestRunConfiguration" factoryName="Go Test">
     <module name="dc_haur" />
     <working_directory value="$PROJECT_DIR$" />
+        <envs>
+            <env name="DO_INTEGRATION_TESTS" value="false"/>
+        </envs>
     <kind value="DIRECTORY" />
     <package value="dc_haur/src/..." />
     <directory value="$PROJECT_DIR$/src" />

@@ -17,7 +17,7 @@ func TestGetLevels_Success(t *testing.T) {
 	defer mockDB.Close()
 	repo := NewQuestionsRepo(mockDB)
 	rows := sqlmock.NewRows([]string{"level"}).AddRow("Easy").AddRow("Medium").AddRow("Hard")
-	mock.ExpectQuery(regexp.QuoteMeta(getLevelsSql)).
+	mock.ExpectQuery(regexp.QuoteMeta(GetLevelsSql)).
 		WithArgs("ExampleDeck").
 		WillReturnRows(rows)
 	levels, err := repo.GetLevels("ExampleDeck")
@@ -37,7 +37,7 @@ func TestGetLevels_NoLevels(t *testing.T) {
 	}
 	defer mockDB.Close()
 	repo := NewQuestionsRepo(mockDB)
-	mock.ExpectQuery(regexp.QuoteMeta(getLevelsSql)).
+	mock.ExpectQuery(regexp.QuoteMeta(GetLevelsSql)).
 		WithArgs("NoLevelsDeck").
 		WillReturnRows(sqlmock.NewRows([]string{"level"}))
 	levels, err := repo.GetLevels("NoLevelsDeck")
@@ -56,7 +56,7 @@ func TestGetRandQuestion_Error(t *testing.T) {
 	}
 	defer mockDB.Close()
 	repo := NewQuestionsRepo(mockDB)
-	mock.ExpectQuery(regexp.QuoteMeta(getRandQuestionSql)).
+	mock.ExpectQuery(regexp.QuoteMeta(GetRandQuestionSql)).
 		WithArgs("Hard", "ErrorDeck").
 		WillReturnError(errors.New("mocked error"))
 	question, err := repo.GetRandQuestion("ErrorDeck", "Hard")
@@ -77,7 +77,7 @@ func TestGetRandQuestion_Success(t *testing.T) {
 	repo := NewQuestionsRepo(mockDB)
 	rows := sqlmock.NewRows([]string{"id", "level", "deck_id", "text"}).
 		AddRow("1", "Hard", "2", "someRandText")
-	mock.ExpectQuery(regexp.QuoteMeta(getRandQuestionSql)).
+	mock.ExpectQuery(regexp.QuoteMeta(GetRandQuestionSql)).
 		WithArgs("Hard", "ExampleDeck").
 		WillReturnRows(rows)
 	question, err := repo.GetRandQuestion("ExampleDeck", "Hard")
@@ -107,7 +107,7 @@ func TestGetLevels_QueryError(t *testing.T) {
 
 	questionsRepo := NewQuestionsRepo(db)
 
-	mock.ExpectQuery(regexp.QuoteMeta(getLevelsSql)).
+	mock.ExpectQuery(regexp.QuoteMeta(GetLevelsSql)).
 		WithArgs("testDeck").
 		WillReturnError(errors.New("database error"))
 

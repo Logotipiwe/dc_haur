@@ -3,6 +3,9 @@ package main
 import (
 	"database/sql"
 	"dc_haur/src/http"
+	"dc_haur/src/internal/domain"
+	"dc_haur/src/internal/repo"
+	"dc_haur/src/internal/service"
 	"dc_haur/src/pkg"
 	"dc_haur/src/tghttp"
 	config "github.com/logotipiwe/dc_go_config_lib"
@@ -11,9 +14,13 @@ import (
 func main() {
 	err, db := initializeApp()
 
-	go http.StartServer()
+	bot := tghttp.CreateTgBot()
+	repos := repo.NewRepositories(db)
+	services := service.NewServices(repos.Questions, repos.Decks, domain.NewBotInteractor(bot))
 
-	tghttp.StartTgBot(db)
+	go http.StartServer(services)
+
+	tghttp.HandleBotUpdates(services)
 
 	println("Tg bot started!")
 	println("Server up!")
