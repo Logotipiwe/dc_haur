@@ -14,11 +14,11 @@ import (
 func main() {
 	err, db := initializeApp()
 
-	go http.StartServer()
-
 	bot := tghttp.CreateTgBot()
 	repos := repo.NewRepositories(db)
 	services := service.NewServices(repos.Questions, repos.Decks, domain.NewBotInteractor(bot))
+
+	go http.StartServer(services)
 
 	tghttp.HandleBotUpdates(services)
 

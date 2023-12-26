@@ -5,6 +5,10 @@ import (
 	"log"
 )
 
+const ErrorOrUnknownMessage = "Не совсем понял команду, либо произошла ошибка(\r\nПопробуй заново /start"
+const QuestionCommand = "/question"
+const FeedbackCommand = "/feedback"
+
 type Handler struct {
 	messagesService *TgMessageService
 	cache           *CacheService
@@ -44,14 +48,20 @@ func (h *Handler) HandleMessageAndReply(update Update) (Chattable, error) {
 }
 
 func (h *Handler) commandsQuestionOrSendsQuestion(update Update) (is, isCommand bool) {
-	isCommand = update.Message.Text == "/question"
+	isCommand = update.Message.Text == QuestionCommand
 	isSends := h.cache.IsChatNewQuestions(update)
 	return isCommand || isSends, isSends && !isCommand
 }
 
 // TODO if user send one command after another - command accepts as message
 func (h *Handler) commandsFeedbackOrSendsFeedback(update Update) (is, isCommand bool) {
-	isCommand = update.Message.Text == "/feedback"
+	isCommand = update.Message.Text == FeedbackCommand
 	isSends := h.cache.IsChatFeedbacks(update)
 	return isCommand || isSends, isSends && !isCommand
+}
+
+func (h *Handler) SendUnknownCommandAnswer(update Update) *MessageConfig {
+	println("UnknownCommand")
+	ans := NewMessage(update.Message.Chat.ID, ErrorOrUnknownMessage)
+	return &ans
 }

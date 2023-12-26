@@ -7,8 +7,6 @@ import (
 	"log"
 )
 
-const ErrorOrUnknownMessage = "Не совсем понял команду, либо произошла ошибка(\r\nПопробуй заново /start"
-
 func HandleBotUpdates(services *service.Services) {
 	handleBotUpdates(services)
 }
@@ -34,7 +32,7 @@ func handleBotUpdates(services *service.Services) {
 			reply, err := services.TgUpdatesHandler.HandleMessageAndReply(update)
 			if err != nil {
 				println(err.Error())
-				reply = sendUnknownCommandAnswer(update)
+				reply = services.TgUpdatesHandler.SendUnknownCommandAnswer(update)
 			}
 			if reply != nil {
 				_, err := bot.Send(reply)
@@ -45,10 +43,4 @@ func handleBotUpdates(services *service.Services) {
 			}
 		}
 	}
-}
-
-func sendUnknownCommandAnswer(update tgbotapi.Update) *tgbotapi.MessageConfig {
-	println("UnknownCommand")
-	ans := tgbotapi.NewMessage(update.Message.Chat.ID, ErrorOrUnknownMessage)
-	return &ans
 }
