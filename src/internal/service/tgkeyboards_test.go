@@ -28,7 +28,7 @@ func TestGetLevelsKeyboard(t *testing.T) {
 		InputFieldPlaceholder: "",
 		Selective:             false,
 	}
-	service := NewTgKeyboardsService(tgkbTestRepoMocks.QuestionRepo, tgkbTestRepoMocks.DeckRepo)
+	service := NewTgKeyboardsService(tgkbTestRepoMocks)
 	keyboard := service.GetLevelsKeyboard(levels)
 	assert.Equal(t, expected, keyboard)
 }
@@ -76,7 +76,7 @@ func TestGetDecksKeyboard(t *testing.T) {
 		InputFieldPlaceholder: "",
 		Selective:             false,
 	}
-	service := NewTgKeyboardsService(tgkbTestRepoMocks.QuestionRepo, tgkbTestRepoMocks.DeckRepo)
+	service := NewTgKeyboardsService(tgkbTestRepoMocks)
 	keyboard := service.GetDecksKeyboard(decks)
 	assert.Equal(t, expected, keyboard)
 }

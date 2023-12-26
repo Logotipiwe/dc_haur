@@ -16,7 +16,7 @@ func main() {
 
 	bot := tghttp.CreateTgBot()
 	repos := repo.NewRepositories(db)
-	services := service.NewServices(repos.Questions, repos.Decks, domain.NewBotInteractor(bot))
+	services := service.NewServices(repos, domain.NewBotInteractor(bot))
 
 	go http.StartServer(services)
 

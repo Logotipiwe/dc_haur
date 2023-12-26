@@ -1,5 +1,7 @@
 create database if not exists `haur`;
 use `haur`;
+
+drop table if exists questions_history;
 drop table if exists questions;
 drop table if exists decks;
 create table decks
@@ -15,6 +17,16 @@ create table questions
     deck_id         varchar(255) references decks,
     text            varchar(255) not null
 );
+create table questions_history
+(
+    id            varchar(255) not null primary key,
+    deck_id       varchar(255) not null,
+    level_name    varchar(255) not null,
+    question_id   varchar(255) not null,
+    chat_id       varchar(255) not null,
+    question_time timestamp    not null default current_timestamp
+);
+
 INSERT INTO decks values ('1', '😉 Для пары', 'Отвечает человек напротив');
 INSERT INTO decks values ('2', '😎 Для компании', 'Отвечает тот кто указан на карте');
 INSERT INTO decks values ('3', '😎 Для компании, о себе', 'Вопросы о себе. Отвечает читающий. Такое себе');

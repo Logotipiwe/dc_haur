@@ -1,3 +1,4 @@
+truncate table used_questions;
 truncate table questions;
 truncate table decks;
 

@@ -3,6 +3,7 @@ package tests
 import (
 	"bytes"
 	"dc_haur/src/internal/service"
+	utils "dc_haur/src/pkg"
 	"encoding/json"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	config "github.com/logotipiwe/dc_go_config_lib"
@@ -92,6 +93,34 @@ func TestChatHandler(t *testing.T) {
 			ans = sendUpdate(t, update)
 			assert.Contains(t, []string{"question d1l1q1 text", "question d1l1q2 text", "question d1l1q3 text"}, ans.Text)
 			assert.Nil(t, ans.BaseChat.ReplyMarkup)
+		}
+	})
+
+	t.Run("questions in level are ordered", func(t *testing.T) {
+		defer failOnPanic(t)
+		questions := []string{"question d1l1q1 text", "question d1l1q2 text", "question d1l1q3 text"}
+		update := createUpdateObject("/start")
+		ans := sendUpdate(t, update)
+		update = createUpdateObjectFrom(update, "deck d1 name")
+		ans = sendUpdate(t, update)
+		for i := 0; i < 5; i++ {
+			update = createUpdateObjectFrom(update, "l1")
+			ans = sendUpdate(t, update)
+			ansIndex1 := utils.FindIndex(questions, ans.Text)
+			assert.NotEqual(t, -1, ansIndex1)
+
+			update = createUpdateObjectFrom(update, "l1")
+			ans = sendUpdate(t, update)
+			ansIndex2 := utils.FindIndex(questions, ans.Text)
+			assert.NotEqual(t, -1, ansIndex2)
+			assert.NotEqual(t, ansIndex1, ansIndex2)
+
+			update = createUpdateObjectFrom(update, "l1")
+			ans = sendUpdate(t, update)
+			ansIndex3 := utils.FindIndex(questions, ans.Text)
+			assert.NotEqual(t, -1, ansIndex3)
+			assert.NotEqual(t, ansIndex1, ansIndex3)
+			assert.NotEqual(t, ansIndex2, ansIndex3)
 		}
 	})
 

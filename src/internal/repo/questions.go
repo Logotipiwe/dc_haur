@@ -16,7 +16,7 @@ func NewQuestionsRepo(db *sql.DB) *QuestionsRepo {
 }
 
 const GetLevelsSql = "SELECT distinct q.level FROM questions q LEFT JOIN haur.decks d on d.id = q.deck_id WHERE d.name = ?"
-const GetRandQuestionSql = "SELECT q.id, q.level, q.deck_id, q.text FROM questions q LEFT JOIN decks d on d.id = q.deck_id WHERE level = ? AND d.name = ? ORDER BY rand() LIMIT 1"
+const GetRandQuestionSql = "SELECT q.id, q.level, q.deck_id, q.text FROM (select q.*, (select count(*) from questions_history where question_id = q.id) asked from questions q) q LEFT JOIN decks d on d.id = q.deck_id WHERE level = ? AND d.name = ? ORDER BY q.asked, rand() LIMIT 1"
 
 func (r *QuestionsRepo) GetLevels(deckName string) ([]string, error) {
 	var ans []string
