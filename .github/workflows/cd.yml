@@ -60,7 +60,17 @@ jobs:
           docker-compose -f /kuber/haur/haur.yml up -d
     - name: Generate Label
       id: label_generate
-      uses: actions-ecosystem/action-add-labels@v1
+      uses: actions/github-script@v5
       with:
-        github_token: ${{ secrets.PAT }}
-        labels: "deployed"
+        github-token: ${{secrets.PAT}}
+        script: |
+          if (context.payload.pull_request) {
+            await github.rest.issues.addLabels({
+              owner: github.context.repo.owner,
+              repo: github.context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              labels: ['deployed']
+            });
+          } else {
+            console.log('Not a Pull Request event. Skipping label addition.');
+          }
