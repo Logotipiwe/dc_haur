@@ -42,6 +42,15 @@ func StartServer(services *service.Services) {
 		}
 	})
 
+	http.HandleFunc("/clear-history", func(w http.ResponseWriter, r *http.Request) {
+		err := services.Repos.History.Truncate()
+		if err != nil {
+			sendErr(w, err)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	})
+
 	err := http.ListenAndServe(":8081", nil)
 	if err != nil {
 		panic(err)

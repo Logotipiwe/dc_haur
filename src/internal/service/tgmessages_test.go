@@ -1,7 +1,6 @@
 package service
 
 import (
-	"dc_haur/src/internal/domain"
 	"dc_haur/src/internal/mocks"
 	_ "errors"
 	. "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -11,10 +10,10 @@ import (
 )
 
 var tgmsgTestRepoMocks = mocks.NewRepoMocks()
-var services = NewServices(tgkbTestRepoMocks.QuestionRepo, tgkbTestRepoMocks.DeckRepo, domain.TgBotInteractor{})
+var services = NewServices(tgkbTestRepoMocks, mocks.NewBotInteractorMock())
 
 func TestHandleStart(t *testing.T) {
-	service := NewTgMessageService(*services.TgKeyboard, *services.Cache, tgmsgTestRepoMocks.QuestionRepo, tgmsgTestRepoMocks.DeckRepo, domain.TgBotInteractor{})
+	service := NewTgMessageService(*services.TgKeyboard, *services.Cache, services.TgBotInteractor, tgmsgTestRepoMocks)
 	messageConfig, err := service.HandleStart(Update{Message: &Message{Chat: &Chat{ID: 123}}})
 	assert.Nil(t, err)
 	assert.NotNil(t, messageConfig)
@@ -22,7 +21,7 @@ func TestHandleStart(t *testing.T) {
 }
 
 func TestGetLevelsMessage(t *testing.T) {
-	service := NewTgMessageService(*services.TgKeyboard, *services.Cache, tgkbTestRepoMocks.QuestionRepo, tgmsgTestRepoMocks.DeckRepo, domain.TgBotInteractor{})
+	service := NewTgMessageService(*services.TgKeyboard, *services.Cache, services.TgBotInteractor, tgkbTestRepoMocks)
 	messageConfig, err := service.GetLevelsMessage(Update{Message: &Message{Chat: &Chat{ID: 123}}}, DefaultDeckName)
 	assert.Nil(t, err)
 	assert.NotNil(t, messageConfig)
@@ -30,7 +29,7 @@ func TestGetLevelsMessage(t *testing.T) {
 }
 
 func TestGetQuestionMessage(t *testing.T) {
-	service := NewTgMessageService(*services.TgKeyboard, *services.Cache, tgkbTestRepoMocks.QuestionRepo, tgmsgTestRepoMocks.DeckRepo, domain.TgBotInteractor{})
+	service := NewTgMessageService(*services.TgKeyboard, *services.Cache, services.TgBotInteractor, tgkbTestRepoMocks)
 	messageConfig, err := service.GetQuestionMessage(Update{Message: &Message{Chat: &Chat{ID: 123}}}, DefaultDeckName, "Level1")
 	assert.Nil(t, err)
 	assert.NotNil(t, messageConfig)

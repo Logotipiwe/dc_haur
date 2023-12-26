@@ -50,3 +50,9 @@ func (bot TgBotInteractor) SendToOwner(text string) error {
 	_, err = bot.instance.Send(msg)
 	return err
 }
+
+type UsedQuestion struct {
+	ID         int
+	QuestionID int
+	ChatID     int
+}

@@ -14,14 +14,21 @@ type Questions interface {
 	GetRandQuestion(deckName string, levelName string) (*domain.Question, error)
 }
 
+type History interface {
+	Insert(int64, *domain.Question) error
+	Truncate() error
+}
+
 type Repositories struct {
-	Decks     Decks
-	Questions Questions
+	Decks
+	Questions
+	History
 }
 
 func NewRepositories(db *sql.DB) *Repositories {
 	return &Repositories{
 		Decks:     NewDecksRepo(db),
 		Questions: NewQuestionsRepo(db),
+		History:   NewQuestionsHistoryRepo(db),
 	}
 }

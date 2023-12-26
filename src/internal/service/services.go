@@ -11,12 +11,13 @@ type Services struct {
 	TgMessages       *TgMessageService
 	TgUpdatesHandler *Handler
 	TgBotInteractor  domain.BotInteractor
+	Repos            *repo.Repositories
 }
 
-func NewServices(questions repo.Questions, decks repo.Decks, bot domain.BotInteractor) *Services {
+func NewServices(repos *repo.Repositories, bot domain.BotInteractor) *Services {
 	cache := NewCacheService()
-	tgKeyboard := NewTgKeyboardsService(questions, decks)
-	tgMessages := NewTgMessageService(*tgKeyboard, *cache, questions, decks, bot)
+	tgKeyboard := NewTgKeyboardsService(repos)
+	tgMessages := NewTgMessageService(*tgKeyboard, *cache, bot, repos)
 	tgHandler := NewHandler(tgMessages, cache)
 	return &Services{
 		Cache:            cache,
@@ -24,5 +25,6 @@ func NewServices(questions repo.Questions, decks repo.Decks, bot domain.BotInter
 		TgMessages:       tgMessages,
 		TgUpdatesHandler: tgHandler,
 		TgBotInteractor:  bot,
+		Repos:            repos,
 	}
 }

@@ -12,10 +12,10 @@ type TgKeyboardService struct {
 	decksRepo     repo.Decks
 }
 
-func NewTgKeyboardsService(questionsRepo repo.Questions, decksRepo repo.Decks) *TgKeyboardService {
+func NewTgKeyboardsService(repos *repo.Repositories) *TgKeyboardService {
 	return &TgKeyboardService{
-		questionsRepo: questionsRepo,
-		decksRepo:     decksRepo,
+		questionsRepo: repos.Questions,
+		decksRepo:     repos.Decks,
 	}
 
 }

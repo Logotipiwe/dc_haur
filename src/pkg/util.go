@@ -65,3 +65,12 @@ func EncodeImageToBytes(img image.Image) ([]byte, error) {
 func GetOwnerChatID() string {
 	return config.GetConfig("OWNER_TG_CHAT_ID")
 }
+
+func FindIndex(array []string, target string) int {
+	for i, str := range array {
+		if str == target {
+			return i
+		}
+	}
+	return -1
+}
