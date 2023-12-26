@@ -36,7 +36,10 @@ func StartServer(services *service.Services) {
 		if err != nil {
 			reply = services.TgUpdatesHandler.SendUnknownCommandAnswer(update)
 		}
-		json.NewEncoder(w).Encode(reply)
+		err = json.NewEncoder(w).Encode(reply)
+		if err != nil {
+			panic(err)
+		}
 	})
 
 	err := http.ListenAndServe(":8081", nil)

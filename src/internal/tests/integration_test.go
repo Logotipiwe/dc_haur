@@ -215,7 +215,10 @@ func sendUpdate(t *testing.T, update *tgbotapi.Update) *tgbotapi.MessageConfig {
 	var result tgbotapi.MessageConfig
 	err = json.NewDecoder(response.Body).Decode(&result)
 	assert.NoError(t, err)
-	response.Body.Close()
+	err = response.Body.Close()
+	if err != nil {
+		panic(err)
+	}
 
 	println("Got and decoded answer")
 
