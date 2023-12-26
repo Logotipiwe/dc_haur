@@ -5,9 +5,11 @@ import (
 	"dc_haur/src/internal/service"
 	utils "dc_haur/src/pkg"
 	"encoding/json"
+	"errors"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	config "github.com/logotipiwe/dc_go_config_lib"
 	"github.com/stretchr/testify/assert"
+	"io"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -23,6 +25,8 @@ func TestChatHandler(t *testing.T) {
 		println("TEST SKIPPED")
 		return
 	}
+
+	checkIfImagesEnabled(t)
 
 	t.Run("start message", func(t *testing.T) {
 		defer failOnPanic(t)
@@ -267,4 +271,33 @@ func clearHistory(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, response.StatusCode)
 	println("History cleared")
+}
+
+func checkIfImagesEnabled(t *testing.T) {
+	appUrl := config.GetConfig("TEST_URL")
+	println("Checking if images are enabled...")
+
+	req, err := http.NewRequest("GET", appUrl+"/images-enabled", nil)
+	assert.NoError(t, err)
+
+	client := &http.Client{}
+	response, err := client.Do(req)
+	assert.NoError(t, err)
+
+	assert.Equal(t, http.StatusOK, response.StatusCode)
+
+	bodyBytes, err := io.ReadAll(response.Body)
+	assert.NoError(t, err)
+	result := string(bodyBytes)
+	resultBool, err := strconv.ParseBool(result)
+	assert.NoError(t, err)
+	err = response.Body.Close()
+	assert.NoError(t, err)
+
+	if resultBool {
+		err = errors.New("error: images enabled. Cannot perform integration tests")
+		t.Fatal(err)
+	} else {
+		println("Images are disabled, start testing...")
+	}
 }

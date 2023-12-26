@@ -3,7 +3,9 @@ package http
 import (
 	"dc_haur/src/internal/service"
 	"encoding/json"
+	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	config "github.com/logotipiwe/dc_go_config_lib"
 	"image/png"
 	"log"
 	"net/http"
@@ -49,6 +51,14 @@ func StartServer(services *service.Services) {
 			return
 		}
 		w.WriteHeader(http.StatusOK)
+	})
+
+	http.HandleFunc("/images-enabled", func(w http.ResponseWriter, r *http.Request) {
+		enabledImagesStr := config.GetConfig("ENABLE_IMAGES")
+		_, err := fmt.Fprint(w, enabledImagesStr)
+		if err != nil {
+			log.Print(err)
+		}
 	})
 
 	err := http.ListenAndServe(":8081", nil)

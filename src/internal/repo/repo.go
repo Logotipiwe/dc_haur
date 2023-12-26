@@ -3,6 +3,8 @@ package repo
 import (
 	"database/sql"
 	"dc_haur/src/internal/domain"
+	"github.com/jinzhu/gorm"
+	"log"
 )
 
 type Decks interface {
@@ -26,9 +28,13 @@ type Repositories struct {
 }
 
 func NewRepositories(db *sql.DB) *Repositories {
+	gormDb, err := gorm.Open("mysql", db)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return &Repositories{
-		Decks:     NewDecksRepo(db),
-		Questions: NewQuestionsRepo(db),
-		History:   NewQuestionsHistoryRepo(db),
+		Decks:     NewDecksRepo(gormDb),
+		Questions: NewQuestionsRepo(gormDb),
+		History:   NewQuestionsHistoryRepo(gormDb),
 	}
 }

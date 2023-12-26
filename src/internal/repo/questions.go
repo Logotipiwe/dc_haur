@@ -1,17 +1,17 @@
 package repo
 
 import (
-	"database/sql"
 	"dc_haur/src/internal/domain"
-	errors "errors"
+	"errors"
+	"github.com/jinzhu/gorm"
 	"log"
 )
 
 type QuestionsRepo struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
-func NewQuestionsRepo(db *sql.DB) *QuestionsRepo {
+func NewQuestionsRepo(db *gorm.DB) *QuestionsRepo {
 	return &QuestionsRepo{db: db}
 }
 
@@ -20,17 +20,14 @@ const GetRandQuestionSql = "SELECT q.id, q.level, q.deck_id, q.text FROM (select
 
 func (r *QuestionsRepo) GetLevels(deckName string) ([]string, error) {
 	var ans []string
-	res, err := r.db.Query(GetLevelsSql, deckName)
+	rows, err := r.db.Raw(GetLevelsSql, deckName).Rows()
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
-	defer res.Close()
-	for res.Next() {
-		var level string
-		err := res.Scan(&level)
-		if err != nil {
-			return nil, err
-		}
+	var level string
+	for rows.Next() {
+		rows.Scan(&level)
 		ans = append(ans, level)
 	}
 	if len(ans) == 0 {
@@ -41,7 +38,7 @@ func (r *QuestionsRepo) GetLevels(deckName string) ([]string, error) {
 
 func (r *QuestionsRepo) GetRandQuestion(deckName string, levelName string) (*domain.Question, error) {
 	var result domain.Question
-	err := r.db.QueryRow(GetRandQuestionSql, levelName, deckName).Scan(&result.ID, &result.Level, &result.DeckID, &result.Text)
+	err := r.db.Raw(GetRandQuestionSql, levelName, deckName).Row().Scan(&result.ID, &result.Level, &result.DeckID, &result.Text)
 	if err != nil {
 		log.Println("Error getting question from DB.")
 		log.Println(err)

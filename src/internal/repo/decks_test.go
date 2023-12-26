@@ -4,6 +4,7 @@ import (
 	"dc_haur/src/internal/domain"
 	"errors"
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/jinzhu/gorm"
 	"testing"
 )
 
@@ -13,7 +14,11 @@ func TestGetDecks_Success(t *testing.T) {
 		t.Fatalf("Failed to create mock database: %v", err)
 	}
 	defer mockDB.Close()
-	repo := NewDecksRepo(mockDB)
+	gdb, err := gorm.Open("mysql", mockDB)
+	if err != nil {
+		t.Error(err)
+	}
+	repo := NewDecksRepo(gdb)
 	rows := sqlmock.NewRows([]string{"id", "name", "description"}).
 		AddRow(1, "Deck 1", "Description 1").
 		AddRow(2, "Deck 2", "Description 2")
@@ -39,7 +44,11 @@ func TestGetDecks_ErrorOnQuery(t *testing.T) {
 		t.Fatalf("Failed to create mock database: %v", err)
 	}
 	defer mockDB.Close()
-	repo := NewDecksRepo(mockDB)
+	gdb, err := gorm.Open("mysql", mockDB)
+	if err != nil {
+		t.Error(err)
+	}
+	repo := NewDecksRepo(gdb)
 	mock.ExpectQuery(`SELECT id, name, description FROM decks`).WillReturnError(errors.New("mocked error"))
 	decks, err := repo.GetDecks()
 	if err == nil {
@@ -56,7 +65,11 @@ func TestGetDecks_ErrorOnScanWithoutDescriptionField(t *testing.T) {
 		t.Fatalf("Failed to create mock database: %v", err)
 	}
 	defer mockDB.Close()
-	repo := NewDecksRepo(mockDB)
+	gdb, err := gorm.Open("mysql", mockDB)
+	if err != nil {
+		t.Error(err)
+	}
+	repo := NewDecksRepo(gdb)
 	rows := sqlmock.NewRows([]string{"id", "name"}).
 		AddRow(1, "Deck 1").
 		AddRow(2, "Deck 2")
@@ -76,7 +89,11 @@ func TestGetDecks_ErrorOnEmptyScan(t *testing.T) {
 		t.Fatalf("Failed to create mock database: %v", err)
 	}
 	defer mockDB.Close()
-	repo := NewDecksRepo(mockDB)
+	gdb, err := gorm.Open("mysql", mockDB)
+	if err != nil {
+		t.Error(err)
+	}
+	repo := NewDecksRepo(gdb)
 	mock.ExpectQuery(`SELECT id, name, description FROM decks`).WillReturnRows(sqlmock.NewRows([]string{"id", "name", "description"}))
 	decks, err := repo.GetDecks()
 	if decks == nil {

@@ -51,8 +51,14 @@ func (bot TgBotInteractor) SendToOwner(text string) error {
 	return err
 }
 
-type UsedQuestion struct {
-	ID         int
-	QuestionID int
-	ChatID     int
+type QuestionHistory struct {
+	ID         string `gorm:"column:id"`
+	DeckID     string `gorm:"column:deck_id"`
+	LevelName  string `gorm:"column:level_name"`
+	QuestionID string `gorm:"column:question_id"`
+	ChatID     int64  `gorm:"column:chat_id"`
+}
+
+func (QuestionHistory) TableName() string {
+	return "questions_history"
 }

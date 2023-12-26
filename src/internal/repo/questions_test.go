@@ -3,6 +3,7 @@ package repo
 import (
 	"dc_haur/src/internal/domain"
 	"errors"
+	"github.com/jinzhu/gorm"
 	"regexp"
 	"testing"
 
@@ -15,7 +16,11 @@ func TestGetLevels_Success(t *testing.T) {
 		t.Fatalf("Failed to create mock database: %v", err)
 	}
 	defer mockDB.Close()
-	repo := NewQuestionsRepo(mockDB)
+	gdb, err := gorm.Open("mysql", mockDB)
+	if err != nil {
+		t.Error(err)
+	}
+	repo := NewQuestionsRepo(gdb)
 	rows := sqlmock.NewRows([]string{"level"}).AddRow("Easy").AddRow("Medium").AddRow("Hard")
 	mock.ExpectQuery(regexp.QuoteMeta(GetLevelsSql)).
 		WithArgs("ExampleDeck").
@@ -36,7 +41,11 @@ func TestGetLevels_NoLevels(t *testing.T) {
 		t.Fatalf("Failed to create mock database: %v", err)
 	}
 	defer mockDB.Close()
-	repo := NewQuestionsRepo(mockDB)
+	gdb, err := gorm.Open("mysql", mockDB)
+	if err != nil {
+		t.Error(err)
+	}
+	repo := NewQuestionsRepo(gdb)
 	mock.ExpectQuery(regexp.QuoteMeta(GetLevelsSql)).
 		WithArgs("NoLevelsDeck").
 		WillReturnRows(sqlmock.NewRows([]string{"level"}))
@@ -55,7 +64,11 @@ func TestGetRandQuestion_Error(t *testing.T) {
 		t.Fatalf("Failed to create mock database: %v", err)
 	}
 	defer mockDB.Close()
-	repo := NewQuestionsRepo(mockDB)
+	gdb, err := gorm.Open("mysql", mockDB)
+	if err != nil {
+		t.Error(err)
+	}
+	repo := NewQuestionsRepo(gdb)
 	mock.ExpectQuery(regexp.QuoteMeta(GetRandQuestionSql)).
 		WithArgs("Hard", "ErrorDeck").
 		WillReturnError(errors.New("mocked error"))
@@ -74,7 +87,11 @@ func TestGetRandQuestion_Success(t *testing.T) {
 		t.Fatalf("Failed to create mock database: %v", err)
 	}
 	defer mockDB.Close()
-	repo := NewQuestionsRepo(mockDB)
+	gdb, err := gorm.Open("mysql", mockDB)
+	if err != nil {
+		t.Error(err)
+	}
+	repo := NewQuestionsRepo(gdb)
 	rows := sqlmock.NewRows([]string{"id", "level", "deck_id", "text"}).
 		AddRow("1", "Hard", "2", "someRandText")
 	mock.ExpectQuery(regexp.QuoteMeta(GetRandQuestionSql)).
@@ -105,7 +122,11 @@ func TestGetLevels_QueryError(t *testing.T) {
 	}
 	defer db.Close()
 
-	questionsRepo := NewQuestionsRepo(db)
+	gdb, err := gorm.Open("mysql", db)
+	if err != nil {
+		t.Error(err)
+	}
+	questionsRepo := NewQuestionsRepo(gdb)
 
 	mock.ExpectQuery(regexp.QuoteMeta(GetLevelsSql)).
 		WithArgs("testDeck").

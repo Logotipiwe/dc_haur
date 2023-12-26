@@ -1,28 +1,31 @@
 package repo
 
 import (
-	"database/sql"
 	"dc_haur/src/internal/domain"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 type QuestionsHistoryRepo struct {
-	DB *sql.DB
+	DB *gorm.DB
 }
 
-func NewQuestionsHistoryRepo(DB *sql.DB) *QuestionsHistoryRepo {
+func NewQuestionsHistoryRepo(DB *gorm.DB) *QuestionsHistoryRepo {
 	return &QuestionsHistoryRepo{DB: DB}
 }
 
 func (repo *QuestionsHistoryRepo) Insert(chatID int64, question *domain.Question) error {
-	query := `INSERT INTO questions_history (id, deck_id, level_name, question_id, chat_id) VALUES (?, ?, ?, ?, ?)`
-	_, err := repo.DB.Exec(query, uuid.NewString(), question.DeckID, question.Level, question.ID, chatID)
-	return err
+	query := &domain.QuestionHistory{
+		ID:         uuid.NewString(),
+		DeckID:     question.DeckID,
+		LevelName:  question.Level,
+		QuestionID: question.ID,
+		ChatID:     chatID,
+	}
+	return repo.DB.Create(query).Error
 }
 
 func (repo *QuestionsHistoryRepo) Truncate() error {
-	query := `TRUNCATE TABLE questions_history`
-	_, err := repo.DB.Exec(query)
-	return err
+	return repo.DB.Exec(`TRUNCATE TABLE questions_history`).Error
 }

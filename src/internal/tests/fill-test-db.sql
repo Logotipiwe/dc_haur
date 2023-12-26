@@ -1,4 +1,4 @@
-truncate table used_questions;
+truncate table questions_history;
 truncate table questions;
 truncate table decks;
 
