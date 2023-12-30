@@ -8,16 +8,24 @@ import (
 )
 
 type Question struct {
-	ID     string `db:"id"`
-	Level  string `db:"level"`
-	DeckID string `db:"deck_id"`
-	Text   string `db:"text"`
+	ID     string `gorm:"column:id" json:"id,omitempty"`
+	Level  string `gorm:"column:level" json:"level,omitempty"`
+	DeckID string `gorm:"column:deck_id" json:"deckId,omitempty"`
+	Text   string `gorm:"column:text" json:"text,omitempty"`
+}
+
+func (Question) TableName() string {
+	return "questions"
 }
 
 type Deck struct {
-	ID          string `db:"id"`
-	Name        string `db:"name"`
-	Description string `db:"description"`
+	ID          string `gorm:"column:id" json:"id,omitempty"`
+	Name        string `gorm:"column:name" json:"name,omitempty"`
+	Description string `gorm:"column:description" json:"description,omitempty"`
+}
+
+func (Deck) TableName() string {
+	return "decks"
 }
 
 type BotInteractor interface {
@@ -56,7 +64,7 @@ type QuestionHistory struct {
 	DeckID     string `gorm:"column:deck_id"`
 	LevelName  string `gorm:"column:level_name"`
 	QuestionID string `gorm:"column:question_id"`
-	ChatID     int64  `gorm:"column:chat_id"`
+	ChatID     string `gorm:"column:chat_id"`
 }
 
 func (QuestionHistory) TableName() string {

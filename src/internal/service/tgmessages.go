@@ -97,7 +97,7 @@ func (s *TgMessageService) GetQuestionMessage(update Update, deckName string, le
 	} else {
 		chattable = NewMessage(update.Message.Chat.ID, question.Text)
 	}
-	err = s.repos.History.Insert(chatID, question)
+	err = s.repos.History.Insert(strconv.FormatInt(chatID, 10), question)
 	if err != nil {
 		return nil, err
 	}

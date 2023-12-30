@@ -19,7 +19,7 @@ type Questions interface {
 }
 
 type History interface {
-	Insert(int64, *domain.Question) error
+	Insert(string, *domain.Question) error
 	Truncate() error
 }
 

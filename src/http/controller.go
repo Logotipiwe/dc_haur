@@ -1,7 +1,9 @@
 package http
 
 import (
+	"dc_haur/src/internal/repo"
 	"dc_haur/src/internal/service"
+	"errors"
 	"github.com/Logotipiwe/dc_go_auth_lib/auth"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	config "github.com/logotipiwe/dc_go_config_lib"
@@ -67,7 +69,7 @@ func StartServer(services *service.Services) {
 	apiV1 := router.Group("/api/v1")
 
 	apiV1.GET("/decks", doWithErr(func(c *gin.Context) error {
-		decks, err := services.Repos.Decks.GetDecks()
+		decks, err := services.Decks.GetDecks()
 		if err != nil {
 			return err
 		}
@@ -76,12 +78,34 @@ func StartServer(services *service.Services) {
 	}))
 
 	apiV1.GET("/levels", doWithErr(func(c *gin.Context) error {
-		deckId := c.Param("deckId")
-		levels, err := services.Repos.Questions.GetLevels(deckId)
-		if err != nil {
+		deckId := c.Query("deckId")
+		levels, err := services.Questions.GetLevels(deckId)
+		if errors.Is(err, repo.NoLevelsErr) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "No levels found by deck id " + deckId})
+			return nil
+		} else if err != nil {
 			return err
 		}
 		c.JSON(http.StatusOK, levels)
+		return nil
+	}))
+
+	apiV1.GET("/question", doWithErr(func(c *gin.Context) error {
+		deckId := c.Query("deckId")
+		levelName := c.Query("levelName")
+		question, err := services.Questions.GetRandQuestion(deckId, levelName)
+		if err != nil {
+			return err
+		}
+
+		if clientId, exists := c.GetQuery("clientId"); exists {
+			err := services.Repos.History.Insert(clientId, question)
+			if err != nil {
+				return err
+			}
+		}
+
+		c.JSON(http.StatusOK, question)
 		return nil
 	}))
 
