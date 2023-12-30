@@ -22,7 +22,7 @@ func TestGetLevels_Success(t *testing.T) {
 	}
 	repo := NewQuestionsRepo(gdb)
 	rows := sqlmock.NewRows([]string{"level"}).AddRow("Easy").AddRow("Medium").AddRow("Hard")
-	mock.ExpectQuery(regexp.QuoteMeta(GetLevelsSql)).
+	mock.ExpectQuery(regexp.QuoteMeta(GetLevelsByDeckNameSql)).
 		WithArgs("ExampleDeck").
 		WillReturnRows(rows)
 	levels, err := repo.GetLevels("ExampleDeck")
@@ -46,7 +46,7 @@ func TestGetLevels_NoLevels(t *testing.T) {
 		t.Error(err)
 	}
 	repo := NewQuestionsRepo(gdb)
-	mock.ExpectQuery(regexp.QuoteMeta(GetLevelsSql)).
+	mock.ExpectQuery(regexp.QuoteMeta(GetLevelsByDeckNameSql)).
 		WithArgs("NoLevelsDeck").
 		WillReturnRows(sqlmock.NewRows([]string{"level"}))
 	levels, err := repo.GetLevels("NoLevelsDeck")
@@ -69,10 +69,10 @@ func TestGetRandQuestion_Error(t *testing.T) {
 		t.Error(err)
 	}
 	repo := NewQuestionsRepo(gdb)
-	mock.ExpectQuery(regexp.QuoteMeta(GetRandQuestionSql)).
+	mock.ExpectQuery(regexp.QuoteMeta(GetRandQuestionByDeckNameSql)).
 		WithArgs("Hard", "ErrorDeck").
 		WillReturnError(errors.New("mocked error"))
-	question, err := repo.GetRandQuestion("ErrorDeck", "Hard")
+	question, err := repo.GetRandQuestionByNames("ErrorDeck", "Hard")
 	if err == nil {
 		t.Error("Expected an error, but got nil")
 	}
@@ -94,10 +94,10 @@ func TestGetRandQuestion_Success(t *testing.T) {
 	repo := NewQuestionsRepo(gdb)
 	rows := sqlmock.NewRows([]string{"id", "level", "deck_id", "text"}).
 		AddRow("1", "Hard", "2", "someRandText")
-	mock.ExpectQuery(regexp.QuoteMeta(GetRandQuestionSql)).
+	mock.ExpectQuery(regexp.QuoteMeta(GetRandQuestionByDeckNameSql)).
 		WithArgs("Hard", "ExampleDeck").
 		WillReturnRows(rows)
-	question, err := repo.GetRandQuestion("ExampleDeck", "Hard")
+	question, err := repo.GetRandQuestionByNames("ExampleDeck", "Hard")
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
@@ -128,7 +128,7 @@ func TestGetLevels_QueryError(t *testing.T) {
 	}
 	questionsRepo := NewQuestionsRepo(gdb)
 
-	mock.ExpectQuery(regexp.QuoteMeta(GetLevelsSql)).
+	mock.ExpectQuery(regexp.QuoteMeta(GetLevelsByDeckNameSql)).
 		WithArgs("testDeck").
 		WillReturnError(errors.New("database error"))
 

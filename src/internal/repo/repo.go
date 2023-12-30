@@ -12,8 +12,10 @@ type Decks interface {
 }
 
 type Questions interface {
-	GetLevels(deckName string) ([]string, error)
-	GetRandQuestion(deckName string, levelName string) (*domain.Question, error)
+	GetLevels(deckID string) ([]string, error)
+	GetRandQuestion(deckID, levelName string) (*domain.Question, error)
+	GetLevelsByName(deckName string) ([]string, error)
+	GetRandQuestionByNames(deckName string, levelName string) (*domain.Question, error)
 }
 
 type History interface {

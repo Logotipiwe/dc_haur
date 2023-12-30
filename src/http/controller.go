@@ -64,6 +64,27 @@ func StartServer(services *service.Services) {
 		return nil
 	}))
 
+	apiV1 := router.Group("/api/v1")
+
+	apiV1.GET("/decks", doWithErr(func(c *gin.Context) error {
+		decks, err := services.Repos.Decks.GetDecks()
+		if err != nil {
+			return err
+		}
+		c.JSON(http.StatusOK, decks)
+		return nil
+	}))
+
+	apiV1.GET("/levels", doWithErr(func(c *gin.Context) error {
+		deckId := c.Param("deckId")
+		levels, err := services.Repos.Questions.GetLevels(deckId)
+		if err != nil {
+			return err
+		}
+		c.JSON(http.StatusOK, levels)
+		return nil
+	}))
+
 	port := config.GetConfigOr("CONTAINER_PORT", "80")
 	log.Println("Starting server on port " + port)
 	err := router.Run(":" + port)
