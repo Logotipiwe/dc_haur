@@ -2,6 +2,7 @@ package tests
 
 import (
 	"bytes"
+	http2 "dc_haur/src/http"
 	"dc_haur/src/internal/service"
 	utils "dc_haur/src/pkg"
 	"encoding/json"
@@ -234,13 +235,18 @@ func toMarkup(t *testing.T, input interface{}) *tgbotapi.ReplyKeyboardMarkup {
 func sendUpdate(t *testing.T, update *tgbotapi.Update) *tgbotapi.MessageConfig {
 	appUrl := config.GetConfig("TEST_URL")
 	println("Url to test " + appUrl)
+	m2mToken := config.GetConfig("M_TOKEN")
 
 	println("sending message " + update.Message.Text)
 	reqBody, err := json.Marshal(update)
 	assert.NoError(t, err)
 
-	req, err := http.NewRequest("POST", appUrl+"/chat", bytes.NewReader(reqBody))
+	req, err := http.NewRequest("POST", appUrl+http2.IntegrationTestPrefix+"/test-chat", bytes.NewReader(reqBody))
 	assert.NoError(t, err)
+
+	query := req.URL.Query()
+	query.Add("mToken", m2mToken)
+	req.URL.RawQuery = query.Encode()
 
 	client := &http.Client{}
 	response, err := client.Do(req)
@@ -264,7 +270,13 @@ func sendUpdate(t *testing.T, update *tgbotapi.Update) *tgbotapi.MessageConfig {
 func clearHistory(t *testing.T) {
 	appUrl := config.GetConfig("TEST_URL")
 	println("Clearing questions history")
-	req, err := http.NewRequest("GET", appUrl+"/clear-history", nil)
+	req, err := http.NewRequest("POST", appUrl+http2.IntegrationTestPrefix+"/clear-history", nil)
+
+	m2mToken := config.GetConfig("M_TOKEN")
+	query := req.URL.Query()
+	query.Add("mToken", m2mToken)
+	req.URL.RawQuery = query.Encode()
+
 	assert.NoError(t, err)
 	client := &http.Client{}
 	response, err := client.Do(req)
@@ -277,8 +289,13 @@ func checkIfImagesEnabled(t *testing.T) {
 	appUrl := config.GetConfig("TEST_URL")
 	println("Checking if images are enabled...")
 
-	req, err := http.NewRequest("GET", appUrl+"/images-enabled", nil)
+	req, err := http.NewRequest("GET", appUrl+http2.IntegrationTestPrefix+"/images-enabled", nil)
 	assert.NoError(t, err)
+
+	m2mToken := config.GetConfig("M_TOKEN")
+	query := req.URL.Query()
+	query.Add("mToken", m2mToken)
+	req.URL.RawQuery = query.Encode()
 
 	client := &http.Client{}
 	response, err := client.Do(req)

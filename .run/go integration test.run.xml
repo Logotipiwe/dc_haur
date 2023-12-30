@@ -1,17 +1,18 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="go integration test" type="GoTestRunConfiguration" factoryName="Go Test">
-    <module name="dc_haur"/>
-    <working_directory value="$PROJECT_DIR$/src/internal/tests"/>
-    <parameters value="-test.count 2"/>
+      <module name="dc_haur"/>
+      <working_directory value="$PROJECT_DIR$/src/internal/tests"/>
+      <parameters value="-test.count 2"/>
     <envs>
-      <env name="TEST_URL" value="http://localhost:8081"/>
+        <env name="TEST_URL" value="http://localhost:8081"/>
+        <env name="M_TOKEN" value="4321"/>
     </envs>
-    <root_directory value="$PROJECT_DIR$"/>
-    <kind value="PACKAGE"/>
-    <package value="dc_haur/src/internal/tests"/>
-    <directory value="$PROJECT_DIR$"/>
-    <filePath value="$PROJECT_DIR$"/>
-    <framework value="gotest"/>
-    <method v="2"/>
+      <root_directory value="$PROJECT_DIR$"/>
+      <kind value="PACKAGE"/>
+      <package value="dc_haur/src/internal/tests"/>
+      <directory value="$PROJECT_DIR$"/>
+      <filePath value="$PROJECT_DIR$"/>
+      <framework value="gotest"/>
+      <method v="2"/>
   </configuration>
 </component>

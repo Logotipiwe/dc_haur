@@ -2,72 +2,92 @@ package http
 
 import (
 	"dc_haur/src/internal/service"
-	"encoding/json"
-	"fmt"
+	"github.com/Logotipiwe/dc_go_auth_lib/auth"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	config "github.com/logotipiwe/dc_go_config_lib"
 	"image/png"
 	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
+const IntegrationTestPrefix = "/api/v1/integration-test"
+
 func StartServer(services *service.Services) {
-	http.HandleFunc("/test-image", func(w http.ResponseWriter, r *http.Request) {
-		card, err := service.CreateImageCard("Отвечает человек слева: Как ты думаешь, что самое сложное в том деле, которым я зарабатываю себе на жизнь?")
-		if err != nil {
-			sendErr(w, err)
-			return
-		}
-		w.Header().Set("Content-Type", "image/png")
-		err = png.Encode(w, card)
-		if err != nil {
-			sendErr(w, err)
-			return
+	router := gin.Default()
+	integrationTestingRoutes := router.Group(IntegrationTestPrefix)
+
+	integrationTestingRoutes.Use(func(c *gin.Context) {
+		if err := auth.AuthAsMachine(c.Request); err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			c.Abort()
 		}
 	})
 
-	http.HandleFunc("/chat", func(w http.ResponseWriter, r *http.Request) {
-		var update tgbotapi.Update
-		err := json.NewDecoder(r.Body).Decode(&update)
+	integrationTestingRoutes.GET("/test-image", doWithErrExplicit(func(c *gin.Context) error {
+		card, err := service.CreateImageCard("Отвечает человек слева: Как ты думаешь, что самое сложное в том деле, которым я зарабатываю себе на жизнь?")
 		if err != nil {
-			sendErr(w, err)
-			return
+			return err
+		}
+		c.Writer.Header().Set("Content-Type", "image/png")
+		err = png.Encode(c.Writer, card)
+		if err != nil {
+			return err
+		}
+		return nil
+	}))
+	integrationTestingRoutes.POST("/test-chat", doWithErrExplicit(func(c *gin.Context) error {
+		var update tgbotapi.Update
+		if err := c.ShouldBindJSON(&update); err != nil {
+			return err
 		}
 		reply, err := services.TgUpdatesHandler.HandleMessageAndReply(update)
-		w.Header().Set("Content-Type", "application/json")
 		if err != nil {
 			reply = services.TgUpdatesHandler.SendUnknownCommandAnswer(update)
 		}
-		err = json.NewEncoder(w).Encode(reply)
-		if err != nil {
-			panic(err)
+		c.JSON(http.StatusOK, reply)
+		return nil
+	}))
+	integrationTestingRoutes.POST("/clear-history", doWithErrExplicit(func(c *gin.Context) error {
+		if err := services.Repos.History.Truncate(); err != nil {
+			return err
 		}
-	})
-
-	http.HandleFunc("/clear-history", func(w http.ResponseWriter, r *http.Request) {
-		err := services.Repos.History.Truncate()
-		if err != nil {
-			sendErr(w, err)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-	})
-
-	http.HandleFunc("/images-enabled", func(w http.ResponseWriter, r *http.Request) {
+		c.Status(http.StatusOK)
+		return nil
+	}))
+	integrationTestingRoutes.GET("/images-enabled", doWithErrExplicit(func(c *gin.Context) error {
 		enabledImagesStr := config.GetConfig("ENABLE_IMAGES")
-		_, err := fmt.Fprint(w, enabledImagesStr)
-		if err != nil {
-			log.Print(err)
+		if _, err := c.Writer.WriteString(enabledImagesStr); err != nil {
+			return err
 		}
-	})
+		return nil
+	}))
 
-	err := http.ListenAndServe(":8081", nil)
+	port := config.GetConfigOr("CONTAINER_PORT", "80")
+	log.Println("Starting server on port " + port)
+	err := router.Run(":" + port)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func sendErr(w http.ResponseWriter, err error) {
-	log.Print(err)
-	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+func doWithErrExplicit(f func(c *gin.Context) error) gin.HandlerFunc {
+	return func(context *gin.Context) {
+		err := f(context)
+		if err != nil {
+			log.Println(err)
+			context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+	}
+}
+
+func doWithErr(f func(c *gin.Context) error) gin.HandlerFunc {
+	return func(context *gin.Context) {
+		err := f(context)
+		if err != nil {
+			log.Println(err)
+			context.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		}
+	}
 }
