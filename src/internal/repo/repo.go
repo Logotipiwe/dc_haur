@@ -28,7 +28,7 @@ type Repositories struct {
 }
 
 func NewRepositories(db *sql.DB) *Repositories {
-	gormDb, err := gorm.Open("mysql", db)
+	gormDb, err := NewGorm(db)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,4 +37,8 @@ func NewRepositories(db *sql.DB) *Repositories {
 		Questions: NewQuestionsRepo(gormDb),
 		History:   NewQuestionsHistoryRepo(gormDb),
 	}
+}
+
+func NewGorm(db *sql.DB) (*gorm.DB, error) {
+	return gorm.Open("mysql", db)
 }
