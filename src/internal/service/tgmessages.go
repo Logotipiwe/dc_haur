@@ -56,7 +56,7 @@ func (s *TgMessageService) HandleStart(update Update) (*MessageConfig, error) {
 func (s *TgMessageService) GetLevelsMessage(update Update, deckName string) (*MessageConfig, error) {
 	log.Println("GetLevelsMessage")
 
-	levels, err := s.repos.Questions.GetLevels(deckName)
+	levels, err := s.repos.Questions.GetLevelsByName(deckName)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func (s *TgMessageService) GetQuestionMessage(update Update, deckName string, le
 	log.Println("GetQuestionMessage")
 
 	chatID := update.Message.Chat.ID
-	question, err := s.repos.Questions.GetRandQuestion(deckName, levelName)
+	question, err := s.repos.Questions.GetRandQuestionByNames(deckName, levelName)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (s *TgMessageService) GetQuestionMessage(update Update, deckName string, le
 	} else {
 		chattable = NewMessage(update.Message.Chat.ID, question.Text)
 	}
-	err = s.repos.History.Insert(chatID, question)
+	err = s.repos.History.Insert(strconv.FormatInt(chatID, 10), question)
 	if err != nil {
 		return nil, err
 	}

@@ -8,7 +8,7 @@ func NewMockQuestionsRepo() *MockQuestionsRepo {
 	return &MockQuestionsRepo{}
 }
 
-func (m *MockQuestionsRepo) GetRandQuestion(_ string, _ string) (*domain.Question, error) {
+func (m *MockQuestionsRepo) GetRandQuestionByNames(_ string, _ string) (*domain.Question, error) {
 	return &domain.Question{
 		ID:     "1",
 		Level:  "2",
@@ -17,6 +17,6 @@ func (m *MockQuestionsRepo) GetRandQuestion(_ string, _ string) (*domain.Questio
 	}, nil
 }
 
-func (m *MockQuestionsRepo) GetLevels(_ string) ([]string, error) {
+func (m *MockQuestionsRepo) GetLevelsByName(_ string) ([]string, error) {
 	return []string{"Level1", "Level2", "Level3"}, nil
 }

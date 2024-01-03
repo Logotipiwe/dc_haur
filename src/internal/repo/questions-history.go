@@ -15,7 +15,7 @@ func NewQuestionsHistoryRepo(DB *gorm.DB) *QuestionsHistoryRepo {
 	return &QuestionsHistoryRepo{DB: DB}
 }
 
-func (repo *QuestionsHistoryRepo) Insert(chatID int64, question *domain.Question) error {
+func (repo *QuestionsHistoryRepo) Insert(chatID string, question *domain.Question) error {
 	query := &domain.QuestionHistory{
 		ID:         uuid.NewString(),
 		DeckID:     question.DeckID,

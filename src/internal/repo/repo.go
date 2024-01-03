@@ -12,12 +12,14 @@ type Decks interface {
 }
 
 type Questions interface {
-	GetLevels(deckName string) ([]string, error)
-	GetRandQuestion(deckName string, levelName string) (*domain.Question, error)
+	GetLevels(deckID string) ([]string, error)
+	GetRandQuestion(deckID, levelName string) (*domain.Question, error)
+	GetLevelsByName(deckName string) ([]string, error)
+	GetRandQuestionByNames(deckName string, levelName string) (*domain.Question, error)
 }
 
 type History interface {
-	Insert(int64, *domain.Question) error
+	Insert(string, *domain.Question) error
 	Truncate() error
 }
 
@@ -28,7 +30,7 @@ type Repositories struct {
 }
 
 func NewRepositories(db *sql.DB) *Repositories {
-	gormDb, err := gorm.Open("mysql", db)
+	gormDb, err := NewGorm(db)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,4 +39,8 @@ func NewRepositories(db *sql.DB) *Repositories {
 		Questions: NewQuestionsRepo(gormDb),
 		History:   NewQuestionsHistoryRepo(gormDb),
 	}
+}
+
+func NewGorm(db *sql.DB) (*gorm.DB, error) {
+	return gorm.Open("mysql", db)
 }
