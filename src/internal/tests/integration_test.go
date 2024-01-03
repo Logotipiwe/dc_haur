@@ -31,216 +31,246 @@ func TestApplication(t *testing.T) {
 
 	checkIfImagesEnabled(t)
 
-	t.Run("Telegram client", func(t *testing.T) {
-		t.Run("start message", func(t *testing.T) {
-			defer failOnPanic(t)
-			update := createUpdateObject("/start")
-			ans := sendUpdate(t, update)
-			assert.Equal(t, ans.Text, service.WelcomeMessage)
-		})
+	checkTg, err := strconv.ParseBool(config.GetConfigOr("CHECK_TG", "true"))
+	assert.NoError(t, err)
+	if checkTg {
+		t.Run("Telegram client", func(t *testing.T) {
+			t.Run("start message", func(t *testing.T) {
+				defer failOnPanic(t)
+				update := createUpdateObject("/start")
+				ans := sendUpdate(t, update)
+				assert.Equal(t, ans.Text, service.WelcomeMessage)
+			})
 
-		t.Run("get decks start", func(t *testing.T) {
-			defer failOnPanic(t)
-			update := createUpdateObject("/start")
-			ans := sendUpdate(t, update)
-			replyMarkup := toMarkup(t, ans.BaseChat.ReplyMarkup)
-			assert.Equal(t, 3, len(replyMarkup.Keyboard))
-			assert.Equal(t, "deck d1 name", replyMarkup.Keyboard[0][0].Text)
-			assert.Equal(t, "deck d2 name", replyMarkup.Keyboard[1][0].Text)
-			assert.Equal(t, "deck d3 name", replyMarkup.Keyboard[2][0].Text)
-			println(ans)
-		})
+			t.Run("get decks start", func(t *testing.T) {
+				defer failOnPanic(t)
+				update := createUpdateObject("/start")
+				ans := sendUpdate(t, update)
+				replyMarkup := toMarkup(t, ans.BaseChat.ReplyMarkup)
+				assert.Equal(t, 3, len(replyMarkup.Keyboard))
+				assert.Equal(t, "deck d1 name", replyMarkup.Keyboard[0][0].Text)
+				assert.Equal(t, "deck d2 name", replyMarkup.Keyboard[1][0].Text)
+				assert.Equal(t, "deck d3 name", replyMarkup.Keyboard[2][0].Text)
+				println(ans)
+			})
 
-		t.Run("select deck", func(t *testing.T) {
-			defer failOnPanic(t)
-			update := createUpdateObject("/start")
-			ans := sendUpdate(t, update)
-			update = createUpdateObject("deck d1 name")
-			ans = sendUpdate(t, update)
-			replyMarkup := toMarkup(t, ans.BaseChat.ReplyMarkup)
-			assert.Equal(t, ans.Text, service.GotLevelsMessage)
-			assert.Equal(t, 3, len(replyMarkup.Keyboard[0]))
-			assert.Equal(t, "l1", replyMarkup.Keyboard[0][0].Text)
-			assert.Equal(t, "l2", replyMarkup.Keyboard[0][1].Text)
-			assert.Equal(t, "l3", replyMarkup.Keyboard[0][2].Text)
-			println(ans)
-		})
+			t.Run("select deck", func(t *testing.T) {
+				defer failOnPanic(t)
+				update := createUpdateObject("/start")
+				ans := sendUpdate(t, update)
+				update = createUpdateObject("deck d1 name")
+				ans = sendUpdate(t, update)
+				replyMarkup := toMarkup(t, ans.BaseChat.ReplyMarkup)
+				assert.Equal(t, ans.Text, service.GotLevelsMessage)
+				assert.Equal(t, 3, len(replyMarkup.Keyboard[0]))
+				assert.Equal(t, "l1", replyMarkup.Keyboard[0][0].Text)
+				assert.Equal(t, "l2", replyMarkup.Keyboard[0][1].Text)
+				assert.Equal(t, "l3", replyMarkup.Keyboard[0][2].Text)
+				println(ans)
+			})
 
-		t.Run("select deck; select level", func(t *testing.T) {
-			defer failOnPanic(t)
-			update := createUpdateObject("/start")
-			ans := sendUpdate(t, update)
-			update = createUpdateObjectFrom(update, "deck d1 name")
-			ans = sendUpdate(t, update)
-			update = createUpdateObjectFrom(update, "l1")
-			ans = sendUpdate(t, update)
-			assert.Contains(t, []string{"question d1l1q1 text", "question d1l1q2 text", "question d1l1q3 text"}, ans.Text)
-			println(ans)
-		})
-
-		t.Run("select level > markup nil", func(t *testing.T) {
-			defer failOnPanic(t)
-			update := createUpdateObject("/start")
-			ans := sendUpdate(t, update)
-			update = createUpdateObjectFrom(update, "deck d1 name")
-			ans = sendUpdate(t, update)
-			update = createUpdateObjectFrom(update, "l1")
-			ans = sendUpdate(t, update)
-			assert.Nil(t, ans.BaseChat.ReplyMarkup)
-			println(ans)
-		})
-
-		t.Run("select deck; select level many times", func(t *testing.T) {
-			defer failOnPanic(t)
-			update := createUpdateObject("/start")
-			ans := sendUpdate(t, update)
-			update = createUpdateObjectFrom(update, "deck d1 name")
-			ans = sendUpdate(t, update)
-			for i := 0; i < 10; i++ {
+			t.Run("select deck; select level", func(t *testing.T) {
+				defer failOnPanic(t)
+				update := createUpdateObject("/start")
+				ans := sendUpdate(t, update)
+				update = createUpdateObjectFrom(update, "deck d1 name")
+				ans = sendUpdate(t, update)
 				update = createUpdateObjectFrom(update, "l1")
 				ans = sendUpdate(t, update)
 				assert.Contains(t, []string{"question d1l1q1 text", "question d1l1q2 text", "question d1l1q3 text"}, ans.Text)
+				println(ans)
+			})
+
+			t.Run("select level > markup nil", func(t *testing.T) {
+				defer failOnPanic(t)
+				update := createUpdateObject("/start")
+				ans := sendUpdate(t, update)
+				update = createUpdateObjectFrom(update, "deck d1 name")
+				ans = sendUpdate(t, update)
+				update = createUpdateObjectFrom(update, "l1")
+				ans = sendUpdate(t, update)
 				assert.Nil(t, ans.BaseChat.ReplyMarkup)
-			}
-		})
+				println(ans)
+			})
 
-		t.Run("questions in level are ordered", func(t *testing.T) {
-			defer failOnPanic(t)
-			clearHistory(t)
-			questions := []string{"question d1l1q1 text", "question d1l1q2 text", "question d1l1q3 text"}
-			update := createUpdateObject("/start")
-			ans := sendUpdate(t, update)
-			update = createUpdateObjectFrom(update, "deck d1 name")
-			ans = sendUpdate(t, update)
-			for i := 0; i < 5; i++ {
-				update = createUpdateObjectFrom(update, "l1")
+			t.Run("select deck; select level many times", func(t *testing.T) {
+				defer failOnPanic(t)
+				update := createUpdateObject("/start")
+				ans := sendUpdate(t, update)
+				update = createUpdateObjectFrom(update, "deck d1 name")
 				ans = sendUpdate(t, update)
-				ansIndex1 := utils.FindIndex(questions, ans.Text)
-				assert.NotEqual(t, -1, ansIndex1)
+				for i := 0; i < 10; i++ {
+					update = createUpdateObjectFrom(update, "l1")
+					ans = sendUpdate(t, update)
+					assert.Contains(t, []string{"question d1l1q1 text", "question d1l1q2 text", "question d1l1q3 text"}, ans.Text)
+					assert.Nil(t, ans.BaseChat.ReplyMarkup)
+				}
+			})
 
-				update = createUpdateObjectFrom(update, "l1")
+			t.Run("questions in level are ordered", func(t *testing.T) {
+				defer failOnPanic(t)
+				clearHistory(t)
+				questions := []string{"question d1l1q1 text", "question d1l1q2 text", "question d1l1q3 text"}
+				update := createUpdateObject("/start")
+				ans := sendUpdate(t, update)
+				update = createUpdateObjectFrom(update, "deck d1 name")
 				ans = sendUpdate(t, update)
-				ansIndex2 := utils.FindIndex(questions, ans.Text)
-				assert.NotEqual(t, -1, ansIndex2)
-				assert.NotEqual(t, ansIndex1, ansIndex2)
+				for i := 0; i < 5; i++ {
+					update = createUpdateObjectFrom(update, "l1")
+					ans = sendUpdate(t, update)
+					ansIndex1 := utils.FindIndex(questions, ans.Text)
+					assert.NotEqual(t, -1, ansIndex1)
 
-				update = createUpdateObjectFrom(update, "l1")
+					update = createUpdateObjectFrom(update, "l1")
+					ans = sendUpdate(t, update)
+					ansIndex2 := utils.FindIndex(questions, ans.Text)
+					assert.NotEqual(t, -1, ansIndex2)
+					assert.NotEqual(t, ansIndex1, ansIndex2)
+
+					update = createUpdateObjectFrom(update, "l1")
+					ans = sendUpdate(t, update)
+					ansIndex3 := utils.FindIndex(questions, ans.Text)
+					assert.NotEqual(t, -1, ansIndex3)
+					assert.NotEqual(t, ansIndex1, ansIndex3)
+					assert.NotEqual(t, ansIndex2, ansIndex3)
+					println("ORDER CHECK FINISHED")
+					time.Sleep(100 * time.Millisecond)
+				}
+			})
+
+			t.Run("select deck; select different levels many times", func(t *testing.T) {
+				defer failOnPanic(t)
+				update := createUpdateObject("/start")
+				ans := sendUpdate(t, update)
+				update = createUpdateObjectFrom(update, "deck d1 name")
 				ans = sendUpdate(t, update)
-				ansIndex3 := utils.FindIndex(questions, ans.Text)
-				assert.NotEqual(t, -1, ansIndex3)
-				assert.NotEqual(t, ansIndex1, ansIndex3)
-				assert.NotEqual(t, ansIndex2, ansIndex3)
-				println("ORDER CHECK FINISHED")
-				time.Sleep(100 * time.Millisecond)
-			}
-		})
+				for i := 0; i < 20; i++ {
+					level := strconv.Itoa(rand.Intn(3) + 1)
+					update = createUpdateObjectFrom(update, "l"+level)
+					ans = sendUpdate(t, update)
+					assert.True(t, strings.HasPrefix(ans.Text, "question d1l"+level))
+				}
+			})
 
-		t.Run("select deck; select different levels many times", func(t *testing.T) {
-			defer failOnPanic(t)
-			update := createUpdateObject("/start")
-			ans := sendUpdate(t, update)
-			update = createUpdateObjectFrom(update, "deck d1 name")
-			ans = sendUpdate(t, update)
-			for i := 0; i < 20; i++ {
-				level := strconv.Itoa(rand.Intn(3) + 1)
-				update = createUpdateObjectFrom(update, "l"+level)
+			t.Run("/question command", func(t *testing.T) {
+				defer failOnPanic(t)
+				update := createUpdateObject(service.QuestionCommand)
+				ans := sendUpdate(t, update)
+				assert.Equal(t, ans.Text, service.AssignNewQuestionText)
+				update = createUpdateObjectFrom(update, "what??")
 				ans = sendUpdate(t, update)
-				assert.True(t, strings.HasPrefix(ans.Text, "question d1l"+level))
-			}
+				assert.Equal(t, ans.Text, service.AcceptNewQuestionText)
+			})
+
+			t.Run("/feedback command", func(t *testing.T) {
+				defer failOnPanic(t)
+				update := createUpdateObject(service.FeedbackCommand)
+				ans := sendUpdate(t, update)
+				assert.Equal(t, ans.Text, service.AssignFeedbackText)
+				update = createUpdateObjectFrom(update, "MyFeedback")
+				ans = sendUpdate(t, update)
+				assert.Equal(t, ans.Text, service.AcceptFeedbackText)
+			})
 		})
+	}
 
-		t.Run("/question command", func(t *testing.T) {
-			defer failOnPanic(t)
-			update := createUpdateObject(service.QuestionCommand)
-			ans := sendUpdate(t, update)
-			assert.Equal(t, ans.Text, service.AssignNewQuestionText)
-			update = createUpdateObjectFrom(update, "what??")
-			ans = sendUpdate(t, update)
-			assert.Equal(t, ans.Text, service.AcceptNewQuestionText)
-		})
+	checkWeb, err := strconv.ParseBool(config.GetConfigOr("CHECK_WEB", "true"))
+	assert.NoError(t, err)
+	if checkWeb {
+		t.Run("Api client", func(t *testing.T) {
+			appUrl := config.GetConfig("TEST_URL")
+			println("Url to test " + appUrl)
+			apiV1 := "/api/v1"
+			apiIntegrationTest := apiV1 + "/integration-test"
 
-		t.Run("/feedback command", func(t *testing.T) {
-			defer failOnPanic(t)
-			update := createUpdateObject(service.FeedbackCommand)
-			ans := sendUpdate(t, update)
-			assert.Equal(t, ans.Text, service.AssignFeedbackText)
-			update = createUpdateObjectFrom(update, "MyFeedback")
-			ans = sendUpdate(t, update)
-			assert.Equal(t, ans.Text, service.AcceptFeedbackText)
-		})
-	})
+			t.Run("/test-image secured", func(t *testing.T) {
+				code, err := getResponseCode("GET", appUrl+apiIntegrationTest+"/test-image")
+				assert.Nil(t, err)
+				assert.Equal(t, 401, code)
+			})
+			t.Run("/test-chat secured", func(t *testing.T) {
+				code, err := getResponseCode("POST", appUrl+apiIntegrationTest+"/test-chat")
+				assert.Nil(t, err)
+				assert.Equal(t, 401, code)
+			})
+			t.Run("/clear-history secured", func(t *testing.T) {
+				code, err := getResponseCode("POST", appUrl+apiIntegrationTest+"/clear-history")
+				assert.Nil(t, err)
+				assert.Equal(t, 401, code)
+			})
+			t.Run("/images-enabled secured", func(t *testing.T) {
+				code, err := getResponseCode("GET", appUrl+apiIntegrationTest+"/images-enabled")
+				assert.Nil(t, err)
+				assert.Equal(t, 401, code)
+			})
 
-	t.Run("Api client", func(t *testing.T) {
-		appUrl := config.GetConfig("TEST_URL")
-		println("Url to test " + appUrl)
-		apiV1 := "/api/v1"
+			t.Run("get decks", func(t *testing.T) {
+				defer failOnPanic(t)
 
-		t.Run("get decks", func(t *testing.T) {
-			defer failOnPanic(t)
+				result := getDecksFromApi(t, appUrl+apiV1)
 
-			result := getDecksFromApi(t, appUrl+apiV1)
+				assert.Equal(t, 3, len(result))
+				for i := range result {
+					assert.NotNil(t, result[i].ID)
+					assert.NotNil(t, result[i].Name)
+					assert.NotNil(t, result[i].Description)
+				}
+			})
 
-			assert.Equal(t, 3, len(result))
-			for i := range result {
-				assert.NotNil(t, result[i].ID)
-				assert.NotNil(t, result[i].Name)
-				assert.NotNil(t, result[i].Description)
-			}
-		})
+			t.Run("get levels", func(t *testing.T) {
+				defer failOnPanic(t)
 
-		t.Run("get levels", func(t *testing.T) {
-			defer failOnPanic(t)
+				expected := [][]string{
+					{"l1", "l2", "l3"},
+					{"l1", "l2", "l3"},
+					{"l1", "l2"},
+				}
 
-			expected := [][]string{
-				{"l1", "l2", "l3"},
-				{"l1", "l2", "l3"},
-				{"l1", "l2"},
-			}
+				decks := getDecksFromApi(t, appUrl+apiV1)
 
-			decks := getDecksFromApi(t, appUrl+apiV1)
+				for i, deck := range decks {
+					result := getLevelsFromApi(t, deck.ID, appUrl+apiV1)
 
-			for i, deck := range decks {
-				result := getLevelsFromApi(t, deck.ID, appUrl+apiV1)
+					assert.Equal(t, expected[i], result)
+				}
+			})
 
-				assert.Equal(t, expected[i], result)
-			}
-		})
-
-		t.Run("get question", func(t *testing.T) {
-			defer failOnPanic(t)
-			question := getQuestionFromApi(t, "d1", "l1", appUrl+apiV1)
-			assert.Contains(t, []string{"question d1l1q1 text", "question d1l1q2 text", "question d1l1q3 text"}, question.Text)
-			assert.NotNil(t, question.ID)
-			assert.NotNil(t, question.Text)
-			assert.NotNil(t, question.DeckID)
-			assert.NotNil(t, question.Level)
-		})
-
-		t.Run("questions in level are ordered", func(t *testing.T) {
-			defer failOnPanic(t)
-			clearHistory(t)
-			questions := []string{"question d1l1q1 text", "question d1l1q2 text", "question d1l1q3 text"}
-			for i := 0; i < 5; i++ {
+			t.Run("get question", func(t *testing.T) {
+				defer failOnPanic(t)
 				question := getQuestionFromApi(t, "d1", "l1", appUrl+apiV1)
+				assert.Contains(t, []string{"question d1l1q1 text", "question d1l1q2 text", "question d1l1q3 text"}, question.Text)
+				assert.NotNil(t, question.ID)
+				assert.NotNil(t, question.Text)
+				assert.NotNil(t, question.DeckID)
+				assert.NotNil(t, question.Level)
+			})
 
-				ansIndex1 := utils.FindIndex(questions, question.Text)
-				assert.NotEqual(t, -1, ansIndex1)
+			t.Run("questions in level are ordered", func(t *testing.T) {
+				defer failOnPanic(t)
+				clearHistory(t)
+				questions := []string{"question d1l1q1 text", "question d1l1q2 text", "question d1l1q3 text"}
+				for i := 0; i < 5; i++ {
+					question := getQuestionFromApi(t, "d1", "l1", appUrl+apiV1)
 
-				question = getQuestionFromApi(t, "d1", "l1", appUrl+apiV1)
-				ansIndex2 := utils.FindIndex(questions, question.Text)
-				assert.NotEqual(t, -1, ansIndex2)
-				assert.NotEqual(t, ansIndex1, ansIndex2)
+					ansIndex1 := utils.FindIndex(questions, question.Text)
+					assert.NotEqual(t, -1, ansIndex1)
 
-				question = getQuestionFromApi(t, "d1", "l1", appUrl+apiV1)
-				ansIndex3 := utils.FindIndex(questions, question.Text)
-				assert.NotEqual(t, -1, ansIndex3)
-				assert.NotEqual(t, ansIndex1, ansIndex3)
-				assert.NotEqual(t, ansIndex2, ansIndex3)
-				println("ORDER CHECK FINISHED")
-				time.Sleep(100 * time.Millisecond)
-			}
+					question = getQuestionFromApi(t, "d1", "l1", appUrl+apiV1)
+					ansIndex2 := utils.FindIndex(questions, question.Text)
+					assert.NotEqual(t, -1, ansIndex2)
+					assert.NotEqual(t, ansIndex1, ansIndex2)
+
+					question = getQuestionFromApi(t, "d1", "l1", appUrl+apiV1)
+					ansIndex3 := utils.FindIndex(questions, question.Text)
+					assert.NotEqual(t, -1, ansIndex3)
+					assert.NotEqual(t, ansIndex1, ansIndex3)
+					assert.NotEqual(t, ansIndex2, ansIndex3)
+					println("ORDER CHECK FINISHED")
+					time.Sleep(100 * time.Millisecond)
+				}
+			})
 		})
-	})
+	}
 }
 
 func getQuestionFromApi(t *testing.T, deckID string, levelName string, url string) *domain.Question {
@@ -304,6 +334,22 @@ func getDecksFromApi(t *testing.T, url string) []domain.Deck {
 	err = response.Body.Close()
 
 	return result
+}
+
+func getResponseCode(method, url string) (int, error) {
+	fmt.Printf("Checking status from request %s\n", url)
+	request, err := http.NewRequest(method, url, nil)
+	if err != nil {
+		return 0, err
+	}
+
+	client := http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		return 0, err
+	}
+
+	return response.StatusCode, nil
 }
 
 func failOnPanic(t *testing.T) {
@@ -438,7 +484,7 @@ func checkIfImagesEnabled(t *testing.T) {
 
 	client := &http.Client{}
 	response, err := client.Do(req)
-	assert.NoError(t, err)
+	assert.NoError(t, err, "FUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU")
 
 	assert.Equal(t, http.StatusOK, response.StatusCode)
 
