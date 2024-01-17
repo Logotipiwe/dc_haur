@@ -18,8 +18,7 @@ func NewQuestionsHistoryRepo(DB *gorm.DB) *QuestionsHistoryRepo {
 func (repo *QuestionsHistoryRepo) Insert(chatID string, question *domain.Question) error {
 	query := &domain.QuestionHistory{
 		ID:         uuid.NewString(),
-		DeckID:     question.DeckID,
-		LevelName:  question.Level,
+		LevelID:    question.LevelID,
 		QuestionID: question.ID,
 		ChatID:     chatID,
 	}

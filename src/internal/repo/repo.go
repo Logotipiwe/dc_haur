@@ -13,7 +13,7 @@ type Decks interface {
 
 type Questions interface {
 	GetLevels(deckID string) ([]string, error)
-	GetRandQuestion(deckID, levelName string) (*domain.Question, error)
+	GetRandQuestion(levelID string) (*domain.Question, error)
 	GetLevelsByName(deckName string) ([]string, error)
 	GetRandQuestionByNames(deckName string, levelName string) (*domain.Question, error)
 }
@@ -27,6 +27,7 @@ type Repositories struct {
 	Decks
 	Questions
 	History
+	*Levels
 }
 
 func NewRepositories(db *sql.DB) *Repositories {
@@ -38,6 +39,7 @@ func NewRepositories(db *sql.DB) *Repositories {
 		Decks:     NewDecksRepo(gormDb),
 		Questions: NewQuestionsRepo(gormDb),
 		History:   NewQuestionsHistoryRepo(gormDb),
+		Levels:    NewLevelRepository(gormDb),
 	}
 }
 
