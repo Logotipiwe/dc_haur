@@ -8,10 +8,9 @@ import (
 )
 
 type Question struct {
-	ID     string `gorm:"column:id" json:"id,omitempty"`
-	Level  string `gorm:"column:level" json:"level,omitempty"`
-	DeckID string `gorm:"column:deck_id" json:"deckId,omitempty"`
-	Text   string `gorm:"column:text" json:"text,omitempty"`
+	ID      string `gorm:"column:id" json:"id,omitempty"`
+	LevelID string `gorm:"column:level_id" json:"level_id,omitempty"`
+	Text    string `gorm:"column:text" json:"text,omitempty"`
 }
 
 func (Question) TableName() string {
@@ -26,6 +25,15 @@ type Deck struct {
 
 func (Deck) TableName() string {
 	return "decks"
+}
+
+type Level struct {
+	ID         string `gorm:"primary_key;type:varchar(255);not null"`
+	DeckID     string `gorm:"type:varchar(255);not null"`
+	LevelOrder int
+	Name       string `gorm:"type:varchar(255);not null"`
+	ColorStart string `gorm:"type:varchar(255);not null"`
+	ColorEnd   string `gorm:"type:varchar(255);not null"`
 }
 
 type BotInteractor interface {
@@ -61,8 +69,7 @@ func (bot TgBotInteractor) SendToOwner(text string) error {
 
 type QuestionHistory struct {
 	ID         string `gorm:"column:id"`
-	DeckID     string `gorm:"column:deck_id"`
-	LevelName  string `gorm:"column:level_name"`
+	LevelID    string `gorm:"column:level_id"`
 	QuestionID string `gorm:"column:question_id"`
 	ChatID     string `gorm:"column:chat_id"`
 }

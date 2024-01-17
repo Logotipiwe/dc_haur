@@ -16,8 +16,8 @@ func NewQuestionsRepo(db *gorm.DB) *QuestionsRepo {
 }
 
 const (
-	GetLevelsSql       = "SELECT distinct q.level FROM questions q LEFT JOIN haur.decks d on d.id = q.deck_id WHERE d.id = ?"
-	GetRandQuestionSql = "SELECT q.id, q.level, q.deck_id, q.text FROM (select q.*, (select count(*) from questions_history where question_id = q.id) asked from questions q) q LEFT JOIN decks d on d.id = q.deck_id WHERE level = ? AND d.id = ? ORDER BY q.asked, rand() LIMIT 1"
+	GetLevelsSql       = "SELECT name FROM levels WHERE deck_id = ? ORDER BY level_order"
+	GetRandQuestionSql = "SELECT q.id, q.level_id, q.text FROM (select q.*, (select count(*) from questions_history where question_id = q.id) asked from questions q) q  WHERE q.level_id = ? ORDER BY q.asked, rand() LIMIT 1"
 )
 
 var (
@@ -42,9 +42,9 @@ func (r *QuestionsRepo) GetLevels(deckID string) ([]string, error) {
 	return ans, nil
 }
 
-func (r *QuestionsRepo) GetRandQuestion(deckID, levelName string) (*domain.Question, error) {
+func (r *QuestionsRepo) GetRandQuestion(levelID string) (*domain.Question, error) {
 	var result domain.Question
-	err := r.db.Raw(GetRandQuestionSql, levelName, deckID).Row().Scan(&result.ID, &result.Level, &result.DeckID, &result.Text)
+	err := r.db.Raw(GetRandQuestionSql, levelID).Row().Scan(&result.ID, &result.LevelID, &result.Text)
 	if err != nil {
 		log.Println("Error getting question from DB.")
 		log.Println(err)
@@ -62,9 +62,9 @@ func (r *QuestionsRepo) GetLevelsByName(deckName string) ([]string, error) {
 }
 
 func (r *QuestionsRepo) GetRandQuestionByNames(deckName string, levelName string) (*domain.Question, error) {
-	var deck domain.Deck
-	if err := r.db.Where("name = ?", deckName).First(&deck).Error; err != nil {
+	var level domain.Level
+	if err := r.db.Where("name = ? AND deck_id = (select id from decks where name = ?)", levelName, deckName).First(&level).Error; err != nil {
 		return nil, err
 	}
-	return r.GetRandQuestion(deck.ID, levelName)
+	return r.GetRandQuestion(level.ID)
 }

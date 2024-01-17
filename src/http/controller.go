@@ -91,9 +91,8 @@ func StartServer(services *service.Services) {
 	}))
 
 	apiV1.GET("/question", doWithErr(func(c *gin.Context) error {
-		deckId := c.Query("deckId")
-		levelName := c.Query("levelName")
-		question, err := services.Questions.GetRandQuestion(deckId, levelName)
+		levelID := c.Query("levelId")
+		question, err := services.Questions.GetRandQuestion(levelID)
 		if err != nil {
 			return err
 		}

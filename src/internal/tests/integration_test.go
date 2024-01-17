@@ -21,6 +21,8 @@ import (
 	"time"
 )
 
+const d1l1QuestionID = "4f84bde5-d6ad-4a2d-a2da-0553b4b281a2"
+
 func TestApplication(t *testing.T) {
 	res, err := strconv.ParseBool(config.GetConfigOr("DO_INTEGRATION_TESTS", "true"))
 	if err == nil && !res {
@@ -237,12 +239,11 @@ func TestApplication(t *testing.T) {
 
 			t.Run("get question", func(t *testing.T) {
 				defer failOnPanic(t)
-				question := getQuestionFromApi(t, "d1", "l1", appUrl+apiV1)
+				question := getQuestionFromApi(t, d1l1QuestionID, appUrl+apiV1)
 				assert.Contains(t, []string{"question d1l1q1 text", "question d1l1q2 text", "question d1l1q3 text"}, question.Text)
 				assert.NotNil(t, question.ID)
 				assert.NotNil(t, question.Text)
-				assert.NotNil(t, question.DeckID)
-				assert.NotNil(t, question.Level)
+				assert.NotNil(t, question.LevelID)
 			})
 
 			t.Run("questions in level are ordered", func(t *testing.T) {
@@ -250,17 +251,17 @@ func TestApplication(t *testing.T) {
 				clearHistory(t)
 				questions := []string{"question d1l1q1 text", "question d1l1q2 text", "question d1l1q3 text"}
 				for i := 0; i < 5; i++ {
-					question := getQuestionFromApi(t, "d1", "l1", appUrl+apiV1)
+					question := getQuestionFromApi(t, d1l1QuestionID, appUrl+apiV1)
 
 					ansIndex1 := utils.FindIndex(questions, question.Text)
 					assert.NotEqual(t, -1, ansIndex1)
 
-					question = getQuestionFromApi(t, "d1", "l1", appUrl+apiV1)
+					question = getQuestionFromApi(t, d1l1QuestionID, appUrl+apiV1)
 					ansIndex2 := utils.FindIndex(questions, question.Text)
 					assert.NotEqual(t, -1, ansIndex2)
 					assert.NotEqual(t, ansIndex1, ansIndex2)
 
-					question = getQuestionFromApi(t, "d1", "l1", appUrl+apiV1)
+					question = getQuestionFromApi(t, d1l1QuestionID, appUrl+apiV1)
 					ansIndex3 := utils.FindIndex(questions, question.Text)
 					assert.NotEqual(t, -1, ansIndex3)
 					assert.NotEqual(t, ansIndex1, ansIndex3)
@@ -273,14 +274,13 @@ func TestApplication(t *testing.T) {
 	}
 }
 
-func getQuestionFromApi(t *testing.T, deckID string, levelName string, url string) *domain.Question {
-	fmt.Println("Getting question from deck " + deckID + ", level " + levelName)
+func getQuestionFromApi(t *testing.T, levelID string, url string) *domain.Question {
+	fmt.Println("Getting question from level " + levelID)
 	request, err := http.NewRequest("GET", url+"/question", nil)
 	assert.NoError(t, err)
 
 	query := request.URL.Query()
-	query.Add("deckId", deckID)
-	query.Add("levelName", levelName)
+	query.Add("levelId", levelID)
 	query.Add("clientId", "integrationTestsClient")
 	request.URL.RawQuery = query.Encode()
 	client := http.Client{}
