@@ -28,7 +28,7 @@ func StartServer(services *service.Services) {
 	})
 
 	integrationTestingRoutes.GET("/test-image", doWithErrExplicit(func(c *gin.Context) error {
-		card, err := service.CreateImageCard("Отвечает человек слева: Как ты думаешь, что самое сложное в том деле, которым я зарабатываю себе на жизнь?")
+		card, err := service.CreateImageCard("Отвечает человек слева: Как ты думаешь, что самое сложное в том деле, которым я зарабатываю себе на жизнь?", "", "")
 		if err != nil {
 			return err
 		}

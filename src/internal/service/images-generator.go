@@ -6,11 +6,13 @@ import (
 	config "github.com/logotipiwe/dc_go_config_lib"
 	"image"
 	"image/color"
+	"strconv"
+	"strings"
 )
 
-func CreateImageCard(text string) (image.Image, error) {
-	startColor := color.RGBA{74, 62, 255, 255}
-	endColor := color.RGBA{219, 100, 255, 255}
+func CreateImageCard(text string, colorStart string, colorEnd string) (image.Image, error) {
+	startColor := parseStringColorOrDefault(colorStart, color.RGBA{74, 62, 255, 255})
+	endColor := parseStringColorOrDefault(colorEnd, color.RGBA{219, 100, 255, 255})
 
 	gradientImage, err := CreateGradient(720, 1280, startColor, endColor, 0, 0, 1, 1)
 	if err != nil {
@@ -23,6 +25,20 @@ func CreateImageCard(text string) (image.Image, error) {
 	}
 
 	return img, nil
+}
+
+func parseStringColorOrDefault(colorStr string, defaultValue color.RGBA) color.RGBA {
+	split := strings.Split(colorStr, ",")
+	if len(split) != 3 {
+		return defaultValue
+	}
+	red, err := strconv.Atoi(split[0])
+	green, err := strconv.Atoi(split[1])
+	blue, err := strconv.Atoi(split[2])
+	if err != nil {
+		return defaultValue
+	}
+	return color.RGBA{uint8(red), uint8(green), uint8(blue), 255}
 }
 
 func putTextOnImage(img *image.RGBA, text string) (image.Image, error) {
