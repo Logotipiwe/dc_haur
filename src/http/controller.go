@@ -79,7 +79,7 @@ func StartServer(services *service.Services) {
 
 	apiV1.GET("/levels", doWithErr(func(c *gin.Context) error {
 		deckId := c.Query("deckId")
-		levels, err := services.Questions.GetLevels(deckId)
+		levels, err := services.Repos.Levels.GetLevelsByDeckId(deckId)
 		if errors.Is(err, repo.NoLevelsErr) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "No levels found by deck id " + deckId})
 			return nil

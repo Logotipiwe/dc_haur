@@ -25,7 +25,7 @@ func TestGetLevels_Success(t *testing.T) {
 	mock.ExpectQuery(regexp.QuoteMeta(GetLevelsByDeckNameSql)).
 		WithArgs("ExampleDeck").
 		WillReturnRows(rows)
-	levels, err := repo.GetLevels("ExampleDeck")
+	levels, err := repo.GetLevelsNames("ExampleDeck")
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
@@ -49,7 +49,7 @@ func TestGetLevels_NoLevels(t *testing.T) {
 	mock.ExpectQuery(regexp.QuoteMeta(GetLevelsByDeckNameSql)).
 		WithArgs("NoLevelsDeck").
 		WillReturnRows(sqlmock.NewRows([]string{"level"}))
-	levels, err := repo.GetLevels("NoLevelsDeck")
+	levels, err := repo.GetLevelsNames("NoLevelsDeck")
 	if err == nil {
 		t.Error("Expected an error, but got nil")
 	}
@@ -132,7 +132,7 @@ func TestGetLevels_QueryError(t *testing.T) {
 		WithArgs("testDeck").
 		WillReturnError(errors.New("database error"))
 
-	_, err = questionsRepo.GetLevels("testDeck")
+	_, err = questionsRepo.GetLevelsNames("testDeck")
 	if err == nil || err.Error() != "database error" {
 		t.Errorf("Expected database error, but got %v", err)
 	}

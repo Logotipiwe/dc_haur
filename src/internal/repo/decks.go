@@ -5,15 +5,15 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type DecksRepo struct {
+type Decks struct {
 	db *gorm.DB
 }
 
-func NewDecksRepo(db *gorm.DB) *DecksRepo {
-	return &DecksRepo{db: db}
+func NewDecksRepo(db *gorm.DB) *Decks {
+	return &Decks{db: db}
 }
 
-func (r *DecksRepo) GetDecks() ([]domain.Deck, error) {
+func (r *Decks) GetDecks() ([]domain.Deck, error) {
 	var decks []domain.Deck
 	if err := r.db.Find(&decks).Error; err != nil {
 		return nil, err

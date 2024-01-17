@@ -2,31 +2,31 @@ package repo
 
 import (
 	"database/sql"
-	"dc_haur/src/internal/domain"
 	"github.com/jinzhu/gorm"
 	"log"
 )
 
-type Decks interface {
-	GetDecks() ([]domain.Deck, error)
-}
-
-type Questions interface {
-	GetLevels(deckID string) ([]string, error)
-	GetRandQuestion(levelID string) (*domain.Question, error)
-	GetLevelsByName(deckName string) ([]string, error)
-	GetRandQuestionByNames(deckName string, levelName string) (*domain.Question, error)
-}
-
-type History interface {
-	Insert(string, *domain.Question) error
-	Truncate() error
-}
+//type Decks interface {
+//	GetDecks() ([]domain.Deck, error)
+//}
+//
+//type Questions interface {
+//	GetLevels(deckID string) ([]*domain.Level, error)
+//	GetLevelsNames(deckID string) ([]string, error)
+//	GetRandQuestion(levelID string) (*domain.Question, error)
+//	GetLevelsByName(deckName string) ([]string, error)
+//	GetRandQuestionByNames(deckName string, levelName string) (*domain.Question, error)
+//}
+//
+//type History interface {
+//	Insert(string, *domain.Question) error
+//	Truncate() error
+//}
 
 type Repositories struct {
-	Decks
-	Questions
-	History
+	*Decks
+	*Questions
+	*History
 	*Levels
 }
 

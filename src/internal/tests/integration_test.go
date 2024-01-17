@@ -221,19 +221,46 @@ func TestApplication(t *testing.T) {
 
 			t.Run("get levels", func(t *testing.T) {
 				defer failOnPanic(t)
-
-				expected := [][]string{
-					{"l1", "l2", "l3"},
-					{"l1", "l2", "l3"},
-					{"l1", "l2"},
+				expected := []domain.Level{
+					{
+						ID:         "4f84bde5-d6ad-4a2d-a2da-0553b4b281a2",
+						DeckID:     "d1",
+						LevelOrder: 1,
+						Name:       "l1",
+						ColorStart: "0,0,0",
+						ColorEnd:   "255,255,255",
+					},
+					{
+						ID:         "dae6f634-8a6c-42a7-8d25-6a44e91e6e21",
+						DeckID:     "d1",
+						LevelOrder: 2,
+						Name:       "l2",
+						ColorStart: "0,0,0",
+						ColorEnd:   "255,255,255",
+					},
+					{
+						ID:         "8e7e1f07-0292-4ef6-8529-fb92a0d4c1f6",
+						DeckID:     "d1",
+						LevelOrder: 3,
+						Name:       "l3",
+						ColorStart: "0,0,0",
+						ColorEnd:   "255,255,255",
+					},
 				}
 
 				decks := getDecksFromApi(t, appUrl+apiV1)
 
 				for i, deck := range decks {
 					result := getLevelsFromApi(t, deck.ID, appUrl+apiV1)
-
-					assert.Equal(t, expected[i], result)
+					for _, level := range result {
+						assert.NotEmpty(t, level.ID)
+						assert.NotEmpty(t, level.DeckID)
+						assert.NotEmpty(t, level.Name)
+						assert.NotEmpty(t, level.LevelOrder)
+					}
+					if i == 0 {
+						assert.Equal(t, expected, result)
+					}
 				}
 			})
 
@@ -296,7 +323,7 @@ func getQuestionFromApi(t *testing.T, levelID string, url string) *domain.Questi
 	return &result
 }
 
-func getLevelsFromApi(t *testing.T, deckID string, url string) []string {
+func getLevelsFromApi(t *testing.T, deckID string, url string) []domain.Level {
 	fmt.Println("Getting levels of deck " + deckID)
 	request, err := http.NewRequest("GET", url+"/levels", nil)
 	assert.NoError(t, err)
@@ -310,7 +337,7 @@ func getLevelsFromApi(t *testing.T, deckID string, url string) []string {
 
 	assert.Equal(t, http.StatusOK, response.StatusCode)
 
-	var result []string
+	var result []domain.Level
 	err = json.NewDecoder(response.Body).Decode(&result)
 	assert.NoError(t, err)
 	err = response.Body.Close()
