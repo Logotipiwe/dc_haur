@@ -75,10 +75,14 @@ func (s *TgMessageService) GetQuestionMessage(update Update, deckName string, le
 	if err != nil {
 		return nil, err
 	}
+	level, err := s.repos.Levels.GetQuestionLevel(question)
+	if err != nil {
+		return nil, err
+	}
 
 	var chattable Chattable
 	if imagesEnabled() {
-		cardImage, err := CreateImageCard(question.Text)
+		cardImage, err := CreateImageCard(question.Text, level.ColorStart, level.ColorEnd)
 		if err != nil {
 			return nil, err
 		}
