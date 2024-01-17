@@ -5,7 +5,7 @@ import (
 )
 
 type DecksService struct {
-	repo.Decks
+	*repo.Decks
 	Repos *repo.Repositories
 }
 

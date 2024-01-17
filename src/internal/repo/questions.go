@@ -7,12 +7,12 @@ import (
 	"log"
 )
 
-type QuestionsRepo struct {
+type Questions struct {
 	db *gorm.DB
 }
 
-func NewQuestionsRepo(db *gorm.DB) *QuestionsRepo {
-	return &QuestionsRepo{db: db}
+func NewQuestionsRepo(db *gorm.DB) *Questions {
+	return &Questions{db: db}
 }
 
 const (
@@ -24,25 +24,7 @@ var (
 	NoLevelsErr = errors.New("no levels from deck")
 )
 
-func (r *QuestionsRepo) GetLevels(deckID string) ([]string, error) {
-	var ans []string
-	rows, err := r.db.Raw(GetLevelsSql, deckID).Rows()
-	defer rows.Close()
-	if err != nil {
-		return nil, err
-	}
-	var level string
-	for rows.Next() {
-		rows.Scan(&level)
-		ans = append(ans, level)
-	}
-	if len(ans) == 0 {
-		return nil, NoLevelsErr
-	}
-	return ans, nil
-}
-
-func (r *QuestionsRepo) GetRandQuestion(levelID string) (*domain.Question, error) {
+func (r *Questions) GetRandQuestion(levelID string) (*domain.Question, error) {
 	var result domain.Question
 	err := r.db.Raw(GetRandQuestionSql, levelID).Row().Scan(&result.ID, &result.LevelID, &result.Text)
 	if err != nil {
@@ -53,15 +35,7 @@ func (r *QuestionsRepo) GetRandQuestion(levelID string) (*domain.Question, error
 	return &result, nil
 }
 
-func (r *QuestionsRepo) GetLevelsByName(deckName string) ([]string, error) {
-	var deck domain.Deck
-	if err := r.db.Where("name = ?", deckName).First(&deck).Error; err != nil {
-		return nil, err
-	}
-	return r.GetLevels(deck.ID)
-}
-
-func (r *QuestionsRepo) GetRandQuestionByNames(deckName string, levelName string) (*domain.Question, error) {
+func (r *Questions) GetRandQuestionByNames(deckName string, levelName string) (*domain.Question, error) {
 	var level domain.Level
 	if err := r.db.Where("name = ? AND deck_id = (select id from decks where name = ?)", levelName, deckName).First(&level).Error; err != nil {
 		return nil, err

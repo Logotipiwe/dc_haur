@@ -7,15 +7,15 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
-type QuestionsHistoryRepo struct {
+type History struct {
 	DB *gorm.DB
 }
 
-func NewQuestionsHistoryRepo(DB *gorm.DB) *QuestionsHistoryRepo {
-	return &QuestionsHistoryRepo{DB: DB}
+func NewQuestionsHistoryRepo(DB *gorm.DB) *History {
+	return &History{DB: DB}
 }
 
-func (repo *QuestionsHistoryRepo) Insert(chatID string, question *domain.Question) error {
+func (repo *History) Insert(chatID string, question *domain.Question) error {
 	query := &domain.QuestionHistory{
 		ID:         uuid.NewString(),
 		LevelID:    question.LevelID,
@@ -25,6 +25,6 @@ func (repo *QuestionsHistoryRepo) Insert(chatID string, question *domain.Questio
 	return repo.DB.Create(query).Error
 }
 
-func (repo *QuestionsHistoryRepo) Truncate() error {
+func (repo *History) Truncate() error {
 	return repo.DB.Exec(`TRUNCATE TABLE questions_history`).Error
 }

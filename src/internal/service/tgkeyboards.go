@@ -8,8 +8,8 @@ import (
 )
 
 type TgKeyboardService struct {
-	questionsRepo repo.Questions
-	decksRepo     repo.Decks
+	questionsRepo *repo.Questions
+	decksRepo     *repo.Decks
 }
 
 func NewTgKeyboardsService(repos *repo.Repositories) *TgKeyboardService {

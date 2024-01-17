@@ -5,7 +5,7 @@ import (
 )
 
 type QuestionsService struct {
-	repo.Questions
+	*repo.Questions
 	Repos *repo.Repositories
 }
 
