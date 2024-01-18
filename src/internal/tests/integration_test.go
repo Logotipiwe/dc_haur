@@ -41,7 +41,7 @@ func TestApplication(t *testing.T) {
 				defer failOnPanic(t)
 				update := createUpdateObject("/start")
 				ans := sendUpdate(t, update)
-				assert.Equal(t, ans.Text, service.WelcomeMessage)
+				assert.Equal(t, service.WelcomeMessage, ans.Text)
 			})
 
 			t.Run("get decks start", func(t *testing.T) {
@@ -63,7 +63,8 @@ func TestApplication(t *testing.T) {
 				update = createUpdateObject("deck d1 name")
 				ans = sendUpdate(t, update)
 				replyMarkup := toMarkup(t, ans.BaseChat.ReplyMarkup)
-				assert.Equal(t, ans.Text, service.GotLevelsMessage)
+				//TODO check deck description here
+				assert.True(t, strings.HasSuffix(ans.Text, service.GotLevelsMessage))
 				assert.Equal(t, 3, len(replyMarkup.Keyboard[0]))
 				assert.Equal(t, "l1", replyMarkup.Keyboard[0][0].Text)
 				assert.Equal(t, "l2", replyMarkup.Keyboard[0][1].Text)

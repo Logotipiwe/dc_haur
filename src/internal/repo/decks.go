@@ -20,3 +20,11 @@ func (r *Decks) GetDecks() ([]domain.Deck, error) {
 	}
 	return decks, nil
 }
+
+func (r *Decks) GetDeckByName(name string) (*domain.Deck, error) {
+	var deck domain.Deck
+	if err := r.db.Where("name = ?", name).First(&deck).Error; err != nil {
+		return nil, err
+	}
+	return &deck, nil
+}

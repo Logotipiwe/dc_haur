@@ -19,7 +19,7 @@ func (r *Levels) GetByID(id string) (domain.Level, error) {
 	return level, err
 }
 
-func (r *Levels) GetLevelsByDeckName(deckName string) ([]string, error) {
+func (r *Levels) GetLevelsNamesByDeckName(deckName string) ([]string, error) {
 	var levels []domain.Level
 	err := r.db.Where("deck_id = (select id from decks where name = ?)", deckName).
 		Order("level_order").Find(&levels).Error
@@ -33,9 +33,15 @@ func (r *Levels) GetLevelsByDeckName(deckName string) ([]string, error) {
 	return levelNames, nil
 }
 
+func (r *Levels) GetLevelsByDeckName(deckName string) ([]*domain.Level, error) {
+	var levels []*domain.Level
+	err := r.db.Where("deck_id = (select id from decks where name = ?)", deckName).Order("level_order").Find(&levels).Error
+	return levels, err
+}
+
 func (r *Levels) GetLevelsByDeckId(deckID string) ([]*domain.Level, error) {
 	var levels []*domain.Level
-	err := r.db.Debug().Where("deck_id = ?", deckID).Order("level_order").Find(&levels).Error
+	err := r.db.Where("deck_id = ?", deckID).Order("level_order").Find(&levels).Error
 	return levels, err
 }
 

@@ -7,12 +7,11 @@ import (
 	. "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/google/uuid"
 	config "github.com/logotipiwe/dc_go_config_lib"
-	"log"
 	"strconv"
 )
 
 const DefaultDeckName = "😉 Для пары"
-const GotLevelsMessage = "Вот твои уровни"
+const GotLevelsMessage = "Ниже - список уровней. Чтобы получить вопрос - жми на нужный уровень :)"
 
 type TgMessageService struct {
 	keyboards TgKeyboardService
@@ -26,7 +25,12 @@ const (
 	AcceptNewQuestionText = "Спасибо за вопрос! Мы его добавим в колоду вопросов ❤️. Отправьте /start, чтобы играть дальше."
 	AssignNewQuestionText = "Отправьте свой вопрос одним сообщением. Мы получим его и добавим в колоду вопросов ❤️"
 	AssignFeedbackText    = "Отправьте свой отзыв одним сообщением. Мы получим его и учтём в будущем ❤️"
-	WelcomeMessage        = "Привет! Это игра \"How Are You Really?\" на знакомство и сближение! Каждая колода имеет несколько уровней вопросов. Выбирай колоду которая понравится и бери вопросы комфортного для тебя уровня, чтобы приятно провести время двоем или в компании! \r\n\r\n Выбери колоду, чтобы начать!"
+	WelcomeMessage        = `Привет! Это разговорная игра "How Are You Really?" с вопросами на знакомство и сближение! Вопросы разбиты на тематические колоды, а также на уровни глубины.
+
+В течение игры рекомендуется выбирать уровни по нарастанию.
+Выбирай колоду которая понравится и бери вопросы комфортного для тебя уровня, чтобы приятно провести время двоем или в компании! 
+
+ Выбери колоду, чтобы начать!`
 )
 
 func NewTgMessageService(tgKeyboardService TgKeyboardService, cache CacheService,
@@ -54,16 +58,22 @@ func (s *TgMessageService) HandleStart(update Update) (*MessageConfig, error) {
 }
 
 func (s *TgMessageService) GetLevelsMessage(update Update, deckName string) (*MessageConfig, error) {
-	log.Println("GetLevelsMessage")
-
-	levels, err := s.repos.Levels.GetLevelsByDeckName(deckName)
+	deck, err := s.repos.Decks.GetDeckByName(deckName)
+	if err != nil {
+		return nil, err
+	}
+	levels, err := s.repos.Levels.GetLevelsByDeckId(deck.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	markup := s.keyboards.GetLevelsKeyboard(levels)
+	levelsNames := utils.Map(levels, func(l *domain.Level) string {
+		return l.Name
+	})
 
-	message := NewMessage(update.Message.Chat.ID, GotLevelsMessage)
+	markup := s.keyboards.GetLevelsKeyboard(levelsNames)
+
+	message := NewMessage(update.Message.Chat.ID, deck.Description+"\n\n"+GotLevelsMessage)
 	message.ReplyMarkup = markup
 	s.cache.AssignDeckToChat(update, deckName)
 	return &message, nil
