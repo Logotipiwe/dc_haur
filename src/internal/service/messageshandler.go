@@ -3,6 +3,7 @@ package service
 import (
 	. "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
+	"strings"
 )
 
 const ErrorOrUnknownMessage = "Не совсем понял команду, либо произошла ошибка(\r\nПопробуй заново /start"
@@ -25,7 +26,7 @@ func (h *Handler) HandleMessageAndReply(update Update) (Chattable, error) {
 	message := update.Message
 
 	log.Printf("[%s] %s", message.From.UserName, message.Text)
-	if message.Text == "/start" {
+	if strings.HasPrefix(message.Text, "/start") {
 		println("StartCommand")
 		return h.messagesService.HandleStart(update)
 	} else if is, sends := h.commandsFeedbackOrSendsFeedback(update); is {
@@ -48,14 +49,14 @@ func (h *Handler) HandleMessageAndReply(update Update) (Chattable, error) {
 }
 
 func (h *Handler) commandsQuestionOrSendsQuestion(update Update) (is, isCommand bool) {
-	isCommand = update.Message.Text == QuestionCommand
+	isCommand = strings.HasPrefix(update.Message.Text, QuestionCommand)
 	isSends := h.cache.IsChatNewQuestions(update)
 	return isCommand || isSends, isSends && !isCommand
 }
 
 // TODO if user send one command after another - command accepts as message
 func (h *Handler) commandsFeedbackOrSendsFeedback(update Update) (is, isCommand bool) {
-	isCommand = update.Message.Text == FeedbackCommand
+	isCommand = strings.HasPrefix(update.Message.Text, FeedbackCommand)
 	isSends := h.cache.IsChatFeedbacks(update)
 	return isCommand || isSends, isSends && !isCommand
 }

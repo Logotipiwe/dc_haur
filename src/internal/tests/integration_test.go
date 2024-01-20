@@ -56,6 +56,18 @@ func TestApplication(t *testing.T) {
 				println(ans)
 			})
 
+			t.Run("get decks start from group", func(t *testing.T) {
+				defer failOnPanic(t)
+				update := createUpdateObject("/start@HowAreYouReallyGameBot")
+				ans := sendUpdate(t, update)
+				replyMarkup := toMarkup(t, ans.BaseChat.ReplyMarkup)
+				assert.Equal(t, 3, len(replyMarkup.Keyboard))
+				assert.Equal(t, "deck d1 name", replyMarkup.Keyboard[0][0].Text)
+				assert.Equal(t, "deck d2 name", replyMarkup.Keyboard[1][0].Text)
+				assert.Equal(t, "deck d3 name", replyMarkup.Keyboard[2][0].Text)
+				println(ans)
+			})
+
 			t.Run("select deck", func(t *testing.T) {
 				defer failOnPanic(t)
 				update := createUpdateObject("/start")
@@ -165,9 +177,29 @@ func TestApplication(t *testing.T) {
 				assert.Equal(t, ans.Text, service.AcceptNewQuestionText)
 			})
 
-			t.Run("/feedback command", func(t *testing.T) {
+			t.Run("/question command", func(t *testing.T) {
+				defer failOnPanic(t)
+				update := createUpdateObject(service.QuestionCommand + "@HowAreYouReallyGameBot")
+				ans := sendUpdate(t, update)
+				assert.Equal(t, ans.Text, service.AssignNewQuestionText)
+				update = createUpdateObjectFrom(update, "what??")
+				ans = sendUpdate(t, update)
+				assert.Equal(t, ans.Text, service.AcceptNewQuestionText)
+			})
+
+			t.Run("/feedback command from group", func(t *testing.T) {
 				defer failOnPanic(t)
 				update := createUpdateObject(service.FeedbackCommand)
+				ans := sendUpdate(t, update)
+				assert.Equal(t, ans.Text, service.AssignFeedbackText)
+				update = createUpdateObjectFrom(update, "MyFeedback")
+				ans = sendUpdate(t, update)
+				assert.Equal(t, ans.Text, service.AcceptFeedbackText)
+			})
+
+			t.Run("/feedback command from group", func(t *testing.T) {
+				defer failOnPanic(t)
+				update := createUpdateObject(service.FeedbackCommand + "@HowAreYouReallyGameBot")
 				ans := sendUpdate(t, update)
 				assert.Equal(t, ans.Text, service.AssignFeedbackText)
 				update = createUpdateObjectFrom(update, "MyFeedback")

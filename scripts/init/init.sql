@@ -1,17 +1,18 @@
 create database if not exists `haur`;
 use `haur`;
 
-drop table if exists questions_history;
+-- drop table if exists questions_history;
 drop table if exists questions;
 drop table if exists levels;
 drop table if exists decks;
-create table decks
+
+create table if not exists decks
 (
     id  varchar(255) not null primary key,
     name varchar(255) not null,
     description text
 );
-create table levels
+create table if not exists levels
 (
     id          varchar(255) not null primary key,
     deck_id     varchar(255) not null references decks,
@@ -20,13 +21,13 @@ create table levels
     color_start varchar(255) not null,
     color_end   varchar(255) not null
 );
-create table questions
+create table if not exists questions
 (
     id              varchar(255) not null primary key,
     level_id varchar(255) not null references levels,
     text            varchar(255) not null
 );
-create table questions_history
+create table if not exists questions_history
 (
     id            varchar(255) not null primary key,
     level_id varchar(255) not null,
@@ -58,8 +59,8 @@ VALUES ('8bb90043-6af9-405f-8b88-f14f473ddb0d', '1', 1, '🙂 Знакомств
        ('73763a6e-4ce0-412c-89ee-e5ab4b731795', '3', 2, '😏 Погружение', '254,141,63', '186,55,101'),
        ('e3604fb7-bacc-4daf-8049-e37191a90399', '3', 3, '😌 Рефлексия', '26,59,153', '95,150,51'),
 
-       ('f15a9b08-2fdc-4bd8-afe3-38e6ce935d9a', '4', 1, 'Лайт', '99,0,92', '137,4,28'),
-       ('b49aef79-3d09-4899-8eaa-f2011e837bae', '4', 2, 'Глубина', '49,16,96', '135,124,47');
+       ('f15a9b08-2fdc-4bd8-afe3-38e6ce935d9a', '4', 1, 'Лайт', '242,62,182', '226,124,34'),
+       ('b49aef79-3d09-4899-8eaa-f2011e837bae', '4', 2, 'Глубина', '181,3,36', '224,123,123');
     
     
     
@@ -828,7 +829,7 @@ values ('2c9f652e-1f33-46be-8611-2abece8579c3', 'f15a9b08-2fdc-4bd8-afe3-38e6ce9
         'Ты хочешь детей? Если да, то когда?'),
        ('2ead8c17-e1c3-49ca-be5c-ffac9545e45d', 'b49aef79-3d09-4899-8eaa-f2011e837bae', 'Что ты считаешь изменой?'),
        ('ec04cbd4-c49b-44fa-90e7-d5d741174767', 'b49aef79-3d09-4899-8eaa-f2011e837bae',
-        'Еслть ли что-то, что ты не сможешь простить партнеру?'),
+        'Есть ли что-то, что ты не сможешь простить партнеру?'),
        ('8bf75761-9cc5-43a4-addb-394caf2bfc05', 'b49aef79-3d09-4899-8eaa-f2011e837bae', 'Что ты сейчас чувствуешь?'),
        ('6b4eae25-e2bc-49c8-8919-c35a34212257', 'b49aef79-3d09-4899-8eaa-f2011e837bae',
         'В какие моменты тебе хочется побыть одному?'),
