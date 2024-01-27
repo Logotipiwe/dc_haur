@@ -71,7 +71,7 @@ func (s *TgMessageService) GetLevelsMessage(update Update, deckName string) (*Me
 		return nil, err
 	}
 
-	levelsNames := utils.Map(levels, func(l *domain.Level) string {
+	levelsNames := pkg.Map(levels, func(l *domain.Level) string {
 		return l.Name
 	})
 
@@ -100,7 +100,7 @@ func (s *TgMessageService) GetQuestionMessage(update Update, deckName string, le
 		if err != nil {
 			return nil, err
 		}
-		bytes, err := utils.EncodeImageToBytes(cardImage)
+		bytes, err := pkg.EncodeImageToBytes(cardImage)
 		if err != nil {
 			return nil, err
 		}

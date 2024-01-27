@@ -1,18 +1,17 @@
-package main
+package starter
 
 import (
 	"database/sql"
 	"dc_haur/src/http"
-	"dc_haur/src/internal"
 	"dc_haur/src/pkg"
 	"dc_haur/src/tghttp"
 	config "github.com/logotipiwe/dc_go_config_lib"
 )
 
-func main() {
+func StartApp() {
 	err, db := initializeApp()
 
-	services := internal.InitServices(db)
+	services := InitServices(db)
 
 	go http.StartServer(services)
 
@@ -27,7 +26,7 @@ func main() {
 
 func initializeApp() (error, *sql.DB) {
 	config.LoadDcConfigDynamically(3)
-	err, db := utils.InitDb()
+	err, db := pkg.InitDb()
 	if err != nil {
 		panic(err)
 	}
