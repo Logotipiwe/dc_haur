@@ -12,7 +12,7 @@ import (
 // @host      		logotipiwe.ru
 //TODO dynamically specify host
 
-// @BasePath  /api/v1
+// @BasePath  /haur/api/v1
 // @securityDefinitions.basic  BasicAuth
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
