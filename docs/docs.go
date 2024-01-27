@@ -167,7 +167,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "logotipiwe.ru",
-	BasePath:         "/api/v1",
+	BasePath:         "/haur/api/v1",
 	Schemes:          []string{},
 	Title:            "HAUR Swagger API",
 	Description:      "This is a HAUR server.",
