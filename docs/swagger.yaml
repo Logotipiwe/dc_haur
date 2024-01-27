@@ -1,0 +1,104 @@
+basePath: /api/v1
+definitions:
+  domain.Deck:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  domain.Level:
+    properties:
+      colorEnd:
+        type: string
+      colorStart:
+        type: string
+      deckID:
+        type: string
+      id:
+        type: string
+      levelOrder:
+        type: integer
+      name:
+        type: string
+    type: object
+  domain.Question:
+    properties:
+      id:
+        type: string
+      level_id:
+        type: string
+      text:
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: logotipiwe.ru
+info:
+  contact: { }
+  description: This is a HAUR server.
+  license:
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: HAUR Swagger API
+  version: "1.0"
+paths:
+  /decks:
+    get:
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Deck'
+            type: array
+      summary: Get all available decks
+  /levels:
+    get:
+      parameters:
+        - description: Id of deck for which selecting levels
+          in: query
+          name: deckId
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Level'
+            type: array
+      summary: Get levels from specified deck
+  /question:
+    get:
+      parameters:
+        - description: Id of level for which selecting question
+          in: query
+          name: levelId
+          required: true
+          type: string
+        - description: Client id - differs clients from each other. Needed for ordering
+            random questions for each client/
+          in: query
+          name: clientId
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Question'
+      summary: Get random question by selected level
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"

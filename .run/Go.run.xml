@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Go" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="dc_haur" />
-    <working_directory value="$PROJECT_DIR$/src"/>
+    <working_directory value="$PROJECT_DIR$"/>
     <envs>
       <env name="CONFIG_SERVER_URL" value="http://localhost/config_server" />
       <env name="M_TOKEN" value="4321"/>
