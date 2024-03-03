@@ -35,9 +35,11 @@ func (r *Questions) GetRandQuestion(levelID string) (*domain.Question, error) {
 	return &result, nil
 }
 
-func (r *Questions) GetRandQuestionByNames(deckName string, levelName string) (*domain.Question, error) {
+func (r *Questions) GetRandQuestionByNames(deckName string, levelNameWithEmoji string) (*domain.Question, error) {
 	var level domain.Level
-	if err := r.db.Where("name = ? AND deck_id = (select id from decks where name = ?)", levelName, deckName).First(&level).Error; err != nil {
+	if err := r.db.Where("(concat(coalesce(concat(emoji, ' '),''), name) = ?) AND deck_id = (select id from decks where name = ?)",
+		levelNameWithEmoji, deckName).
+		First(&level).Error; err != nil {
 		return nil, err
 	}
 	return r.GetRandQuestion(level.ID)

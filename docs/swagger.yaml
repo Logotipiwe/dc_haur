@@ -4,6 +4,8 @@ definitions:
     properties:
       description:
         type: string
+      emoji:
+        type: string
       id:
         type: string
       name:
@@ -16,6 +18,8 @@ definitions:
       colorStart:
         type: string
       deckID:
+        type: string
+      emoji:
         type: string
       id:
         type: string
@@ -38,7 +42,7 @@ externalDocs:
   url: https://swagger.io/resources/open-api/
 host: logotipiwe.ru
 info:
-  contact: { }
+  contact: {}
   description: This is a HAUR server.
   license:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -49,7 +53,7 @@ paths:
   /decks:
     get:
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
@@ -61,13 +65,13 @@ paths:
   /levels:
     get:
       parameters:
-        - description: Id of deck for which selecting levels
-          in: query
-          name: deckId
-          required: true
-          type: string
+      - description: Id of deck for which selecting levels
+        in: query
+        name: deckId
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
@@ -79,19 +83,19 @@ paths:
   /question:
     get:
       parameters:
-        - description: Id of level for which selecting question
-          in: query
-          name: levelId
-          required: true
-          type: string
-        - description: Client id - differs clients from each other. Needed for ordering
-            random questions for each client/
-          in: query
-          name: clientId
-          required: true
-          type: string
+      - description: Id of level for which selecting question
+        in: query
+        name: levelId
+        required: true
+        type: string
+      - description: Client id - differs clients from each other. Needed for ordering
+          random questions for each client/
+        in: query
+        name: clientId
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK

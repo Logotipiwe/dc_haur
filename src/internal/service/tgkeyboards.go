@@ -39,7 +39,13 @@ func (s *TgKeyboardService) GetLevelsKeyboard(levels []string) ReplyKeyboardMark
 
 func (s *TgKeyboardService) GetDecksKeyboard(decks []domain.Deck) ReplyKeyboardMarkup {
 	keyboard := utils.Map(decks, func(deck domain.Deck) []KeyboardButton {
-		return []KeyboardButton{NewKeyboardButton(deck.Name)}
+		var text string
+		if deck.Emoji != nil {
+			text = *deck.Emoji + " " + deck.Name
+		} else {
+			text = deck.Name
+		}
+		return []KeyboardButton{NewKeyboardButton(text)}
 	})
 	return ReplyKeyboardMarkup{
 		Keyboard:              keyboard,

@@ -1,158 +1,164 @@
 {
-  "swagger": "2.0",
-  "info": {
-    "description": "This is a HAUR server.",
-    "title": "HAUR Swagger API",
-    "termsOfService": "http://swagger.io/terms/",
-    "contact": {},
-    "license": {
-      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a HAUR server.",
+        "title": "HAUR Swagger API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {},
+        "license": {
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
     },
-    "version": "1.0"
-  },
-  "host": "logotipiwe.ru",
-  "basePath": "/haur/api/v1",
-  "paths": {
-    "/decks": {
-      "get": {
-        "produces": [
-          "application/json"
-        ],
-        "summary": "Get all available decks",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/domain.Deck"
-              }
+    "host": "logotipiwe.ru",
+    "basePath": "/haur/api/v1",
+    "paths": {
+        "/decks": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get all available decks",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Deck"
+                            }
+                        }
+                    }
+                }
             }
-          }
-        }
-      }
-    },
-    "/levels": {
-      "get": {
-        "produces": [
-          "application/json"
-        ],
-        "summary": "Get levels from specified deck",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Id of deck for which selecting levels",
-            "name": "deckId",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/domain.Level"
-              }
+        },
+        "/levels": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get levels from specified deck",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Id of deck for which selecting levels",
+                        "name": "deckId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Level"
+                            }
+                        }
+                    }
+                }
             }
-          }
-        }
-      }
-    },
-    "/question": {
-      "get": {
-        "produces": [
-          "application/json"
-        ],
-        "summary": "Get random question by selected level",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "Id of level for which selecting question",
-            "name": "levelId",
-            "in": "query",
-            "required": true
-          },
-          {
-            "type": "string",
-            "description": "Client id - differs clients from each other. Needed for ordering random questions for each client/",
-            "name": "clientId",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/domain.Question"
+        },
+        "/question": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get random question by selected level",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Id of level for which selecting question",
+                        "name": "levelId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Client id - differs clients from each other. Needed for ordering random questions for each client/",
+                        "name": "clientId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Question"
+                        }
+                    }
+                }
             }
-          }
         }
-      }
-    }
-  },
-  "definitions": {
-    "domain.Deck": {
-      "type": "object",
-      "properties": {
-        "description": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        }
-      }
     },
-    "domain.Level": {
-      "type": "object",
-      "properties": {
-        "colorEnd": {
-          "type": "string"
+    "definitions": {
+        "domain.Deck": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "emoji": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
         },
-        "colorStart": {
-          "type": "string"
+        "domain.Level": {
+            "type": "object",
+            "properties": {
+                "colorEnd": {
+                    "type": "string"
+                },
+                "colorStart": {
+                    "type": "string"
+                },
+                "deckID": {
+                    "type": "string"
+                },
+                "emoji": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "levelOrder": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
         },
-        "deckID": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string"
-        },
-        "levelOrder": {
-          "type": "integer"
-        },
-        "name": {
-          "type": "string"
+        "domain.Question": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "level_id": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                }
+            }
         }
-      }
     },
-    "domain.Question": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "level_id": {
-          "type": "string"
-        },
-        "text": {
-          "type": "string"
+    "securityDefinitions": {
+        "BasicAuth": {
+            "type": "basic"
         }
-      }
+    },
+    "externalDocs": {
+        "description": "OpenAPI",
+        "url": "https://swagger.io/resources/open-api/"
     }
-  },
-  "securityDefinitions": {
-    "BasicAuth": {
-      "type": "basic"
-    }
-  },
-  "externalDocs": {
-    "description": "OpenAPI",
-    "url": "https://swagger.io/resources/open-api/"
-  }
 }

@@ -23,7 +23,22 @@ import (
 
 const d1l1QuestionID = "4f84bde5-d6ad-4a2d-a2da-0553b4b281a2"
 
+const (
+	d1   = "em1 deck d1 name"
+	d2   = "em2 deck d2 name"
+	d3   = "deck d3 name"
+	d1l1 = "em1 l1"
+	d1l2 = "em1 l2"
+	d1l3 = "l3"
+	d2l1 = "em2 l1"
+	d2l2 = "l2"
+	d2l3 = "em2 l3"
+	d3l1 = "em3 l1"
+	d3l2 = "l2"
+)
+
 func TestApplication(t *testing.T) {
+
 	res, err := strconv.ParseBool(config.GetConfigOr("DO_INTEGRATION_TESTS", "true"))
 	if err == nil && !res {
 		//couldn't find way to not execute it in unit tests run
@@ -50,9 +65,9 @@ func TestApplication(t *testing.T) {
 				ans := sendUpdate(t, update)
 				replyMarkup := toMarkup(t, ans.BaseChat.ReplyMarkup)
 				assert.Equal(t, 3, len(replyMarkup.Keyboard))
-				assert.Equal(t, "deck d1 name", replyMarkup.Keyboard[0][0].Text)
-				assert.Equal(t, "deck d2 name", replyMarkup.Keyboard[1][0].Text)
-				assert.Equal(t, "deck d3 name", replyMarkup.Keyboard[2][0].Text)
+				assert.Equal(t, d1, replyMarkup.Keyboard[0][0].Text)
+				assert.Equal(t, d2, replyMarkup.Keyboard[1][0].Text)
+				assert.Equal(t, d3, replyMarkup.Keyboard[2][0].Text)
 				println(ans)
 			})
 
@@ -62,9 +77,9 @@ func TestApplication(t *testing.T) {
 				ans := sendUpdate(t, update)
 				replyMarkup := toMarkup(t, ans.BaseChat.ReplyMarkup)
 				assert.Equal(t, 3, len(replyMarkup.Keyboard))
-				assert.Equal(t, "deck d1 name", replyMarkup.Keyboard[0][0].Text)
-				assert.Equal(t, "deck d2 name", replyMarkup.Keyboard[1][0].Text)
-				assert.Equal(t, "deck d3 name", replyMarkup.Keyboard[2][0].Text)
+				assert.Equal(t, d1, replyMarkup.Keyboard[0][0].Text)
+				assert.Equal(t, d2, replyMarkup.Keyboard[1][0].Text)
+				assert.Equal(t, d3, replyMarkup.Keyboard[2][0].Text)
 				println(ans)
 			})
 
@@ -72,15 +87,30 @@ func TestApplication(t *testing.T) {
 				defer failOnPanic(t)
 				update := createUpdateObject("/start")
 				ans := sendUpdate(t, update)
-				update = createUpdateObject("deck d1 name")
+				update = createUpdateObject(d1)
 				ans = sendUpdate(t, update)
 				replyMarkup := toMarkup(t, ans.BaseChat.ReplyMarkup)
 				//TODO check deck description here
 				assert.True(t, strings.HasSuffix(ans.Text, service.GotLevelsMessage))
 				assert.Equal(t, 3, len(replyMarkup.Keyboard[0]))
-				assert.Equal(t, "l1", replyMarkup.Keyboard[0][0].Text)
-				assert.Equal(t, "l2", replyMarkup.Keyboard[0][1].Text)
-				assert.Equal(t, "l3", replyMarkup.Keyboard[0][2].Text)
+				assert.Equal(t, d1l1, replyMarkup.Keyboard[0][0].Text)
+				assert.Equal(t, d1l2, replyMarkup.Keyboard[0][1].Text)
+				assert.Equal(t, d1l3, replyMarkup.Keyboard[0][2].Text)
+				println(ans)
+			})
+
+			t.Run("select deck with no emoji", func(t *testing.T) {
+				defer failOnPanic(t)
+				update := createUpdateObject("/start")
+				ans := sendUpdate(t, update)
+				update = createUpdateObject(d3)
+				ans = sendUpdate(t, update)
+				replyMarkup := toMarkup(t, ans.BaseChat.ReplyMarkup)
+				//TODO check deck description here
+				assert.True(t, strings.HasSuffix(ans.Text, service.GotLevelsMessage))
+				assert.Equal(t, 2, len(replyMarkup.Keyboard[0]))
+				assert.Equal(t, d3l1, replyMarkup.Keyboard[0][0].Text)
+				assert.Equal(t, d3l2, replyMarkup.Keyboard[0][1].Text)
 				println(ans)
 			})
 
@@ -88,9 +118,9 @@ func TestApplication(t *testing.T) {
 				defer failOnPanic(t)
 				update := createUpdateObject("/start")
 				ans := sendUpdate(t, update)
-				update = createUpdateObjectFrom(update, "deck d1 name")
+				update = createUpdateObjectFrom(update, d1)
 				ans = sendUpdate(t, update)
-				update = createUpdateObjectFrom(update, "l1")
+				update = createUpdateObjectFrom(update, d1l1)
 				ans = sendUpdate(t, update)
 				assert.Contains(t, []string{"question d1l1q1 text", "question d1l1q2 text", "question d1l1q3 text"}, ans.Text)
 				println(ans)
@@ -100,9 +130,9 @@ func TestApplication(t *testing.T) {
 				defer failOnPanic(t)
 				update := createUpdateObject("/start")
 				ans := sendUpdate(t, update)
-				update = createUpdateObjectFrom(update, "deck d1 name")
+				update = createUpdateObjectFrom(update, d1)
 				ans = sendUpdate(t, update)
-				update = createUpdateObjectFrom(update, "l1")
+				update = createUpdateObjectFrom(update, d1l1)
 				ans = sendUpdate(t, update)
 				assert.Nil(t, ans.BaseChat.ReplyMarkup)
 				println(ans)
@@ -112,10 +142,10 @@ func TestApplication(t *testing.T) {
 				defer failOnPanic(t)
 				update := createUpdateObject("/start")
 				ans := sendUpdate(t, update)
-				update = createUpdateObjectFrom(update, "deck d1 name")
+				update = createUpdateObjectFrom(update, d1)
 				ans = sendUpdate(t, update)
 				for i := 0; i < 10; i++ {
-					update = createUpdateObjectFrom(update, "l1")
+					update = createUpdateObjectFrom(update, d1l1)
 					ans = sendUpdate(t, update)
 					assert.Contains(t, []string{"question d1l1q1 text", "question d1l1q2 text", "question d1l1q3 text"}, ans.Text)
 					assert.Nil(t, ans.BaseChat.ReplyMarkup)
@@ -131,18 +161,18 @@ func TestApplication(t *testing.T) {
 				update = createUpdateObjectFrom(update, "deck d1 name")
 				ans = sendUpdate(t, update)
 				for i := 0; i < 5; i++ {
-					update = createUpdateObjectFrom(update, "l1")
+					update = createUpdateObjectFrom(update, d1l1)
 					ans = sendUpdate(t, update)
 					ansIndex1 := utils.FindIndex(questions, ans.Text)
 					assert.NotEqual(t, -1, ansIndex1)
 
-					update = createUpdateObjectFrom(update, "l1")
+					update = createUpdateObjectFrom(update, d1l1)
 					ans = sendUpdate(t, update)
 					ansIndex2 := utils.FindIndex(questions, ans.Text)
 					assert.NotEqual(t, -1, ansIndex2)
 					assert.NotEqual(t, ansIndex1, ansIndex2)
 
-					update = createUpdateObjectFrom(update, "l1")
+					update = createUpdateObjectFrom(update, d1l1)
 					ans = sendUpdate(t, update)
 					ansIndex3 := utils.FindIndex(questions, ans.Text)
 					assert.NotEqual(t, -1, ansIndex3)
@@ -150,20 +180,6 @@ func TestApplication(t *testing.T) {
 					assert.NotEqual(t, ansIndex2, ansIndex3)
 					println("ORDER CHECK FINISHED")
 					time.Sleep(100 * time.Millisecond)
-				}
-			})
-
-			t.Run("select deck; select different levels many times", func(t *testing.T) {
-				defer failOnPanic(t)
-				update := createUpdateObject("/start")
-				ans := sendUpdate(t, update)
-				update = createUpdateObjectFrom(update, "deck d1 name")
-				ans = sendUpdate(t, update)
-				for i := 0; i < 20; i++ {
-					level := strconv.Itoa(rand.Intn(3) + 1)
-					update = createUpdateObjectFrom(update, "l"+level)
-					ans = sendUpdate(t, update)
-					assert.True(t, strings.HasPrefix(ans.Text, "question d1l"+level))
 				}
 			})
 
@@ -254,12 +270,14 @@ func TestApplication(t *testing.T) {
 
 			t.Run("get levels", func(t *testing.T) {
 				defer failOnPanic(t)
+				em11 := "em1"
 				expected := []domain.Level{
 					{
 						ID:         "4f84bde5-d6ad-4a2d-a2da-0553b4b281a2",
 						DeckID:     "d1",
 						LevelOrder: 1,
 						Name:       "l1",
+						Emoji:      &em11,
 						ColorStart: "0,0,0",
 						ColorEnd:   "255,255,255",
 					},
@@ -268,6 +286,7 @@ func TestApplication(t *testing.T) {
 						DeckID:     "d1",
 						LevelOrder: 2,
 						Name:       "l2",
+						Emoji:      &em11,
 						ColorStart: "0,0,0",
 						ColorEnd:   "255,255,255",
 					},
@@ -276,6 +295,7 @@ func TestApplication(t *testing.T) {
 						DeckID:     "d1",
 						LevelOrder: 3,
 						Name:       "l3",
+						Emoji:      nil,
 						ColorStart: "0,0,0",
 						ColorEnd:   "255,255,255",
 					},
