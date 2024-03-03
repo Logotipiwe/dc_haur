@@ -9,10 +9,7 @@ import (
 // @description     This is a HAUR server.
 // @termsOfService  http://swagger.io/terms/
 // @license.url   	http://www.apache.org/licenses/LICENSE-2.0.html
-// @host      		logotipiwe.ru
-//TODO dynamically specify host
 
-// @BasePath  /haur/api/v1
 // @securityDefinitions.basic  BasicAuth
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/

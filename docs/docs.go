@@ -19,7 +19,35 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/decks": {
+        "/v1/deck/{deckId}/questions": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get all questions from specified deck",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Id of deck for which questions are selected",
+                        "name": "deckId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Question"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/decks": {
             "get": {
                 "produces": [
                     "application/json"
@@ -38,7 +66,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/levels": {
+        "/v1/levels": {
             "get": {
                 "produces": [
                     "application/json"
@@ -66,7 +94,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/question": {
+        "/v1/question": {
             "get": {
                 "produces": [
                     "application/json"
@@ -172,8 +200,8 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "logotipiwe.ru",
-	BasePath:         "/haur/api/v1",
+	Host:             "",
+	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "HAUR Swagger API",
 	Description:      "This is a HAUR server.",

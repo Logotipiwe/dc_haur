@@ -86,6 +86,8 @@ func StartServer(services *service.Services) {
 
 	apiV1.GET("/question", doWithErr(controller.GetQuestion()))
 
+	apiV1.GET("/deck/:deckId/questions", doWithErr(controller.GetDeckQuestions()))
+
 	apiV1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	port := config.GetConfigOr("CONTAINER_PORT", "80")
@@ -100,7 +102,7 @@ func StartServer(services *service.Services) {
 // @Summary      Get all available decks
 // @Produce      json
 // @Success      200  {array} domain.Deck
-// @Router       /decks [get]
+// @Router       /v1/decks [get]
 func (c Controller) GetDecks() func(c *gin.Context) error {
 	return func(ctx *gin.Context) error {
 
@@ -118,7 +120,7 @@ func (c Controller) GetDecks() func(c *gin.Context) error {
 // @Param 		 deckId query string true "Id of deck for which selecting levels"
 // @Produce      json
 // @Success      200  {array} domain.Level
-// @Router       /levels [get]
+// @Router       /v1/levels [get]
 func (c Controller) GetLevels() func(ctx *gin.Context) error {
 	return func(ctx *gin.Context) error {
 		deckId := ctx.Query("deckId")
@@ -140,7 +142,7 @@ func (c Controller) GetLevels() func(ctx *gin.Context) error {
 // @Param 		 clientId query string true "Client id - differs clients from each other. Needed for ordering random questions for each client/"
 // @Produce      json
 // @Success      200  {object} domain.Question
-// @Router       /question [get]
+// @Router       /v1/question [get]
 func (c Controller) GetQuestion() func(ctx *gin.Context) error {
 	return func(ctx *gin.Context) error {
 		levelID := ctx.Query("levelId")
@@ -157,6 +159,25 @@ func (c Controller) GetQuestion() func(ctx *gin.Context) error {
 		}
 
 		ctx.JSON(http.StatusOK, question)
+		return nil
+	}
+}
+
+// GetDeckQuestions godoc
+// @Summary      Get all questions from specified deck
+// @Quer
+// @Param 		 deckId path string true "Id of deck for which questions are selected"
+// @Produce      json
+// @Success      200  {array} domain.Question
+// @Router       /v1/deck/{deckId}/questions [get]
+func (c Controller) GetDeckQuestions() func(ctx *gin.Context) error {
+	return func(ctx *gin.Context) error {
+		deckId := ctx.Param("deckId")
+		questions, err := c.services.Repos.Questions.GetAllByDeckId(deckId)
+		if err != nil {
+			return err
+		}
+		ctx.JSON(http.StatusOK, questions)
 		return nil
 	}
 }

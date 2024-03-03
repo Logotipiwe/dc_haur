@@ -10,10 +10,36 @@
         },
         "version": "1.0"
     },
-    "host": "logotipiwe.ru",
-    "basePath": "/haur/api/v1",
     "paths": {
-        "/decks": {
+        "/v1/deck/{deckId}/questions": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get all questions from specified deck",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Id of deck for which questions are selected",
+                        "name": "deckId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Question"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/decks": {
             "get": {
                 "produces": [
                     "application/json"
@@ -32,7 +58,7 @@
                 }
             }
         },
-        "/levels": {
+        "/v1/levels": {
             "get": {
                 "produces": [
                     "application/json"
@@ -60,7 +86,7 @@
                 }
             }
         },
-        "/question": {
+        "/v1/question": {
             "get": {
                 "produces": [
                     "application/json"

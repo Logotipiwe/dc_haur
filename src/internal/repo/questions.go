@@ -44,3 +44,11 @@ func (r *Questions) GetRandQuestionByNames(deckName string, levelNameWithEmoji s
 	}
 	return r.GetRandQuestion(level.ID)
 }
+
+func (r *Questions) GetAllByDeckId(deckId string) ([]domain.Question, error) {
+	questions := make([]domain.Question, 0)
+	if err := r.db.Find(&questions, "level_id in (select id from levels where deck_id = ?)", deckId).Error; err != nil {
+		return nil, err
+	}
+	return questions, nil
+}

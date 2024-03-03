@@ -1,4 +1,3 @@
-basePath: /haur/api/v1
 definitions:
   domain.Deck:
     properties:
@@ -40,7 +39,6 @@ definitions:
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
-host: logotipiwe.ru
 info:
   contact: {}
   description: This is a HAUR server.
@@ -50,7 +48,25 @@ info:
   title: HAUR Swagger API
   version: "1.0"
 paths:
-  /decks:
+  /v1/deck/{deckId}/questions:
+    get:
+      parameters:
+      - description: Id of deck for which questions are selected
+        in: path
+        name: deckId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Question'
+            type: array
+      summary: Get all questions from specified deck
+  /v1/decks:
     get:
       produces:
       - application/json
@@ -62,7 +78,7 @@ paths:
               $ref: '#/definitions/domain.Deck'
             type: array
       summary: Get all available decks
-  /levels:
+  /v1/levels:
     get:
       parameters:
       - description: Id of deck for which selecting levels
@@ -80,7 +96,7 @@ paths:
               $ref: '#/definitions/domain.Level'
             type: array
       summary: Get levels from specified deck
-  /question:
+  /v1/question:
     get:
       parameters:
       - description: Id of level for which selecting question
