@@ -350,8 +350,36 @@ func TestApplication(t *testing.T) {
 					time.Sleep(100 * time.Millisecond)
 				}
 			})
+			t.Run("Get all questions by deck", func(t *testing.T) {
+				defer failOnPanic(t)
+				clearHistory(t)
+				questions := getAllQuestionsFromDeck(t, "d1", appUrl+apiV1)
+				assert.NotNil(t, questions)
+				assert.Equal(t, 8, len(questions))
+				for _, q := range questions {
+					assert.True(t, strings.HasPrefix(q.Text, "question d1"))
+				}
+			})
 		})
 	}
+}
+
+func getAllQuestionsFromDeck(t *testing.T, deckID string, url string) []domain.Question {
+	fmt.Println("Getting levels of deck " + deckID)
+	request, err := http.NewRequest("GET", url+"/deck/"+deckID+"/questions", nil)
+	assert.NoError(t, err)
+
+	client := http.Client{}
+	response, err := client.Do(request)
+	assert.NoError(t, err)
+
+	assert.Equal(t, http.StatusOK, response.StatusCode)
+
+	var result []domain.Question
+	err = json.NewDecoder(response.Body).Decode(&result)
+	assert.NoError(t, err)
+	err = response.Body.Close()
+	return result
 }
 
 func getQuestionFromApi(t *testing.T, levelID string, url string) *domain.Question {
