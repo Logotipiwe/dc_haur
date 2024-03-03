@@ -74,9 +74,7 @@ VALUES ('8bb90043-6af9-405f-8b88-f14f473ddb0d', '1', 1, '🙂 Знакомств
        ('02e8df42-e210-41e4-be45-205dd2f8036a', '6', 2, '😏 Parallels', '254,141,63', '186,55,101'),
        ('84360dea-a948-4726-b626-effbce066ee4', '6', 3, '😌 Figures', '26,59,153', '95,150,51');
 
-    
-    
-    
+
 
 INSERT INTO questions
 values ('0cb996e5-cbcb-40e8-961d-cd4ce37aa9cc', '8bb90043-6af9-405f-8b88-f14f473ddb0d',
