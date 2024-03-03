@@ -28,3 +28,11 @@ func (r *Decks) GetDeckByName(name string) (*domain.Deck, error) {
 	}
 	return &deck, nil
 }
+
+func (r *Decks) GetDeckByNameWithEmoji(name string) (*domain.Deck, error) {
+	var deck domain.Deck
+	if err := r.db.Where("(concat(coalesce(concat(emoji, ' '),''), name) = ?) OR name = ?", name, name).First(&deck).Error; err != nil {
+		return nil, err
+	}
+	return &deck, nil
+}

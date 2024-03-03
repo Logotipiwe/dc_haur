@@ -61,8 +61,8 @@ func (s *TgMessageService) HandleStart(update Update) (*MessageConfig, error) {
 	return &msg, nil
 }
 
-func (s *TgMessageService) GetLevelsMessage(update Update, deckName string) (*MessageConfig, error) {
-	deck, err := s.repos.Decks.GetDeckByName(deckName)
+func (s *TgMessageService) GetLevelsMessage(update Update, deckNameWithEmoji string) (*MessageConfig, error) {
+	deck, err := s.repos.Decks.GetDeckByNameWithEmoji(deckNameWithEmoji)
 	if err != nil {
 		return nil, err
 	}
@@ -82,13 +82,13 @@ func (s *TgMessageService) GetLevelsMessage(update Update, deckName string) (*Me
 
 	message := NewMessage(update.Message.Chat.ID, deck.Description+"\n\n"+GotLevelsMessage)
 	message.ReplyMarkup = markup
-	s.cache.AssignDeckToChat(update, deckName)
+	s.cache.AssignDeckToChat(update, deck.Name)
 	return &message, nil
 }
 
-func (s *TgMessageService) GetQuestionMessage(update Update, deckName string, levelName string) (Chattable, error) {
+func (s *TgMessageService) GetQuestionMessage(update Update, deckName string, levelNameWithEmoji string) (Chattable, error) {
 	chatID := update.Message.Chat.ID
-	question, err := s.repos.Questions.GetRandQuestionByNames(deckName, levelName)
+	question, err := s.repos.Questions.GetRandQuestionByNames(deckName, levelNameWithEmoji)
 	if err != nil {
 		return nil, err
 	}
