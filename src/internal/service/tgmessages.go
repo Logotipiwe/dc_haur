@@ -72,6 +72,9 @@ func (s *TgMessageService) GetLevelsMessage(update Update, deckName string) (*Me
 	}
 
 	levelsNames := pkg.Map(levels, func(l *domain.Level) string {
+		if l.Emoji != nil {
+			return *l.Emoji + " " + l.Name
+		}
 		return l.Name
 	})
 

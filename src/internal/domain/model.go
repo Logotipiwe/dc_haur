@@ -18,9 +18,10 @@ func (Question) TableName() string {
 }
 
 type Deck struct {
-	ID          string `gorm:"column:id" json:"id,omitempty"`
-	Name        string `gorm:"column:name" json:"name,omitempty"`
-	Description string `gorm:"column:description" json:"description,omitempty"`
+	ID          string  `gorm:"column:id" json:"id,omitempty"`
+	Name        string  `gorm:"column:name" json:"name,omitempty"`
+	Emoji       *string `gorm:"column:emoji" json:"emoji"`
+	Description string  `gorm:"column:description" json:"description,omitempty"`
 }
 
 func (Deck) TableName() string {
@@ -31,9 +32,10 @@ type Level struct {
 	ID         string `gorm:"primary_key;type:varchar(255);not null"`
 	DeckID     string `gorm:"type:varchar(255);not null"`
 	LevelOrder int
-	Name       string `gorm:"type:varchar(255);not null"`
-	ColorStart string `gorm:"type:varchar(255);not null"`
-	ColorEnd   string `gorm:"type:varchar(255);not null"`
+	Name       string  `gorm:"type:varchar(255);not null"`
+	Emoji      *string `gorm:"column:emoji" json:"emoji"`
+	ColorStart string  `gorm:"type:varchar(255);not null"`
+	ColorEnd   string  `gorm:"type:varchar(255);not null"`
 }
 
 type BotInteractor interface {

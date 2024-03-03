@@ -50,8 +50,8 @@ func TestApplication(t *testing.T) {
 				ans := sendUpdate(t, update)
 				replyMarkup := toMarkup(t, ans.BaseChat.ReplyMarkup)
 				assert.Equal(t, 3, len(replyMarkup.Keyboard))
-				assert.Equal(t, "deck d1 name", replyMarkup.Keyboard[0][0].Text)
-				assert.Equal(t, "deck d2 name", replyMarkup.Keyboard[1][0].Text)
+				assert.Equal(t, "em1 deck d1 name", replyMarkup.Keyboard[0][0].Text)
+				assert.Equal(t, "em2 deck d2 name", replyMarkup.Keyboard[1][0].Text)
 				assert.Equal(t, "deck d3 name", replyMarkup.Keyboard[2][0].Text)
 				println(ans)
 			})
@@ -62,8 +62,8 @@ func TestApplication(t *testing.T) {
 				ans := sendUpdate(t, update)
 				replyMarkup := toMarkup(t, ans.BaseChat.ReplyMarkup)
 				assert.Equal(t, 3, len(replyMarkup.Keyboard))
-				assert.Equal(t, "deck d1 name", replyMarkup.Keyboard[0][0].Text)
-				assert.Equal(t, "deck d2 name", replyMarkup.Keyboard[1][0].Text)
+				assert.Equal(t, "em1 deck d1 name", replyMarkup.Keyboard[0][0].Text)
+				assert.Equal(t, "em2 deck d2 name", replyMarkup.Keyboard[1][0].Text)
 				assert.Equal(t, "deck d3 name", replyMarkup.Keyboard[2][0].Text)
 				println(ans)
 			})
@@ -78,8 +78,8 @@ func TestApplication(t *testing.T) {
 				//TODO check deck description here
 				assert.True(t, strings.HasSuffix(ans.Text, service.GotLevelsMessage))
 				assert.Equal(t, 3, len(replyMarkup.Keyboard[0]))
-				assert.Equal(t, "l1", replyMarkup.Keyboard[0][0].Text)
-				assert.Equal(t, "l2", replyMarkup.Keyboard[0][1].Text)
+				assert.Equal(t, "em11 l1", replyMarkup.Keyboard[0][0].Text)
+				assert.Equal(t, "em12 l2", replyMarkup.Keyboard[0][1].Text)
 				assert.Equal(t, "l3", replyMarkup.Keyboard[0][2].Text)
 				println(ans)
 			})
@@ -254,12 +254,15 @@ func TestApplication(t *testing.T) {
 
 			t.Run("get levels", func(t *testing.T) {
 				defer failOnPanic(t)
+				em11 := "em11"
+				em12 := "em12"
 				expected := []domain.Level{
 					{
 						ID:         "4f84bde5-d6ad-4a2d-a2da-0553b4b281a2",
 						DeckID:     "d1",
 						LevelOrder: 1,
 						Name:       "l1",
+						Emoji:      &em11,
 						ColorStart: "0,0,0",
 						ColorEnd:   "255,255,255",
 					},
@@ -268,6 +271,7 @@ func TestApplication(t *testing.T) {
 						DeckID:     "d1",
 						LevelOrder: 2,
 						Name:       "l2",
+						Emoji:      &em12,
 						ColorStart: "0,0,0",
 						ColorEnd:   "255,255,255",
 					},
@@ -276,6 +280,7 @@ func TestApplication(t *testing.T) {
 						DeckID:     "d1",
 						LevelOrder: 3,
 						Name:       "l3",
+						Emoji:      nil,
 						ColorStart: "0,0,0",
 						ColorEnd:   "255,255,255",
 					},

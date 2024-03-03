@@ -106,6 +106,9 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "emoji": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -124,6 +127,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "deckID": {
+                    "type": "string"
+                },
+                "emoji": {
                     "type": "string"
                 },
                 "id": {
