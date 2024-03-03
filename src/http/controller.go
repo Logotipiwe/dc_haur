@@ -76,6 +76,10 @@ func StartServer(services *service.Services) {
 
 	apiV1 := router.Group("/api/v1")
 
+	apiV1.Use(func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+	})
+
 	apiV1.GET("/decks", doWithErr(controller.GetDecks()))
 
 	apiV1.GET("/levels", doWithErr(controller.GetLevels()))
