@@ -3,7 +3,6 @@ module dc_haur
 go 1.20
 
 require (
-	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/Logotipiwe/dc_go_auth_lib v0.0.9
 	github.com/fogleman/gg v1.3.0
 	github.com/gin-gonic/gin v1.9.1
@@ -11,12 +10,13 @@ require (
 	github.com/google/uuid v1.4.0
 	github.com/google/wire v0.5.0
 	github.com/jinzhu/gorm v1.9.16
-	github.com/logotipiwe/dc_go_config_lib v1.0.3
+	github.com/logotipiwe/dc_go_config_lib v1.0.6
 	github.com/logotipiwe/dc_go_utils v1.0.3
 	github.com/stretchr/testify v1.8.4
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.2
+	gorm.io/gorm v1.25.7
 )
 
 require (
@@ -37,6 +37,7 @@ require (
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect

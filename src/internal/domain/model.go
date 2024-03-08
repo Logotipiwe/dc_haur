@@ -22,6 +22,7 @@ type Deck struct {
 	Name        string  `gorm:"column:name" json:"name,omitempty"`
 	Emoji       *string `gorm:"column:emoji" json:"emoji"`
 	Description string  `gorm:"column:description" json:"description,omitempty"`
+	Labels      string  `gorm:"column:labels;serializer:semicolonSeparated" json:"labels"`
 }
 
 func (Deck) TableName() string {
