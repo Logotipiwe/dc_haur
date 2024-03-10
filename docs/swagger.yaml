@@ -7,6 +7,8 @@ definitions:
         type: string
       id:
         type: string
+      labels:
+        type: string
       name:
         type: string
     type: object
