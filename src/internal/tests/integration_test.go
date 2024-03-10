@@ -325,6 +325,7 @@ func TestApplication(t *testing.T) {
 				assert.NotNil(t, question.ID)
 				assert.NotNil(t, question.Text)
 				assert.NotNil(t, question.LevelID)
+				assert.NotNil(t, question.AdditionalText)
 			})
 
 			t.Run("questions in level are ordered", func(t *testing.T) {
@@ -359,6 +360,9 @@ func TestApplication(t *testing.T) {
 				assert.Equal(t, 8, len(questions))
 				for _, q := range questions {
 					assert.True(t, strings.HasPrefix(q.Text, "question d1"))
+					assert.NotNil(t, q.ID)
+					assert.NotNil(t, q.LevelID)
+					assert.NotNil(t, q.AdditionalText)
 				}
 			})
 		})

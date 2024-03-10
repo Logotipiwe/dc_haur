@@ -16,8 +16,7 @@ func NewQuestionsRepo(db *gorm.DB) *Questions {
 }
 
 const (
-	GetLevelsSql       = "SELECT name FROM levels WHERE deck_id = ? ORDER BY level_order"
-	GetRandQuestionSql = "SELECT q.id, q.level_id, q.text FROM (select q.*, (select count(*) from questions_history where question_id = q.id) asked from questions q) q  WHERE q.level_id = ? ORDER BY q.asked, rand() LIMIT 1"
+	GetRandQuestionSql = "SELECT q.id, q.level_id, q.text, q.additional_text FROM (select q.*, (select count(*) from questions_history where question_id = q.id) asked from questions q) q  WHERE q.level_id = ? ORDER BY q.asked, rand() LIMIT 1"
 )
 
 var (
@@ -26,7 +25,7 @@ var (
 
 func (r *Questions) GetRandQuestion(levelID string) (*domain.Question, error) {
 	var result domain.Question
-	err := r.db.Raw(GetRandQuestionSql, levelID).Row().Scan(&result.ID, &result.LevelID, &result.Text)
+	err := r.db.Raw(GetRandQuestionSql, levelID).Row().Scan(&result.ID, &result.LevelID, &result.Text, &result.AdditionalText)
 	if err != nil {
 		log.Println("Error getting question from DB.")
 		log.Println(err)

@@ -99,7 +99,7 @@ func (s *TgMessageService) GetQuestionMessage(update Update, deckName string, le
 
 	var chattable Chattable
 	if imagesEnabled() {
-		cardImage, err := CreateImageCard(question.Text, level.ColorStart, level.ColorEnd)
+		cardImage, err := CreateImageCardFromQuestion(question, level.ColorStart, level.ColorEnd)
 		if err != nil {
 			return nil, err
 		}

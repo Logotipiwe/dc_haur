@@ -177,6 +177,9 @@ const docTemplate = `{
         "domain.Question": {
             "type": "object",
             "properties": {
+                "additional_text": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },

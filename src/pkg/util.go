@@ -74,3 +74,27 @@ func FindIndex(array []string, target string) int {
 	}
 	return -1
 }
+
+func GetImageTextY() float64 {
+	return config.GetConfigFloat64Or("IMAGE_TEXT_Y", 0.5)
+}
+
+func GetImageTextWidth() float64 {
+	return config.GetConfigFloat64Or("IMAGE_TEXT_WIDTH", 0.8)
+}
+
+func GetImageFontSize() float64 {
+	return config.GetConfigFloat64Or("IMAGE_TEXT_FONT_SIZE", 50)
+}
+
+func GetImageAdditionalTextY() float64 {
+	return config.GetConfigFloat64Or("IMAGE_ADDITIONAL_TEXT_Y", 0.2)
+}
+
+func GetImageTextWithAdditionalY() float64 {
+	return config.GetConfigFloat64Or("IMAGE_TEXT_WITH_ADDITIONAL_Y", 0.6)
+}
+
+func GetImageAdditionalFontSize() float64 {
+	return config.GetConfigFloat64Or("IMAGE_ADDITIONAL_TEXT_FONT_SIZE", 45)
+}

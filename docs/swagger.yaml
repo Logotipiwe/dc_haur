@@ -31,6 +31,8 @@ definitions:
     type: object
   domain.Question:
     properties:
+      additional_text:
+        type: string
       id:
         type: string
       level_id:

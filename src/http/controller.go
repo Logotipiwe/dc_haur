@@ -1,6 +1,7 @@
 package http
 
 import (
+	"dc_haur/src/internal/domain"
 	"dc_haur/src/internal/repo"
 	"dc_haur/src/internal/service"
 	"errors"
@@ -36,7 +37,14 @@ func StartServer(services *service.Services) {
 	})
 
 	integrationTestingRoutes.GET("/test-image", doWithErrExplicit(func(c *gin.Context) error {
-		card, err := service.CreateImageCard("Отвечает человек слева: Как ты думаешь, что самое сложное в том деле, которым я зарабатываю себе на жизнь?", "", "")
+		additionalText := "Отвечает человек слева"
+		question := domain.Question{
+			ID:             "1",
+			LevelID:        "2",
+			Text:           "Как ты думаешь, что самое сложное в том деле, которым я зарабатываю себе на жизнь?",
+			AdditionalText: &additionalText,
+		}
+		card, err := service.CreateImageCardFromQuestion(&question, "", "")
 		if err != nil {
 			return err
 		}
