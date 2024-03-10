@@ -4,7 +4,7 @@
     <working_directory value="$PROJECT_DIR$/src/internal/tests" />
     <parameters value="-test.count 2 -test.failfast" />
     <envs>
-      <env name="TEST_URL" value="http://localhost:8081" />
+      <env name="TEST_URL" value="http://localhost:86" />
       <env name="M_TOKEN" value="4321" />
     </envs>
     <root_directory value="$PROJECT_DIR$" />

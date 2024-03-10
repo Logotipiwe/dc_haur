@@ -265,6 +265,7 @@ func TestApplication(t *testing.T) {
 					assert.NotNil(t, result[i].ID)
 					assert.NotNil(t, result[i].Name)
 					assert.NotNil(t, result[i].Description)
+					assert.NotNil(t, result[i].Labels)
 				}
 			})
 
