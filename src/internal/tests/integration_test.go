@@ -232,6 +232,7 @@ func TestApplication(t *testing.T) {
 			appUrl := config.GetConfig("TEST_URL")
 			println("Url to test " + appUrl)
 			apiV1 := "/api/v1"
+			apiV2 := "/api/v2"
 			apiIntegrationTest := apiV1 + "/integration-test"
 
 			t.Run("/test-image secured", func(t *testing.T) {
@@ -263,9 +264,31 @@ func TestApplication(t *testing.T) {
 				assert.Equal(t, 3, len(result))
 				for i := range result {
 					assert.NotNil(t, result[i].ID)
+					assert.NotNil(t, result[i].LanguageCode)
 					assert.NotNil(t, result[i].Name)
 					assert.NotNil(t, result[i].Description)
 					assert.NotNil(t, result[i].Labels)
+					assert.NotNil(t, result[i].Image)
+				}
+			})
+
+			t.Run("get localized decks", func(t *testing.T) {
+				defer failOnPanic(t)
+
+				languageCode := "EN"
+				result := getLocalizedDecksFromApi(t, appUrl+apiV2, languageCode)
+
+				assert.Equal(t, 2, len(result))
+				for i := range result {
+					checkDeckFields(t, result[i])
+				}
+
+				languageCode = "RU"
+				result = getLocalizedDecksFromApi(t, appUrl+apiV2, languageCode)
+
+				assert.Equal(t, 1, len(result))
+				for i := range result {
+					checkDeckFields(t, result[i])
 				}
 			})
 
@@ -274,31 +297,34 @@ func TestApplication(t *testing.T) {
 				em11 := "em1"
 				expected := []domain.Level{
 					{
-						ID:         "4f84bde5-d6ad-4a2d-a2da-0553b4b281a2",
-						DeckID:     "d1",
-						LevelOrder: 1,
-						Name:       "l1",
-						Emoji:      &em11,
-						ColorStart: "0,0,0",
-						ColorEnd:   "255,255,255",
+						ID:          "4f84bde5-d6ad-4a2d-a2da-0553b4b281a2",
+						DeckID:      "d1",
+						LevelOrder:  1,
+						Name:        "l1",
+						Emoji:       &em11,
+						ColorStart:  "0,0,0",
+						ColorEnd:    "255,255,255",
+						ColorButton: "1,1,1",
 					},
 					{
-						ID:         "dae6f634-8a6c-42a7-8d25-6a44e91e6e21",
-						DeckID:     "d1",
-						LevelOrder: 2,
-						Name:       "l2",
-						Emoji:      &em11,
-						ColorStart: "0,0,0",
-						ColorEnd:   "255,255,255",
+						ID:          "dae6f634-8a6c-42a7-8d25-6a44e91e6e21",
+						DeckID:      "d1",
+						LevelOrder:  2,
+						Name:        "l2",
+						Emoji:       &em11,
+						ColorStart:  "0,0,0",
+						ColorEnd:    "255,255,255",
+						ColorButton: "2,2,2",
 					},
 					{
-						ID:         "8e7e1f07-0292-4ef6-8529-fb92a0d4c1f6",
-						DeckID:     "d1",
-						LevelOrder: 3,
-						Name:       "l3",
-						Emoji:      nil,
-						ColorStart: "0,0,0",
-						ColorEnd:   "255,255,255",
+						ID:          "8e7e1f07-0292-4ef6-8529-fb92a0d4c1f6",
+						DeckID:      "d1",
+						LevelOrder:  3,
+						Name:        "l3",
+						Emoji:       nil,
+						ColorStart:  "0,0,0",
+						ColorEnd:    "255,255,255",
+						ColorButton: "3,3,3",
 					},
 				}
 
@@ -365,8 +391,36 @@ func TestApplication(t *testing.T) {
 					assert.NotNil(t, q.AdditionalText)
 				}
 			})
+
+			t.Run("Get vector images", func(t *testing.T) {
+				defer failOnPanic(t)
+				clearHistory(t)
+				imageContent := getVectorImage(t, "1", appUrl+apiV1)
+				assert.Equal(t, "<svg>1</svg>", imageContent)
+				imageContent = getVectorImage(t, "2", appUrl+apiV1)
+				assert.Equal(t, "<svg>2</svg>", imageContent)
+			})
 		})
 	}
+}
+
+func getVectorImage(t *testing.T, id string, url string) string {
+	fmt.Println("Getting vector image " + id)
+	request, err := http.NewRequest("GET", url+"/get-vector-image/"+id, nil)
+	assert.NoError(t, err)
+
+	client := http.Client{}
+	response, err := client.Do(request)
+	assert.NoError(t, err)
+
+	assert.Equal(t, http.StatusOK, response.StatusCode)
+
+	var result string
+	all, err := io.ReadAll(response.Body)
+	assert.NoError(t, err)
+	result = string(all)
+	err = response.Body.Close()
+	return result
 }
 
 func getAllQuestionsFromDeck(t *testing.T, deckID string, url string) []domain.Question {
@@ -449,6 +503,25 @@ func getDecksFromApi(t *testing.T, url string) []domain.Deck {
 	return result
 }
 
+func getLocalizedDecksFromApi(t *testing.T, url string, languageCode string) []domain.Deck {
+	fmt.Println("Getting localized decks...")
+	request, err := http.NewRequest("GET", url+"/decks?languageCode="+languageCode, nil)
+	assert.NoError(t, err)
+
+	client := http.Client{}
+	response, err := client.Do(request)
+	assert.NoError(t, err)
+
+	assert.Equal(t, http.StatusOK, response.StatusCode)
+
+	var result []domain.Deck
+	err = json.NewDecoder(response.Body).Decode(&result)
+	assert.NoError(t, err)
+	err = response.Body.Close()
+
+	return result
+}
+
 func getResponseCode(method, url string) (int, error) {
 	fmt.Printf("Checking status from request %s\n", url)
 	request, err := http.NewRequest(method, url, nil)
@@ -463,6 +536,14 @@ func getResponseCode(method, url string) (int, error) {
 	}
 
 	return response.StatusCode, nil
+}
+
+func checkDeckFields(t *testing.T, deck domain.Deck) {
+	assert.NotNil(t, deck.ID)
+	assert.NotNil(t, deck.LanguageCode)
+	assert.NotNil(t, deck.Name)
+	assert.NotNil(t, deck.Description)
+	assert.NotNil(t, deck.Labels)
 }
 
 func failOnPanic(t *testing.T) {
