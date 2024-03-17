@@ -89,14 +89,11 @@ func StartServer(services *service.Services) {
 	})
 
 	apiV1.GET("/decks", doWithErr(controller.GetDecks()))
-
 	apiV1.GET("/levels", doWithErr(controller.GetLevels()))
-
 	apiV1.GET("/question", doWithErr(controller.GetQuestion()))
-
 	apiV1.GET("/deck/:deckId/questions", doWithErr(controller.GetDeckQuestions()))
-
 	apiV1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	apiV1.GET("/get-vector-image/:id", doWithErr(controller.GetImage()))
 
 	apiV2 := router.Group("/api/v2")
 
@@ -214,6 +211,28 @@ func (c Controller) GetDeckQuestions() func(ctx *gin.Context) error {
 			return err
 		}
 		ctx.JSON(http.StatusOK, questions)
+		return nil
+	}
+}
+
+// GetImage godoc
+// @Summary      Get code of vector image
+// @Param 		 id path string true "Id of image"
+// @Produce      xml
+// @Success      200 {xml} svg
+// @Router       /v1/get-vector-image/{id} [get]
+func (c Controller) GetImage() func(ctx *gin.Context) error {
+	return func(ctx *gin.Context) error {
+		imageId := ctx.Param("id")
+		image, err := c.services.Repos.VectorImages.GetVectorImageById(imageId)
+		if err != nil {
+			return err
+		}
+		ctx.Header("Content-Type", "image/svg+xml")
+		ctx.String(200, image.Content)
+		if err != nil {
+			return err
+		}
 		return nil
 	}
 }

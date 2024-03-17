@@ -25,6 +25,7 @@ type Deck struct {
 	Emoji        *string `gorm:"column:emoji" json:"emoji"`
 	Description  string  `gorm:"column:description" json:"description,omitempty"`
 	Labels       string  `gorm:"column:labels;serializer:semicolonSeparated" json:"labels"`
+	Image       string  `gorm:"column:image" json:"image"`
 }
 
 func (Deck) TableName() string {
@@ -32,13 +33,23 @@ func (Deck) TableName() string {
 }
 
 type Level struct {
-	ID         string `gorm:"primary_key;type:varchar(255);not null"`
-	DeckID     string `gorm:"type:varchar(255);not null"`
-	LevelOrder int
-	Name       string  `gorm:"type:varchar(255);not null"`
-	Emoji      *string `gorm:"column:emoji" json:"emoji"`
-	ColorStart string  `gorm:"type:varchar(255);not null"`
-	ColorEnd   string  `gorm:"type:varchar(255);not null"`
+	ID          string `gorm:"primary_key;type:varchar(255);not null"`
+	DeckID      string `gorm:"type:varchar(255);not null"`
+	LevelOrder  int
+	Name        string  `gorm:"type:varchar(255);not null"`
+	Emoji       *string `gorm:"column:emoji" json:"emoji"`
+	ColorStart  string  `gorm:"type:varchar(255);not null"`
+	ColorEnd    string  `gorm:"type:varchar(255);not null"`
+	ColorButton string  `gorm:"type:varchar(255);not null"`
+}
+
+type VectorImage struct {
+	ID      string `gorm:"primary_key;" json:"id"`
+	Content string `json:"content"`
+}
+
+func (v VectorImage) TableName() string {
+	return "vector_images"
 }
 
 type BotInteractor interface {
