@@ -150,6 +150,34 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v2/decks": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get decks by lang code",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Language code in upper case (RU, EN)",
+                        "name": "languageCode",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Deck"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
