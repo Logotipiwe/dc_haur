@@ -128,6 +128,12 @@ func (c Controller) GetDecks() func(c *gin.Context) error {
 	}
 }
 
+// GetLocalizedDecks godoc
+// @Summary      Get decks by lang code
+// @Param 		 languageCode query string true "Language code in upper case (RU, EN)"
+// @Produce      json
+// @Success      200  {array} domain.Deck
+// @Router       /v2/decks [get]
 func (c Controller) GetLocalizedDecks() func(ctx *gin.Context) error {
 	return func(ctx *gin.Context) error {
 		langCode := ctx.Query("languageCode")

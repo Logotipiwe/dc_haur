@@ -144,6 +144,24 @@ paths:
           schema:
             $ref: '#/definitions/domain.Question'
       summary: Get random question by selected level
+  /v2/decks:
+    get:
+      parameters:
+      - description: Language code in upper case (RU, EN)
+        in: query
+        name: languageCode
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Deck'
+            type: array
+      summary: Get decks by lang code
 securityDefinitions:
   BasicAuth:
     type: basic
