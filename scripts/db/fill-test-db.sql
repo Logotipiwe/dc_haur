@@ -8,6 +8,7 @@ drop table if exists decks;
 create table if not exists decks
 (
     id  varchar(255) not null primary key,
+    language_code varchar(10) not null,
     name varchar(255) not null,
     emoji varchar(255),
     description text,
@@ -39,9 +40,9 @@ create table if not exists questions_history
     question_time timestamp    not null default current_timestamp
 );
 
-INSERT INTO decks values ('d1', 'deck d1 name', 'em1', 'Deck 1 desc', 'label1;label2');
-INSERT INTO decks values ('d2', 'deck d2 name', 'em2', 'Deck 2 desc', 'label1;label2');
-INSERT INTO decks values ('d3', 'deck d3 name', null, 'Deck 3 desc', 'label1;label2');
+INSERT INTO decks values ('d1', 'EN', 'deck d1 name', 'em1', 'Deck 1 desc', 'label1;label2');
+INSERT INTO decks values ('d2', 'EN', 'deck d2 name', 'em2', 'Deck 2 desc', 'label1;label2');
+INSERT INTO decks values ('d3', 'RU', 'deck d3 name', null, 'Deck 3 desc', 'label1;label2');
 
 INSERT INTO levels (id, deck_id, level_order, name, emoji, color_start, color_end)
 VALUES ('4f84bde5-d6ad-4a2d-a2da-0553b4b281a2', 'd1', 1, 'l1', 'em1', '0,0,0', '255,255,255'),

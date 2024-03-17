@@ -9,6 +9,7 @@ drop table if exists decks;
 create table if not exists decks
 (
     id  varchar(255) not null primary key,
+    language_code varchar(10) not null,
     name varchar(255) not null,
     emoji varchar(255),
     description text,
@@ -40,12 +41,12 @@ create table if not exists questions_history
     question_time timestamp    not null default current_timestamp
 );
 
-INSERT INTO decks values ('1', 'Для пары', '😉', 'Вопросы на для любой пары друзей, партнеров или незнакомцев. Читающий задает вопрос другому.', 'good to start;besties');
-INSERT INTO decks values ('2', 'Для компании', '😎', 'Вопросы для посиделок в компании. Другой отвечает про читающего.', 'party');
-INSERT INTO decks values ('5', 'Для троих', '😎', 'Вопросы для посиделок в компании втроем. Другой отвечает про читающего.', 'party');
-INSERT INTO decks values ('3', 'Для компании, о себе', '😎', 'Вопросы для посиделок в компании. Читающий отвечает о себе.', 'good to start;party');
-INSERT INTO decks values ('4', 'Для партнеров', '❤️', 'Для пар, чтобы лучше узнать друг друга','couples;good to start');
-INSERT INTO decks values ('6', 'Welcome... stranger?', '🇬🇧', 'For any strangers who want to get know each other!','good to start;party');
+INSERT INTO decks values ('1', 'RU', 'Для пары', '😉', 'Вопросы на для любой пары друзей, партнеров или незнакомцев. Читающий задает вопрос другому.', 'good to start;besties');
+INSERT INTO decks values ('2', 'RU', 'Для компании', '😎', 'Вопросы для посиделок в компании. Другой отвечает про читающего.', 'party');
+INSERT INTO decks values ('5', 'RU', 'Для троих', '😎', 'Вопросы для посиделок в компании втроем. Другой отвечает про читающего.', 'party');
+INSERT INTO decks values ('3', 'RU', 'Для компании, о себе', '😎', 'Вопросы для посиделок в компании. Читающий отвечает о себе.', 'good to start;party');
+INSERT INTO decks values ('4', 'RU', 'Для партнеров', '❤️', 'Для пар, чтобы лучше узнать друг друга','couples;good to start');
+INSERT INTO decks values ('6', 'EN', 'Welcome... stranger?', '🇬🇧', 'For any strangers who want to get know each other!','good to start;party');
 
 INSERT INTO levels (id, deck_id, level_order, name, emoji, color_start, color_end)
 VALUES ('8bb90043-6af9-405f-8b88-f14f473ddb0d', '1', 1, 'Знакомство', '🙂', '74,62,255', '219, 100, 255'),
