@@ -266,6 +266,7 @@ func TestApplication(t *testing.T) {
 					assert.NotNil(t, result[i].Name)
 					assert.NotNil(t, result[i].Description)
 					assert.NotNil(t, result[i].Labels)
+					assert.NotNil(t, result[i].Image)
 				}
 			})
 
@@ -365,8 +366,36 @@ func TestApplication(t *testing.T) {
 					assert.NotNil(t, q.AdditionalText)
 				}
 			})
+
+			t.Run("Get vector images", func(t *testing.T) {
+				defer failOnPanic(t)
+				clearHistory(t)
+				imageContent := getVectorImage(t, "1", appUrl+apiV1)
+				assert.Equal(t, "<svg>1</svg>", imageContent)
+				imageContent = getVectorImage(t, "2", appUrl+apiV1)
+				assert.Equal(t, "<svg>2</svg>", imageContent)
+			})
 		})
 	}
+}
+
+func getVectorImage(t *testing.T, id string, url string) string {
+	fmt.Println("Getting vector image " + id)
+	request, err := http.NewRequest("GET", url+"/get-vector-image/"+id, nil)
+	assert.NoError(t, err)
+
+	client := http.Client{}
+	response, err := client.Do(request)
+	assert.NoError(t, err)
+
+	assert.Equal(t, http.StatusOK, response.StatusCode)
+
+	var result string
+	all, err := io.ReadAll(response.Body)
+	assert.NoError(t, err)
+	result = string(all)
+	err = response.Body.Close()
+	return result
 }
 
 func getAllQuestionsFromDeck(t *testing.T, deckID string, url string) []domain.Question {
