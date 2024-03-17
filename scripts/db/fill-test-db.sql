@@ -9,6 +9,7 @@ drop table if exists decks;
 create table if not exists decks
 (
     id  varchar(255) not null primary key,
+    language_code varchar(10) not null,
     name varchar(255) not null,
     emoji varchar(255),
     description text,
@@ -48,9 +49,9 @@ create table if not exists questions_history
     question_time timestamp    not null default current_timestamp
 );
 
-INSERT INTO decks values ('d1', 'deck d1 name', 'em1', 'Deck 1 desc', 'label1;label2', '1');
-INSERT INTO decks values ('d2', 'deck d2 name', 'em2', 'Deck 2 desc', 'label1;label2', '1');
-INSERT INTO decks values ('d3', 'deck d3 name', null, 'Deck 3 desc', 'label1;label2', '2');
+INSERT INTO decks values ('d1', 'EN', 'deck d1 name', 'em1', 'Deck 1 desc', 'label1;label2', '1');
+INSERT INTO decks values ('d2', 'EN', 'deck d2 name', 'em2', 'Deck 2 desc', 'label1;label2', '1');
+INSERT INTO decks values ('d3', 'RU', 'deck d3 name', null, 'Deck 3 desc', 'label1;label2', '2');
 
 INSERT INTO vector_images values ('1', '<svg>1</svg>');
 INSERT INTO vector_images values ('2', '<svg>2</svg>');

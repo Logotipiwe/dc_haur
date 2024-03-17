@@ -171,6 +171,9 @@ const docTemplate = `{
                 "labels": {
                     "type": "string"
                 },
+                "languageCode": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 }

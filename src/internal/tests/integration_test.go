@@ -232,6 +232,7 @@ func TestApplication(t *testing.T) {
 			appUrl := config.GetConfig("TEST_URL")
 			println("Url to test " + appUrl)
 			apiV1 := "/api/v1"
+			apiV2 := "/api/v2"
 			apiIntegrationTest := apiV1 + "/integration-test"
 
 			t.Run("/test-image secured", func(t *testing.T) {
@@ -263,10 +264,31 @@ func TestApplication(t *testing.T) {
 				assert.Equal(t, 3, len(result))
 				for i := range result {
 					assert.NotNil(t, result[i].ID)
+					assert.NotNil(t, result[i].LanguageCode)
 					assert.NotNil(t, result[i].Name)
 					assert.NotNil(t, result[i].Description)
 					assert.NotNil(t, result[i].Labels)
 					assert.NotNil(t, result[i].Image)
+				}
+			})
+
+			t.Run("get localized decks", func(t *testing.T) {
+				defer failOnPanic(t)
+
+				languageCode := "EN"
+				result := getLocalizedDecksFromApi(t, appUrl+apiV2, languageCode)
+
+				assert.Equal(t, 2, len(result))
+				for i := range result {
+					checkDeckFields(t, result[i])
+				}
+
+				languageCode = "RU"
+				result = getLocalizedDecksFromApi(t, appUrl+apiV2, languageCode)
+
+				assert.Equal(t, 1, len(result))
+				for i := range result {
+					checkDeckFields(t, result[i])
 				}
 			})
 
@@ -481,6 +503,25 @@ func getDecksFromApi(t *testing.T, url string) []domain.Deck {
 	return result
 }
 
+func getLocalizedDecksFromApi(t *testing.T, url string, languageCode string) []domain.Deck {
+	fmt.Println("Getting localized decks...")
+	request, err := http.NewRequest("GET", url+"/decks?languageCode="+languageCode, nil)
+	assert.NoError(t, err)
+
+	client := http.Client{}
+	response, err := client.Do(request)
+	assert.NoError(t, err)
+
+	assert.Equal(t, http.StatusOK, response.StatusCode)
+
+	var result []domain.Deck
+	err = json.NewDecoder(response.Body).Decode(&result)
+	assert.NoError(t, err)
+	err = response.Body.Close()
+
+	return result
+}
+
 func getResponseCode(method, url string) (int, error) {
 	fmt.Printf("Checking status from request %s\n", url)
 	request, err := http.NewRequest(method, url, nil)
@@ -495,6 +536,14 @@ func getResponseCode(method, url string) (int, error) {
 	}
 
 	return response.StatusCode, nil
+}
+
+func checkDeckFields(t *testing.T, deck domain.Deck) {
+	assert.NotNil(t, deck.ID)
+	assert.NotNil(t, deck.LanguageCode)
+	assert.NotNil(t, deck.Name)
+	assert.NotNil(t, deck.Description)
+	assert.NotNil(t, deck.Labels)
 }
 
 func failOnPanic(t *testing.T) {

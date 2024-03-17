@@ -29,6 +29,14 @@ func (r *Decks) GetDeckByName(name string) (*domain.Deck, error) {
 	return &deck, nil
 }
 
+func (r *Decks) GetDecksByLanguage(language string) ([]domain.Deck, error) {
+	var decks []domain.Deck
+	if err := r.db.Where("language_code = ?", language).Find(&decks).Error; err != nil {
+		return nil, err
+	}
+	return decks, nil
+}
+
 func (r *Decks) GetDeckByNameWithEmoji(name string) (*domain.Deck, error) {
 	var deck domain.Deck
 	if err := r.db.Where("(concat(coalesce(concat(emoji, ' '),''), name) = ?) OR name = ?", name, name).First(&deck).Error; err != nil {

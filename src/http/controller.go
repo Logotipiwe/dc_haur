@@ -95,6 +95,14 @@ func StartServer(services *service.Services) {
 	apiV1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	apiV1.GET("/get-vector-image/:id", doWithErr(controller.GetImage()))
 
+	apiV2 := router.Group("/api/v2")
+
+	apiV2.Use(func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+	})
+
+	apiV2.GET("/decks", doWithErr(controller.GetLocalizedDecks()))
+
 	port := config.GetConfigOr("CONTAINER_PORT", "80")
 	log.Println("Starting server on port " + port)
 	err := router.Run(":" + port)
@@ -112,6 +120,25 @@ func (c Controller) GetDecks() func(c *gin.Context) error {
 	return func(ctx *gin.Context) error {
 
 		decks, err := c.services.Decks.GetDecks()
+		if err != nil {
+			return err
+		}
+		ctx.JSON(http.StatusOK, decks)
+		return nil
+	}
+}
+
+func (c Controller) GetLocalizedDecks() func(ctx *gin.Context) error {
+	return func(ctx *gin.Context) error {
+		langCode := ctx.Query("languageCode")
+		if langCode == "" {
+			ctx.String(400, "Language not specified. "+
+				"Please specify languageCode query parameter as in the following: languageCode=EN")
+			return nil
+		}
+
+		decks, err := c.services.Decks.GetDecksByLanguage(langCode)
+
 		if err != nil {
 			return err
 		}
