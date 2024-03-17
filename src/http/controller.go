@@ -131,7 +131,6 @@ func (c Controller) GetDecks() func(c *gin.Context) error {
 func (c Controller) GetLocalizedDecks() func(ctx *gin.Context) error {
 	return func(ctx *gin.Context) error {
 		langCode := ctx.Query("languageCode")
-		println("LOG: language code: " + langCode)
 		if langCode == "" {
 			ctx.String(400, "Language not specified. "+
 				"Please specify languageCode query parameter as in the following: languageCode=EN")
