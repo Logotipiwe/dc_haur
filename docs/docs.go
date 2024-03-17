@@ -179,6 +179,9 @@ const docTemplate = `{
         "domain.Level": {
             "type": "object",
             "properties": {
+                "colorButton": {
+                    "type": "string"
+                },
                 "colorEnd": {
                     "type": "string"
                 },
