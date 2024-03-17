@@ -66,6 +66,31 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/get-vector-image/{id}": {
+            "get": {
+                "produces": [
+                    "text/xml"
+                ],
+                "summary": "Get code of vector image",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Id of image",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "xml"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/levels": {
             "get": {
                 "produces": [
@@ -140,6 +165,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "image": {
+                    "type": "string"
+                },
                 "labels": {
                     "type": "string"
                 },
@@ -151,6 +179,9 @@ const docTemplate = `{
         "domain.Level": {
             "type": "object",
             "properties": {
+                "colorButton": {
+                    "type": "string"
+                },
                 "colorEnd": {
                     "type": "string"
                 },
