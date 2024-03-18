@@ -25,7 +25,7 @@ type Deck struct {
 	Emoji        *string `gorm:"column:emoji" json:"emoji"`
 	Description  string  `gorm:"column:description" json:"description,omitempty"`
 	Labels       string  `gorm:"column:labels;serializer:semicolonSeparated" json:"labels"`
-	Image       string  `gorm:"column:image" json:"image"`
+	ImageID      string  `gorm:"column:vector_image_id" json:"image_id"`
 }
 
 func (Deck) TableName() string {

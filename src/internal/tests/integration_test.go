@@ -268,7 +268,7 @@ func TestApplication(t *testing.T) {
 					assert.NotNil(t, result[i].Name)
 					assert.NotNil(t, result[i].Description)
 					assert.NotNil(t, result[i].Labels)
-					assert.NotNil(t, result[i].Image)
+					assert.NotNil(t, result[i].ImageID)
 				}
 			})
 
