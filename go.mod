@@ -12,7 +12,6 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/logotipiwe/dc_go_config_lib v1.0.7
 	github.com/logotipiwe/dc_go_utils v1.0.3
-	github.com/mattn/go-sqlite3 v1.14.0
 	github.com/stretchr/testify v1.8.4
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
