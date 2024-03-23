@@ -1,7 +1,7 @@
 package service
 
 import (
-	"dc_haur/src/internal/domain"
+	"dc_haur/src/internal/model"
 	utils "dc_haur/src/pkg"
 	"dc_haur/src/pkg/gradient"
 	"github.com/fogleman/gg"
@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-func CreateImageCardFromQuestion(question *domain.Question, colorStart string, colorEnd string) (image.Image, error) {
+func CreateImageCardFromQuestion(question *model.Question, colorStart string, colorEnd string) (image.Image, error) {
 	startColor := parseStringColorOrDefault(colorStart, color.RGBA{74, 62, 255, 255})
 	endColor := parseStringColorOrDefault(colorEnd, color.RGBA{219, 100, 255, 255})
 

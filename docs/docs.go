@@ -19,6 +19,114 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/v1/deck/{deckId}/dislike": {
+            "post": {
+                "description": "Endpoint to remove like from a specific deck",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Dislike a deck",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Deck ID",
+                        "name": "deckId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/deck/{deckId}/like": {
+            "post": {
+                "description": "Endpoint to like a specific deck. Gives 409 in case of duplicating like",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Like a deck",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Deck ID",
+                        "name": "deckId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/deck/{deckId}/questions": {
             "get": {
                 "produces": [
@@ -40,7 +148,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.Question"
+                                "$ref": "#/definitions/model.Question"
                             }
                         }
                     }
@@ -59,7 +167,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.Deck"
+                                "$ref": "#/definitions/model.Deck"
                             }
                         }
                     }
@@ -112,7 +220,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.Level"
+                                "$ref": "#/definitions/model.Level"
                             }
                         }
                     }
@@ -145,7 +253,142 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.Question"
+                            "$ref": "#/definitions/model.Question"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/question/{questionId}/dislike": {
+            "post": {
+                "description": "Endpoint remove like from a particular question",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Dislike a question",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Question ID",
+                        "name": "questionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/question/{questionId}/like": {
+            "post": {
+                "description": "Endpoint to like a particular question. Gives 409 in case of duplicating like",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Like a question",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Question ID",
+                        "name": "questionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/user/{userId}/likes": {
+            "get": {
+                "description": "Retrieves all likes made by a user on questions and decks.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get all likes made by a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The ID of the user.",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Invalid request format\" \"{}",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
@@ -172,7 +415,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.Deck"
+                                "$ref": "#/definitions/model.Deck"
                             }
                         }
                     }
@@ -181,7 +424,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "domain.Deck": {
+        "model.Deck": {
             "type": "object",
             "properties": {
                 "description": {
@@ -193,7 +436,7 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "image": {
+                "image_id": {
                     "type": "string"
                 },
                 "labels": {
@@ -207,7 +450,7 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.Level": {
+        "model.Level": {
             "type": "object",
             "properties": {
                 "colorButton": {
@@ -236,7 +479,7 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.Question": {
+        "model.Question": {
             "type": "object",
             "properties": {
                 "additional_text": {

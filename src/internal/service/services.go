@@ -3,7 +3,7 @@ package service
 import (
 	"dc_haur/src/internal/domain"
 	"dc_haur/src/internal/repo"
-	domain2 "dc_haur/src/internal/service/domain"
+	servicedomain "dc_haur/src/internal/service/domain"
 )
 
 type Services struct {
@@ -12,9 +12,11 @@ type Services struct {
 	TgMessages       *TgMessageService
 	TgUpdatesHandler *Handler
 	TgBotInteractor  domain.BotInteractor
-	Decks            *domain2.DecksService
-	Questions        *domain2.QuestionsService
+	Decks            *DecksService
+	Questions        *QuestionsService
 	Repos            *repo.Repositories
+	*servicedomain.DecksLikesService
+	*servicedomain.QuestionLikesService
 }
 
 func NewServices(repos *repo.Repositories, bot domain.BotInteractor) *Services {
@@ -22,16 +24,18 @@ func NewServices(repos *repo.Repositories, bot domain.BotInteractor) *Services {
 	tgKeyboard := NewTgKeyboardsService(repos)
 	tgMessages := NewTgMessageService(*tgKeyboard, *cache, bot, repos)
 	tgHandler := NewHandler(tgMessages, cache)
-	decksService := domain2.NewDecksService(repos)
-	questionsService := domain2.NewQuestionsService(repos)
+	deckLikesService := servicedomain.NewDeckLikesService(repos)
+	questionLikesService := servicedomain.NewQuestionLikesService(repos)
 	return &Services{
-		Cache:            cache,
-		TgKeyboard:       tgKeyboard,
-		TgMessages:       tgMessages,
-		TgUpdatesHandler: tgHandler,
-		TgBotInteractor:  bot,
-		Decks:            decksService,
-		Questions:        questionsService,
-		Repos:            repos,
+		Cache:                cache,
+		TgKeyboard:           tgKeyboard,
+		TgMessages:           tgMessages,
+		TgUpdatesHandler:     tgHandler,
+		TgBotInteractor:      bot,
+		Decks:                NewDecksService(repos),
+		Questions:            NewQuestionsService(repos),
+		DecksLikesService:    deckLikesService,
+		QuestionLikesService: questionLikesService,
+		Repos:                repos,
 	}
 }

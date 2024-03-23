@@ -1,8 +1,6 @@
-package domain
+package service
 
-import (
-	"dc_haur/src/internal/repo"
-)
+import "dc_haur/src/internal/repo"
 
 type DecksService struct {
 	*repo.Decks
