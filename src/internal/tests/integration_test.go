@@ -3,7 +3,7 @@ package tests
 import (
 	"bytes"
 	http2 "dc_haur/src/http"
-	"dc_haur/src/internal/domain"
+	"dc_haur/src/internal/model"
 	"dc_haur/src/internal/service"
 	utils "dc_haur/src/pkg"
 	"encoding/json"
@@ -295,7 +295,7 @@ func TestApplication(t *testing.T) {
 			t.Run("get levels", func(t *testing.T) {
 				defer failOnPanic(t)
 				em11 := "em1"
-				expected := []domain.Level{
+				expected := []model.Level{
 					{
 						ID:          "4f84bde5-d6ad-4a2d-a2da-0553b4b281a2",
 						DeckID:      "d1",
@@ -423,7 +423,7 @@ func getVectorImage(t *testing.T, id string, url string) string {
 	return result
 }
 
-func getAllQuestionsFromDeck(t *testing.T, deckID string, url string) []domain.Question {
+func getAllQuestionsFromDeck(t *testing.T, deckID string, url string) []model.Question {
 	fmt.Println("Getting levels of deck " + deckID)
 	request, err := http.NewRequest("GET", url+"/deck/"+deckID+"/questions", nil)
 	assert.NoError(t, err)
@@ -434,14 +434,14 @@ func getAllQuestionsFromDeck(t *testing.T, deckID string, url string) []domain.Q
 
 	assert.Equal(t, http.StatusOK, response.StatusCode)
 
-	var result []domain.Question
+	var result []model.Question
 	err = json.NewDecoder(response.Body).Decode(&result)
 	assert.NoError(t, err)
 	err = response.Body.Close()
 	return result
 }
 
-func getQuestionFromApi(t *testing.T, levelID string, url string) *domain.Question {
+func getQuestionFromApi(t *testing.T, levelID string, url string) *model.Question {
 	fmt.Println("Getting question from level " + levelID)
 	request, err := http.NewRequest("GET", url+"/question", nil)
 	assert.NoError(t, err)
@@ -456,14 +456,14 @@ func getQuestionFromApi(t *testing.T, levelID string, url string) *domain.Questi
 
 	assert.Equal(t, http.StatusOK, response.StatusCode)
 
-	var result domain.Question
+	var result model.Question
 	err = json.NewDecoder(response.Body).Decode(&result)
 	assert.NoError(t, err)
 	err = response.Body.Close()
 	return &result
 }
 
-func getLevelsFromApi(t *testing.T, deckID string, url string) []domain.Level {
+func getLevelsFromApi(t *testing.T, deckID string, url string) []model.Level {
 	fmt.Println("Getting levels of deck " + deckID)
 	request, err := http.NewRequest("GET", url+"/levels", nil)
 	assert.NoError(t, err)
@@ -477,14 +477,14 @@ func getLevelsFromApi(t *testing.T, deckID string, url string) []domain.Level {
 
 	assert.Equal(t, http.StatusOK, response.StatusCode)
 
-	var result []domain.Level
+	var result []model.Level
 	err = json.NewDecoder(response.Body).Decode(&result)
 	assert.NoError(t, err)
 	err = response.Body.Close()
 	return result
 }
 
-func getDecksFromApi(t *testing.T, url string) []domain.Deck {
+func getDecksFromApi(t *testing.T, url string) []model.Deck {
 	fmt.Println("Getting decks...")
 	request, err := http.NewRequest("GET", url+"/decks", nil)
 	assert.NoError(t, err)
@@ -495,7 +495,7 @@ func getDecksFromApi(t *testing.T, url string) []domain.Deck {
 
 	assert.Equal(t, http.StatusOK, response.StatusCode)
 
-	var result []domain.Deck
+	var result []model.Deck
 	err = json.NewDecoder(response.Body).Decode(&result)
 	assert.NoError(t, err)
 	err = response.Body.Close()
@@ -503,7 +503,7 @@ func getDecksFromApi(t *testing.T, url string) []domain.Deck {
 	return result
 }
 
-func getLocalizedDecksFromApi(t *testing.T, url string, languageCode string) []domain.Deck {
+func getLocalizedDecksFromApi(t *testing.T, url string, languageCode string) []model.Deck {
 	fmt.Println("Getting localized decks...")
 	request, err := http.NewRequest("GET", url+"/decks?languageCode="+languageCode, nil)
 	assert.NoError(t, err)
@@ -514,7 +514,7 @@ func getLocalizedDecksFromApi(t *testing.T, url string, languageCode string) []d
 
 	assert.Equal(t, http.StatusOK, response.StatusCode)
 
-	var result []domain.Deck
+	var result []model.Deck
 	err = json.NewDecoder(response.Body).Decode(&result)
 	assert.NoError(t, err)
 	err = response.Body.Close()
@@ -538,7 +538,7 @@ func getResponseCode(method, url string) (int, error) {
 	return response.StatusCode, nil
 }
 
-func checkDeckFields(t *testing.T, deck domain.Deck) {
+func checkDeckFields(t *testing.T, deck model.Deck) {
 	assert.NotNil(t, deck.ID)
 	assert.NotNil(t, deck.LanguageCode)
 	assert.NotNil(t, deck.Name)

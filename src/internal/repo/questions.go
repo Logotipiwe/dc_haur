@@ -1,7 +1,7 @@
 package repo
 
 import (
-	"dc_haur/src/internal/domain"
+	"dc_haur/src/internal/model"
 	"errors"
 	"github.com/jinzhu/gorm"
 	"log"
@@ -23,8 +23,8 @@ var (
 	NoLevelsErr = errors.New("no levels from deck")
 )
 
-func (r *Questions) GetRandQuestion(levelID string) (*domain.Question, error) {
-	var result domain.Question
+func (r *Questions) GetRandQuestion(levelID string) (*model.Question, error) {
+	var result model.Question
 	err := r.db.Raw(GetRandQuestionSql, levelID).Row().Scan(&result.ID, &result.LevelID, &result.Text, &result.AdditionalText)
 	if err != nil {
 		log.Println("Error getting question from DB.")
@@ -34,8 +34,8 @@ func (r *Questions) GetRandQuestion(levelID string) (*domain.Question, error) {
 	return &result, nil
 }
 
-func (r *Questions) GetRandQuestionByNames(deckName string, levelNameWithEmoji string) (*domain.Question, error) {
-	var level domain.Level
+func (r *Questions) GetRandQuestionByNames(deckName string, levelNameWithEmoji string) (*model.Question, error) {
+	var level model.Level
 	if err := r.db.Where("(concat(coalesce(concat(emoji, ' '),''), name) = ?) AND deck_id = (select id from decks where name = ?)",
 		levelNameWithEmoji, deckName).
 		First(&level).Error; err != nil {
@@ -44,8 +44,8 @@ func (r *Questions) GetRandQuestionByNames(deckName string, levelNameWithEmoji s
 	return r.GetRandQuestion(level.ID)
 }
 
-func (r *Questions) GetAllByDeckId(deckId string) ([]domain.Question, error) {
-	questions := make([]domain.Question, 0)
+func (r *Questions) GetAllByDeckId(deckId string) ([]model.Question, error) {
+	questions := make([]model.Question, 0)
 	if err := r.db.Find(&questions, "level_id in (select id from levels where deck_id = ?)", deckId).Error; err != nil {
 		return nil, err
 	}

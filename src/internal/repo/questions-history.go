@@ -1,7 +1,7 @@
 package repo
 
 import (
-	"dc_haur/src/internal/domain"
+	"dc_haur/src/internal/model"
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -15,8 +15,8 @@ func NewQuestionsHistoryRepo(DB *gorm.DB) *History {
 	return &History{DB: DB}
 }
 
-func (repo *History) Insert(chatID string, question *domain.Question) error {
-	query := &domain.QuestionHistory{
+func (repo *History) Insert(chatID string, question *model.Question) error {
+	query := &model.QuestionHistory{
 		ID:         uuid.NewString(),
 		LevelID:    question.LevelID,
 		QuestionID: question.ID,

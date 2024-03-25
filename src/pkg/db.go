@@ -7,6 +7,10 @@ import (
 	. "github.com/logotipiwe/dc_go_config_lib"
 )
 
+const (
+	SqlDuplicateErrState = 1062
+)
+
 func InitDb() (error, *sql.DB) {
 	connectionStr := fmt.Sprintf("%v:%v@tcp(%v)/%v", GetConfig("DB_LOGIN"), GetConfig("DB_PASS"),
 		GetConfig("DB_HOST"), GetConfig("DB_NAME"))
