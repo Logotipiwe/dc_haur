@@ -1,5 +1,5 @@
 definitions:
-  domain.Deck:
+  model.Deck:
     properties:
       description:
         type: string
@@ -7,7 +7,7 @@ definitions:
         type: string
       id:
         type: string
-      image:
+      image_id:
         type: string
       labels:
         type: string
@@ -16,7 +16,7 @@ definitions:
       name:
         type: string
     type: object
-  domain.Level:
+  model.Level:
     properties:
       colorButton:
         type: string
@@ -35,7 +35,7 @@ definitions:
       name:
         type: string
     type: object
-  domain.Question:
+  model.Question:
     properties:
       additional_text:
         type: string
@@ -58,6 +58,79 @@ info:
   title: HAUR Swagger API
   version: "1.0"
 paths:
+  /v1/deck/{deckId}/dislike:
+    post:
+      description: Endpoint to remove like from a specific deck
+      parameters:
+      - description: Deck ID
+        in: path
+        name: deckId
+        required: true
+        type: string
+      - description: User ID
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Dislike a deck
+  /v1/deck/{deckId}/like:
+    post:
+      description: Endpoint to like a specific deck. Gives 409 in case of duplicating
+        like
+      parameters:
+      - description: Deck ID
+        in: path
+        name: deckId
+        required: true
+        type: string
+      - description: User ID
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Like a deck
   /v1/deck/{deckId}/questions:
     get:
       parameters:
@@ -73,7 +146,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/domain.Question'
+              $ref: '#/definitions/model.Question'
             type: array
       summary: Get all questions from specified deck
   /v1/decks:
@@ -85,7 +158,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/domain.Deck'
+              $ref: '#/definitions/model.Deck'
             type: array
       summary: Get all available decks
   /v1/get-vector-image/{id}:
@@ -119,7 +192,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/domain.Level'
+              $ref: '#/definitions/model.Level'
             type: array
       summary: Get levels from specified deck
   /v1/question:
@@ -142,8 +215,99 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.Question'
+            $ref: '#/definitions/model.Question'
       summary: Get random question by selected level
+  /v1/question/{questionId}/dislike:
+    post:
+      description: Endpoint remove like from a particular question
+      parameters:
+      - description: Question ID
+        in: path
+        name: questionId
+        required: true
+        type: string
+      - description: User ID
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Dislike a question
+  /v1/question/{questionId}/like:
+    post:
+      description: Endpoint to like a particular question. Gives 409 in case of duplicating
+        like
+      parameters:
+      - description: Question ID
+        in: path
+        name: questionId
+        required: true
+        type: string
+      - description: User ID
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Like a question
+  /v1/user/{userId}/likes:
+    get:
+      description: Retrieves all likes made by a user on questions and decks.
+      parameters:
+      - description: The ID of the user.
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Invalid request format" "{}
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all likes made by a user
   /v2/decks:
     get:
       parameters:
@@ -159,7 +323,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/domain.Deck'
+              $ref: '#/definitions/model.Deck'
             type: array
       summary: Get decks by lang code
 securityDefinitions:

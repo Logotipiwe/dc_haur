@@ -1,7 +1,7 @@
 package service
 
 import (
-	"dc_haur/src/internal/domain"
+	"dc_haur/src/internal/model"
 	"dc_haur/src/internal/repo"
 	"dc_haur/src/pkg"
 	. "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -37,8 +37,8 @@ func (s *TgKeyboardService) GetLevelsKeyboard(levels []string) ReplyKeyboardMark
 	}
 }
 
-func (s *TgKeyboardService) GetDecksKeyboard(decks []domain.Deck) ReplyKeyboardMarkup {
-	keyboard := utils.Map(decks, func(deck domain.Deck) []KeyboardButton {
+func (s *TgKeyboardService) GetDecksKeyboard(decks []model.Deck) ReplyKeyboardMarkup {
+	keyboard := utils.Map(decks, func(deck model.Deck) []KeyboardButton {
 		var text string
 		if deck.Emoji != nil {
 			text = *deck.Emoji + " " + deck.Name

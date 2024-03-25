@@ -2,51 +2,69 @@ create database if not exists `haur`;
 use `haur`;
 
 -- drop table if exists questions_history;
+drop table if exists question_likes;
 drop table if exists questions;
 drop table if exists levels;
 drop table if exists vector_images;
+drop table if exists deck_likes;
 drop table if exists decks;
 
 create table if not exists decks
 (
-    id  varchar(255) not null primary key,
-    language_code varchar(10) not null,
-    name varchar(255) not null,
-    emoji varchar(255),
-    description text,
-    labels varchar(255),
+    id              varchar(255) not null primary key,
+    language_code   varchar(10)  not null,
+    name            varchar(255) not null,
+    emoji           varchar(255),
+    description     text,
+    labels          varchar(255),
     vector_image_id varchar(255)
+);
+CREATE TABLE if not exists deck_likes
+(
+    id          VARCHAR(255) NOT NULL,
+    deck_id VARCHAR(255) NOT NULL,
+    user_id     VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id),
+    unique index ql_unique_index (deck_id, user_id)
 );
 create table if not exists levels
 (
-    id          varchar(255) not null primary key,
-    deck_id     varchar(255) not null references decks,
-    level_order int          not null,
-    name        varchar(255) not null,
+    id           varchar(255) not null primary key,
+    deck_id      varchar(255) not null references decks,
+    level_order  int          not null,
+    name         varchar(255) not null,
     emoji        varchar(255),
-    color_start varchar(255) not null,
-    color_end   varchar(255) not null,
+    color_start  varchar(255) not null,
+    color_end    varchar(255) not null,
     color_button varchar(255) not null
 );
 create table if not exists questions
 (
     id              varchar(255) not null primary key,
-    level_id varchar(255) not null references levels,
+    level_id        varchar(255) not null references levels,
     text            varchar(255) not null,
     additional_text varchar(255)
+);
+CREATE TABLE if not exists question_likes
+(
+    id          VARCHAR(255) NOT NULL,
+    question_id VARCHAR(255) NOT NULL,
+    user_id     VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id),
+    unique index ql_unique_index (question_id, user_id)
 );
 create table if not exists questions_history
 (
     id            varchar(255) not null primary key,
-    level_id varchar(255) not null,
+    level_id      varchar(255) not null,
     question_id   varchar(255) not null,
     chat_id       varchar(255) not null,
     question_time timestamp    not null default current_timestamp
 );
 create table if not exists vector_images
 (
-    id varchar(255) not null primary key,
-    content longtext not null
+    id      varchar(255) not null primary key,
+    content longtext     not null
 );
 
 INSERT INTO decks values ('1', 'RU', 'Для пары', '😉', 'Вопросы на для любой пары друзей, партнеров или незнакомцев. Читающий задает вопрос другому.', 'good to start;besties', 'b13759e3-0582-41f1-b882-89d1296f5e3c');

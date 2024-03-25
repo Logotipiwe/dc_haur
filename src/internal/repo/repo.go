@@ -7,19 +7,19 @@ import (
 )
 
 //type Decks interface {
-//	GetDecks() ([]domain.Deck, error)
+//	GetDecks() ([]model.Deck, error)
 //}
 //
 //type Questions interface {
-//	GetLevels(deckID string) ([]*domain.Level, error)
+//	GetLevels(deckID string) ([]*model.Level, error)
 //	GetLevelsNames(deckID string) ([]string, error)
-//	GetRandQuestion(levelID string) (*domain.Question, error)
+//	GetRandQuestion(levelID string) (*model.Question, error)
 //	GetLevelsByName(deckName string) ([]string, error)
-//	GetRandQuestionByNames(deckName string, levelName string) (*domain.Question, error)
+//	GetRandQuestionByNames(deckName string, levelName string) (*model.Question, error)
 //}
 //
 //type History interface {
-//	Insert(string, *domain.Question) error
+//	Insert(string, *model.Question) error
 //	Truncate() error
 //}
 
@@ -29,6 +29,8 @@ type Repositories struct {
 	*History
 	*Levels
 	*VectorImages
+	*DeckLikes
+	*QuestionLikes
 }
 
 func NewRepositories(db *sql.DB) *Repositories {
@@ -37,11 +39,13 @@ func NewRepositories(db *sql.DB) *Repositories {
 		log.Fatal(err)
 	}
 	return &Repositories{
-		Decks:        NewDecksRepo(gormDb),
-		Questions:    NewQuestionsRepo(gormDb),
-		History:      NewQuestionsHistoryRepo(gormDb),
-		Levels:       NewLevelRepository(gormDb),
-		VectorImages: NewVectorImages(gormDb),
+		Decks:         NewDecksRepo(gormDb),
+		Questions:     NewQuestionsRepo(gormDb),
+		History:       NewQuestionsHistoryRepo(gormDb),
+		Levels:        NewLevelRepository(gormDb),
+		VectorImages:  NewVectorImages(gormDb),
+		DeckLikes:     NewDeckLikes(gormDb),
+		QuestionLikes: NewQuestionLikes(gormDb),
 	}
 }
 

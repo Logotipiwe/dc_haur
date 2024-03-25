@@ -2,6 +2,7 @@ package service
 
 import (
 	"dc_haur/src/internal/domain"
+	"dc_haur/src/internal/model"
 	"dc_haur/src/internal/repo"
 	"dc_haur/src/pkg"
 	. "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -71,7 +72,7 @@ func (s *TgMessageService) GetLevelsMessage(update Update, deckNameWithEmoji str
 		return nil, err
 	}
 
-	levelsNames := pkg.Map(levels, func(l *domain.Level) string {
+	levelsNames := pkg.Map(levels, func(l *model.Level) string {
 		if l.Emoji != nil {
 			return *l.Emoji + " " + l.Name
 		}
