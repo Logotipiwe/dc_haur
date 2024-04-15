@@ -35,7 +35,7 @@ func setSwaggerHost() {
 		docs.SwaggerInfo.Host = "logotipiwe.ru"
 		docs.SwaggerInfo.BasePath = "/haur/api"
 	} else {
-		docs.SwaggerInfo.Host = "localhost:" + config.GetConfigOr("CONTAINER_PORT", "80")
+		docs.SwaggerInfo.Host = "localhost:" + config.GetConfigOr("OUTER_PORT", "80")
 		docs.SwaggerInfo.BasePath = "/api"
 	}
 }

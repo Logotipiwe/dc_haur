@@ -16,8 +16,8 @@ func NewQuestionsService(repos *repo.Repositories) *QuestionsService {
 }
 
 func (q QuestionsService) GetRandQuestion(levelID string, clientId string) (question *model.Question, isLast bool, err error) {
-	dumbShuffle, errDumb := config.GetConfigBool("IS_DUMB_SHUFFLE")
-	if errDumb == nil && dumbShuffle == true {
+	dumbShuffle := config.GetConfigBoolOr("IS_DUMB_SHUFFLE", false)
+	if dumbShuffle == true {
 		question, err := q.repo.GetRandQuestionDumb(levelID)
 		return question, false, err
 	}
