@@ -9,3 +9,4 @@ IMAGE_ADDITIONAL_TEXT_Y - float64. Default - 0.2
 IMAGE_TEXT_WIDTH - float64. Relative to width. Default - 0.8
 IMAGE_TEXT_FONT_SIZE - int. Default - 50
 IMAGE_ADDITIONAL_TEXT_FONT_SIZE - int. Default - 45
+IS_DUMB_SHUFFLE - bool. If enabled - disables decks shuffling according to table used_questions - uses just rand question from selected level

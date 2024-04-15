@@ -22,7 +22,8 @@ type Services struct {
 func NewServices(repos *repo.Repositories, bot domain.BotInteractor) *Services {
 	cache := NewCacheService()
 	tgKeyboard := NewTgKeyboardsService(repos)
-	tgMessages := NewTgMessageService(*tgKeyboard, *cache, bot, repos)
+	qService := NewQuestionsService(repos)
+	tgMessages := NewTgMessageService(*tgKeyboard, *cache, bot, repos, qService)
 	tgHandler := NewHandler(tgMessages, cache)
 	deckLikesService := servicedomain.NewDeckLikesService(repos)
 	questionLikesService := servicedomain.NewQuestionLikesService(repos)
@@ -33,7 +34,7 @@ func NewServices(repos *repo.Repositories, bot domain.BotInteractor) *Services {
 		TgUpdatesHandler:     tgHandler,
 		TgBotInteractor:      bot,
 		Decks:                NewDecksService(repos),
-		Questions:            NewQuestionsService(repos),
+		Questions:            qService,
 		DecksLikesService:    deckLikesService,
 		QuestionLikesService: questionLikesService,
 		Repos:                repos,

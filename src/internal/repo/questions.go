@@ -16,16 +16,17 @@ func NewQuestionsRepo(db *gorm.DB) *Questions {
 }
 
 const (
-	GetRandQuestionSql = "SELECT q.id, q.level_id, q.text, q.additional_text FROM (select q.*, (select count(*) from questions_history where question_id = q.id) asked from questions q) q  WHERE q.level_id = ? ORDER BY q.asked, rand() LIMIT 1"
+	GetRandQuestionSql     = "SELECT q.id, q.level_id, q.text, q.additional_text FROM questions q where q.level_id = ? AND id not in (select question_id from used_questions where client_id = ?) ORDER BY rand() LIMIT 1"
+	GetRandQuestionSqlDumb = "SELECT q.id, q.level_id, q.text, q.additional_text FROM questions q where q.level_id = ? ORDER BY rand() LIMIT 1"
 )
 
 var (
 	NoLevelsErr = errors.New("no levels from deck")
 )
 
-func (r *Questions) GetRandQuestion(levelID string) (*model.Question, error) {
+func (r *Questions) GetRandQuestionByLevel(levelID string, clientId string) (*model.Question, error) {
 	var result model.Question
-	err := r.db.Raw(GetRandQuestionSql, levelID).Row().Scan(&result.ID, &result.LevelID, &result.Text, &result.AdditionalText)
+	err := r.db.Raw(GetRandQuestionSql, levelID, clientId).Row().Scan(&result.ID, &result.LevelID, &result.Text, &result.AdditionalText)
 	if err != nil {
 		log.Println("Error getting question from DB.")
 		log.Println(err)
@@ -34,14 +35,22 @@ func (r *Questions) GetRandQuestion(levelID string) (*model.Question, error) {
 	return &result, nil
 }
 
-func (r *Questions) GetRandQuestionByNames(deckName string, levelNameWithEmoji string) (*model.Question, error) {
-	var level model.Level
-	if err := r.db.Where("(concat(coalesce(concat(emoji, ' '),''), name) = ?) AND deck_id = (select id from decks where name = ?)",
-		levelNameWithEmoji, deckName).
-		First(&level).Error; err != nil {
+func (r *Questions) GetRandQuestionDumb(levelID string) (*model.Question, error) {
+	var result model.Question
+	err := r.db.Raw(GetRandQuestionSqlDumb, levelID).Row().Scan(&result.ID, &result.LevelID, &result.Text, &result.AdditionalText)
+	if err != nil {
+		log.Println("Error getting question from DB.")
+		log.Println(err)
 		return nil, err
 	}
-	return r.GetRandQuestion(level.ID)
+	return &result, nil
+}
+
+func (r *Questions) GetLevelByNames(deckName string, levelNameWithEmoji string) (*model.Level, error) {
+	var level model.Level
+	err := r.db.Where("(concat(coalesce(concat(emoji, ' '),''), name) = ?) AND deck_id = (select id from decks where name = ?)",
+		levelNameWithEmoji, deckName).First(&level).Error
+	return &level, err
 }
 
 func (r *Questions) GetAllByDeckId(deckId string) ([]model.Question, error) {

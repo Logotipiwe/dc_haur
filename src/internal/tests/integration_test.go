@@ -17,6 +17,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -36,6 +37,8 @@ const (
 	d3l1 = "em3 l1"
 	d3l2 = "l2"
 )
+
+const clientID = "integrationTestsClient"
 
 func TestApplication(t *testing.T) {
 
@@ -346,7 +349,7 @@ func TestApplication(t *testing.T) {
 
 			t.Run("get question", func(t *testing.T) {
 				defer failOnPanic(t)
-				question := getQuestionFromApi(t, d1l1QuestionID, appUrl+apiV1)
+				question := getQuestionFromApi(t, d1l1QuestionID, clientID, appUrl+apiV1)
 				assert.Contains(t, []string{"question d1l1q1 text", "question d1l1q2 text", "question d1l1q3 text"}, question.Text)
 				assert.NotNil(t, question.ID)
 				assert.NotNil(t, question.Text)
@@ -354,29 +357,40 @@ func TestApplication(t *testing.T) {
 				assert.NotNil(t, question.AdditionalText)
 			})
 
-			t.Run("questions in level are ordered", func(t *testing.T) {
+			t.Run("questions in level are ordered (for many clients)", func(t *testing.T) {
 				defer failOnPanic(t)
 				clearHistory(t)
 				questions := []string{"question d1l1q1 text", "question d1l1q2 text", "question d1l1q3 text"}
-				for i := 0; i < 5; i++ {
-					question := getQuestionFromApi(t, d1l1QuestionID, appUrl+apiV1)
 
-					ansIndex1 := utils.FindIndex(questions, question.Text)
-					assert.NotEqual(t, -1, ansIndex1)
+				wg := sync.WaitGroup{}
 
-					question = getQuestionFromApi(t, d1l1QuestionID, appUrl+apiV1)
-					ansIndex2 := utils.FindIndex(questions, question.Text)
-					assert.NotEqual(t, -1, ansIndex2)
-					assert.NotEqual(t, ansIndex1, ansIndex2)
+				for clientNum := 1; clientNum <= 5; clientNum++ {
+					wg.Add(1)
+					clientNumStr := strconv.Itoa(clientNum)
+					go func() {
+						defer wg.Done()
+						for i := 0; i < 5; i++ {
+							question := getQuestionFromApi(t, d1l1QuestionID, clientID+clientNumStr, appUrl+apiV1)
 
-					question = getQuestionFromApi(t, d1l1QuestionID, appUrl+apiV1)
-					ansIndex3 := utils.FindIndex(questions, question.Text)
-					assert.NotEqual(t, -1, ansIndex3)
-					assert.NotEqual(t, ansIndex1, ansIndex3)
-					assert.NotEqual(t, ansIndex2, ansIndex3)
-					println("ORDER CHECK FINISHED")
-					time.Sleep(100 * time.Millisecond)
+							ansIndex1 := utils.FindIndex(questions, question.Text)
+							assert.NotEqual(t, -1, ansIndex1)
+
+							question = getQuestionFromApi(t, d1l1QuestionID, clientID+clientNumStr, appUrl+apiV1)
+							ansIndex2 := utils.FindIndex(questions, question.Text)
+							assert.NotEqual(t, -1, ansIndex2)
+							assert.NotEqual(t, ansIndex1, ansIndex2)
+
+							question = getQuestionFromApi(t, d1l1QuestionID, clientID+clientNumStr, appUrl+apiV1)
+							ansIndex3 := utils.FindIndex(questions, question.Text)
+							assert.NotEqual(t, -1, ansIndex3)
+							assert.NotEqual(t, ansIndex1, ansIndex3)
+							assert.NotEqual(t, ansIndex2, ansIndex3)
+							println("ORDER CHECK FINISHED")
+							time.Sleep(100 * time.Millisecond)
+						}
+					}()
 				}
+				wg.Wait()
 			})
 			t.Run("Get all questions by deck", func(t *testing.T) {
 				defer failOnPanic(t)
@@ -441,14 +455,14 @@ func getAllQuestionsFromDeck(t *testing.T, deckID string, url string) []model.Qu
 	return result
 }
 
-func getQuestionFromApi(t *testing.T, levelID string, url string) *model.Question {
+func getQuestionFromApi(t *testing.T, levelID string, clientID string, url string) *model.Question {
 	fmt.Println("Getting question from level " + levelID)
 	request, err := http.NewRequest("GET", url+"/question", nil)
 	assert.NoError(t, err)
 
 	query := request.URL.Query()
 	query.Add("levelId", levelID)
-	query.Add("clientId", "integrationTestsClient")
+	query.Add("clientId", clientID)
 	request.URL.RawQuery = query.Encode()
 	client := http.Client{}
 	response, err := client.Do(request)
@@ -460,6 +474,7 @@ func getQuestionFromApi(t *testing.T, levelID string, url string) *model.Questio
 	err = json.NewDecoder(response.Body).Decode(&result)
 	assert.NoError(t, err)
 	err = response.Body.Close()
+	println("Got question " + result.Text + " for client " + clientID)
 	return &result
 }
 

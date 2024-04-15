@@ -31,6 +31,7 @@ type Repositories struct {
 	*VectorImages
 	*DeckLikes
 	*QuestionLikes
+	*UsedQuestions
 }
 
 func NewRepositories(db *sql.DB) *Repositories {
@@ -46,6 +47,7 @@ func NewRepositories(db *sql.DB) *Repositories {
 		VectorImages:  NewVectorImages(gormDb),
 		DeckLikes:     NewDeckLikes(gormDb),
 		QuestionLikes: NewQuestionLikes(gormDb),
+		UsedQuestions: NewUsedQuestionsRepo(gormDb),
 	}
 }
 

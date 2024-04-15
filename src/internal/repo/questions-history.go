@@ -15,12 +15,12 @@ func NewQuestionsHistoryRepo(DB *gorm.DB) *History {
 	return &History{DB: DB}
 }
 
-func (repo *History) Insert(chatID string, question *model.Question) error {
+func (repo *History) Insert(clientID string, question *model.Question) error {
 	query := &model.QuestionHistory{
 		ID:         uuid.NewString(),
 		LevelID:    question.LevelID,
 		QuestionID: question.ID,
-		ChatID:     chatID,
+		ClientID:   clientID,
 	}
 	return repo.DB.Create(query).Error
 }
