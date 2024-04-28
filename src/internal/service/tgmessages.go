@@ -15,10 +15,11 @@ const DefaultDeckName = "😉 Для пары"
 const GotLevelsMessage = "Ниже - список уровней. Чтобы получить вопрос - жми на нужный уровень :)"
 
 type TgMessageService struct {
-	keyboards TgKeyboardService
-	cache     CacheService
-	repos     *repo.Repositories
-	bot       domain.BotInteractor
+	keyboards        TgKeyboardService
+	cache            CacheService
+	repos            *repo.Repositories
+	bot              domain.BotInteractor
+	questionsService *QuestionsService
 }
 
 const (
@@ -39,12 +40,13 @@ const (
 )
 
 func NewTgMessageService(tgKeyboardService TgKeyboardService, cache CacheService,
-	bot domain.BotInteractor, repos *repo.Repositories) *TgMessageService {
+	bot domain.BotInteractor, repos *repo.Repositories, questionsService *QuestionsService) *TgMessageService {
 	return &TgMessageService{
-		keyboards: tgKeyboardService,
-		cache:     cache,
-		bot:       bot,
-		repos:     repos,
+		keyboards:        tgKeyboardService,
+		cache:            cache,
+		bot:              bot,
+		repos:            repos,
+		questionsService: questionsService,
 	}
 }
 
@@ -89,39 +91,20 @@ func (s *TgMessageService) GetLevelsMessage(update Update, deckNameWithEmoji str
 
 func (s *TgMessageService) GetQuestionMessage(update Update, deckName string, levelNameWithEmoji string) (Chattable, error) {
 	chatID := update.Message.Chat.ID
-	question, err := s.repos.Questions.GetRandQuestionByNames(deckName, levelNameWithEmoji)
+	level, err := s.questionsService.GetLevelByNames(deckName, levelNameWithEmoji)
 	if err != nil {
 		return nil, err
 	}
-	level, err := s.repos.Levels.GetQuestionLevel(question)
+	question, _, err := s.questionsService.GetRandQuestion(level.ID, strconv.FormatInt(chatID, 10))
 	if err != nil {
 		return nil, err
 	}
 
-	var chattable Chattable
 	if imagesEnabled() {
-		cardImage, err := CreateImageCardFromQuestion(question, level.ColorStart, level.ColorEnd)
-		if err != nil {
-			return nil, err
-		}
-		bytes, err := pkg.EncodeImageToBytes(cardImage)
-		if err != nil {
-			return nil, err
-		}
-		chattable = PhotoConfig{
-			BaseFile: BaseFile{
-				BaseChat: BaseChat{ChatID: chatID},
-				File:     FileBytes{Name: uuid.New().String() + ".jpg", Bytes: bytes},
-			},
-		}
+		return createPhotoConfig(question, level, chatID)
 	} else {
-		chattable = NewMessage(update.Message.Chat.ID, question.Text)
+		return NewMessage(update.Message.Chat.ID, question.Text), nil
 	}
-	err = s.repos.History.Insert(strconv.FormatInt(chatID, 10), question)
-	if err != nil {
-		return nil, err
-	}
-	return chattable, nil
 }
 
 func (s *TgMessageService) AcceptFeedbackCommand(update Update) (*MessageConfig, error) {
@@ -166,4 +149,21 @@ func imagesEnabled() bool {
 		imagesEnabled = false
 	}
 	return imagesEnabled
+}
+
+func createPhotoConfig(question *model.Question, level *model.Level, chatID int64) (*PhotoConfig, error) {
+	cardImage, err := CreateImageCardFromQuestion(question, level.ColorStart, level.ColorEnd)
+	if err != nil {
+		return nil, err
+	}
+	bytes, err := pkg.EncodeImageToBytes(cardImage)
+	if err != nil {
+		return nil, err
+	}
+	return &PhotoConfig{
+		BaseFile: BaseFile{
+			BaseChat: BaseChat{ChatID: chatID},
+			File:     FileBytes{Name: uuid.New().String() + ".jpg", Bytes: bytes},
+		},
+	}, nil
 }

@@ -5,6 +5,7 @@ drop table if exists questions;
 drop table if exists levels;
 drop table if exists vector_images;
 drop table if exists decks;
+drop table if exists questions_history;
 
 create table if not exists decks
 (
@@ -45,7 +46,7 @@ create table if not exists questions_history
     id            varchar(255) not null primary key,
     level_id varchar(255) not null,
     question_id   varchar(255) not null,
-    chat_id       varchar(255) not null,
+    client_id       varchar(255) not null,
     question_time timestamp    not null default current_timestamp
 );
 

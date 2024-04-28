@@ -44,3 +44,13 @@ func (r *Decks) GetDeckByNameWithEmoji(name string) (*model.Deck, error) {
 	}
 	return &deck, nil
 }
+
+func (r *Decks) GetQuestionsCount(ID string) (int, error) {
+	var res int
+	err := r.db.Raw("SELECT count(*) FROM questions where level_id in (select id from levels where deck_id = ?)", ID).
+		Row().Scan(&res)
+	if err != nil {
+		return 0, err
+	}
+	return res, nil
+}

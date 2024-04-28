@@ -3,6 +3,7 @@ package http
 import (
 	_ "dc_haur/docs"
 	"dc_haur/src/internal/model"
+	"dc_haur/src/internal/model/output"
 	"dc_haur/src/internal/repo"
 	"dc_haur/src/internal/service"
 	"dc_haur/src/pkg"
@@ -73,6 +74,9 @@ func StartServer(services *service.Services) {
 		if err := services.Repos.History.Truncate(); err != nil {
 			return err
 		}
+		if err := services.Repos.UsedQuestions.Truncate(); err != nil {
+			return err
+		}
 		c.Status(http.StatusOK)
 		return nil
 	}))
@@ -123,10 +127,10 @@ func StartServer(services *service.Services) {
 // GetDecks godoc
 // @Summary      Get all available decks
 // @Produce      json
-// @Success      200  {array} model.Deck
+// @Success      200  {array} output.DeckDTO
 // @Router       /v1/decks [get]
 func (c Controller) GetDecks(ctx *gin.Context) error {
-	decks, err := c.services.Decks.GetDecks()
+	decks, err := c.services.Decks.GetDecksWithCardsCounts()
 	if err != nil {
 		return err
 	}
@@ -185,19 +189,19 @@ func (c Controller) GetLevels(ctx *gin.Context) error {
 // @Router       /v1/question [get]
 func (c Controller) GetQuestion(ctx *gin.Context) error {
 	levelID := ctx.Query("levelId")
-	question, err := c.services.Questions.GetRandQuestion(levelID)
+	clientId, _ := ctx.GetQuery("clientId")
+	if clientId == "" {
+		return errors.New("you must specify clientId")
+	}
+	question, isLast, err := c.services.Questions.GetRandQuestion(levelID, clientId)
 	if err != nil {
 		return err
 	}
-
-	if clientId, exists := ctx.GetQuery("clientId"); exists {
-		err := c.services.Repos.History.Insert(clientId, question)
-		if err != nil {
-			return err
-		}
+	dto := output.QuestionDTO{
+		Question: *question,
+		IsLast:   isLast,
 	}
-
-	ctx.JSON(http.StatusOK, question)
+	ctx.JSON(http.StatusOK, dto)
 	return nil
 }
 
