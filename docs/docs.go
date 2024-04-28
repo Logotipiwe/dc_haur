@@ -167,7 +167,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.Deck"
+                                "$ref": "#/definitions/output.DeckDTO"
                             }
                         }
                     }
@@ -385,7 +385,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Invalid request format\" \"{}",
+                        "description": "OK",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -492,6 +492,35 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "text": {
+                    "type": "string"
+                }
+            }
+        },
+        "output.DeckDTO": {
+            "type": "object",
+            "properties": {
+                "cardsCount": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "emoji": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "image_id": {
+                    "type": "string"
+                },
+                "labels": {
+                    "type": "string"
+                },
+                "languageCode": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }

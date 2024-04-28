@@ -127,10 +127,10 @@ func StartServer(services *service.Services) {
 // GetDecks godoc
 // @Summary      Get all available decks
 // @Produce      json
-// @Success      200  {array} model.Deck
+// @Success      200  {array} output.DeckDTO
 // @Router       /v1/decks [get]
 func (c Controller) GetDecks(ctx *gin.Context) error {
-	decks, err := c.services.Decks.GetDecks()
+	decks, err := c.services.Decks.GetDecksWithCardsCounts()
 	if err != nil {
 		return err
 	}

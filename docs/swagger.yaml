@@ -46,6 +46,25 @@ definitions:
       text:
         type: string
     type: object
+  output.DeckDTO:
+    properties:
+      cardsCount:
+        type: integer
+      description:
+        type: string
+      emoji:
+        type: string
+      id:
+        type: string
+      image_id:
+        type: string
+      labels:
+        type: string
+      languageCode:
+        type: string
+      name:
+        type: string
+    type: object
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -158,7 +177,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/model.Deck'
+              $ref: '#/definitions/output.DeckDTO'
             type: array
       summary: Get all available decks
   /v1/get-vector-image/{id}:
@@ -303,7 +322,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: Invalid request format" "{}
+          description: OK
           schema:
             additionalProperties: true
             type: object

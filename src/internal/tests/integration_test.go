@@ -4,6 +4,7 @@ import (
 	"bytes"
 	http2 "dc_haur/src/http"
 	"dc_haur/src/internal/model"
+	"dc_haur/src/internal/model/output"
 	"dc_haur/src/internal/service"
 	utils "dc_haur/src/pkg"
 	"encoding/json"
@@ -275,6 +276,18 @@ func TestApplication(t *testing.T) {
 				}
 			})
 
+			t.Run("check decks cards count field", func(t *testing.T) {
+				defer failOnPanic(t)
+
+				result := getDecksFromApi(t, appUrl+apiV1)
+
+				expectedCounts := []int{8, 3, 3}
+				for i := range result {
+					assert.NotNil(t, result[i].CardsCount)
+					assert.Equal(t, expectedCounts[i], result[i].CardsCount)
+				}
+			})
+
 			t.Run("get localized decks", func(t *testing.T) {
 				defer failOnPanic(t)
 
@@ -499,7 +512,7 @@ func getLevelsFromApi(t *testing.T, deckID string, url string) []model.Level {
 	return result
 }
 
-func getDecksFromApi(t *testing.T, url string) []model.Deck {
+func getDecksFromApi(t *testing.T, url string) []output.DeckDTO {
 	fmt.Println("Getting decks...")
 	request, err := http.NewRequest("GET", url+"/decks", nil)
 	assert.NoError(t, err)
@@ -510,7 +523,7 @@ func getDecksFromApi(t *testing.T, url string) []model.Deck {
 
 	assert.Equal(t, http.StatusOK, response.StatusCode)
 
-	var result []model.Deck
+	var result []output.DeckDTO
 	err = json.NewDecoder(response.Body).Decode(&result)
 	assert.NoError(t, err)
 	err = response.Body.Close()
