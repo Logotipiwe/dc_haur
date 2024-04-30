@@ -155,25 +155,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/decks": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Get all available decks",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/output.DeckDTO"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/v1/get-vector-image/{id}": {
             "get": {
                 "produces": [
@@ -415,7 +396,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.Deck"
+                                "$ref": "#/definitions/output.DeckDTO"
                             }
                         }
                     }
@@ -424,32 +405,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "model.Deck": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "emoji": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "image_id": {
-                    "type": "string"
-                },
-                "labels": {
-                    "type": "string"
-                },
-                "languageCode": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
         "model.Level": {
             "type": "object",
             "properties": {

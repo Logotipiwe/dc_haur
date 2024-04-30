@@ -96,7 +96,6 @@ func StartServer(services *service.Services) {
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	apiV1.GET("/decks", doWithErr(controller.GetDecks))
 	apiV1.GET("/levels", doWithErr(controller.GetLevels))
 	apiV1.GET("/question", doWithErr(controller.GetQuestion))
 	apiV1.POST("/question/:questionId/like", doWithErr(controller.LikeQuestion))
@@ -124,25 +123,11 @@ func StartServer(services *service.Services) {
 	}
 }
 
-// GetDecks godoc
-// @Summary      Get all available decks
-// @Produce      json
-// @Success      200  {array} output.DeckDTO
-// @Router       /v1/decks [get]
-func (c Controller) GetDecks(ctx *gin.Context) error {
-	decks, err := c.services.Decks.GetDecksWithCardsCounts()
-	if err != nil {
-		return err
-	}
-	ctx.JSON(http.StatusOK, decks)
-	return nil
-}
-
 // GetLocalizedDecks godoc
 // @Summary      Get decks by lang code
 // @Param 		 languageCode query string true "Language code in upper case (RU, EN)"
 // @Produce      json
-// @Success      200  {array} model.Deck
+// @Success      200  {array} output.DeckDTO
 // @Router       /v2/decks [get]
 func (c Controller) GetLocalizedDecks(ctx *gin.Context) error {
 	langCode := ctx.Query("languageCode")
@@ -152,7 +137,8 @@ func (c Controller) GetLocalizedDecks(ctx *gin.Context) error {
 		return nil
 	}
 
-	decks, err := c.services.Decks.GetDecksByLanguage(langCode)
+	//TODO maybe do with decorators (lang, counts)
+	decks, err := c.services.Decks.GetDecksByLanguageWithCounts(langCode)
 
 	if err != nil {
 		return err
