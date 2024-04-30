@@ -2,7 +2,7 @@ delete from questions where level_id in (select id from levels where deck_id = '
 delete from levels where deck_id = 'partnersRu';
 delete from decks where id = 'partnersRu';
 
-INSERT INTO decks values ('partnersRu', 'RU', 'Для партнеров', '❤️', 'Для пар, чтобы лучше узнать друг друга','couples;good to start', 'b13759e3-0582-41f1-b882-89d1296f5e3c');
+INSERT INTO decks values ('partnersRu', 'RU', 'Для партнеров', '❤️', 'Для пар, чтобы лучше узнать друг друга','couples;good to start', 'heart');
 
 INSERT INTO levels (id, deck_id, level_order, name, emoji, color_start, color_end, color_button) values
        ('f15a9b08-2fdc-4bd8-afe3-38e6ce935d9a', 'partnersRu', 1, 'Лайт', null, '242,62,182', '226,124,34', '164,119,105'),
