@@ -1,21 +1,4 @@
 definitions:
-  model.Deck:
-    properties:
-      description:
-        type: string
-      emoji:
-        type: string
-      id:
-        type: string
-      image_id:
-        type: string
-      labels:
-        type: string
-      languageCode:
-        type: string
-      name:
-        type: string
-    type: object
   model.Level:
     properties:
       colorButton:
@@ -168,18 +151,6 @@ paths:
               $ref: '#/definitions/model.Question'
             type: array
       summary: Get all questions from specified deck
-  /v1/decks:
-    get:
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/output.DeckDTO'
-            type: array
-      summary: Get all available decks
   /v1/get-vector-image/{id}:
     get:
       parameters:
@@ -342,7 +313,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/model.Deck'
+              $ref: '#/definitions/output.DeckDTO'
             type: array
       summary: Get decks by lang code
 securityDefinitions:
