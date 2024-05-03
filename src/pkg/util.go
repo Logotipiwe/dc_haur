@@ -75,6 +75,22 @@ func FindIndex(array []string, target string) int {
 	return -1
 }
 
+func Min(a, b int) int {
+	if a < b {
+		return a
+	} else {
+		return b
+	}
+}
+
+func Max(a, b int) int {
+	if a > b {
+		return a
+	} else {
+		return b
+	}
+}
+
 func GetImageTextY() float64 {
 	return config.GetConfigFloat64Or("IMAGE_TEXT_Y", 0.5)
 }

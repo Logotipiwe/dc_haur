@@ -89,8 +89,16 @@ func StartServer(services *service.Services) {
 	}))
 
 	apiV1 := router.Group("/api/v1")
+	apiV2 := router.Group("/api/v2")
+	apiV3 := router.Group("/api/v3")
 
 	apiV1.Use(func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+	})
+	apiV2.Use(func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+	})
+	apiV3.Use(func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
 	})
 
@@ -107,13 +115,9 @@ func StartServer(services *service.Services) {
 
 	apiV1.GET("/user/:userId/likes", doWithErr(controller.GetUserLikes))
 
-	apiV2 := router.Group("/api/v2")
-
-	apiV2.Use(func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
-	})
-
 	apiV2.GET("/decks", doWithErr(controller.GetLocalizedDecks))
+
+	apiV3.GET("/decks", doWithErr(controller.GetLocalizedDecksWithCounts))
 
 	port := config.GetConfigOr("CONTAINER_PORT", "80")
 	log.Println("Starting server on port " + port)
@@ -129,6 +133,7 @@ func StartServer(services *service.Services) {
 // @Produce      json
 // @Success      200  {array} output.DeckDTO
 // @Router       /v2/decks [get]
+// TODO deprecated
 func (c Controller) GetLocalizedDecks(ctx *gin.Context) error {
 	langCode := ctx.Query("languageCode")
 	if langCode == "" {
@@ -137,9 +142,43 @@ func (c Controller) GetLocalizedDecks(ctx *gin.Context) error {
 		return nil
 	}
 
-	//TODO maybe do with decorators (lang, counts)
-	decks, err := c.services.Decks.GetDecksByLanguageWithCounts(langCode)
+	decksService := c.services.Decks
+	models, err := decksService.GetDecksByLanguage(langCode)
+	if err != nil {
+		return err
+	}
+	decks, err := decksService.EnrichDecksWithCardsCounts(decksService.ToDtos(models))
+	if err != nil {
+		return err
+	}
+	ctx.JSON(http.StatusOK, decks)
+	return nil
+}
 
+// GetLocalizedDecksWithCounts godoc
+// @Summary      Get decks by lang code
+// @Param 		 languageCode query string true "Language code in upper case (RU, EN)"
+// @Param 		 clientId query string true "User ID"
+// @Produce      json
+// @Success      200  {array} output.DeckDTO
+// @Router       /v3/decks [get]
+func (c Controller) GetLocalizedDecksWithCounts(ctx *gin.Context) error {
+	langCode := ctx.Query("languageCode")
+	if langCode == "" {
+		ctx.String(400, "Language not specified. "+
+			"Please specify languageCode query parameter as in the following: languageCode=EN")
+		return nil
+	}
+	clientId, _ := ctx.GetQuery("clientId")
+	if clientId == "" {
+		return errors.New("you must specify clientId")
+	}
+	decksService := c.services.Decks
+	models, err := decksService.GetDecksByLanguage(langCode)
+	if err != nil {
+		return err
+	}
+	decks, err := decksService.EnrichDecksWithCounts(models, clientId)
 	if err != nil {
 		return err
 	}
