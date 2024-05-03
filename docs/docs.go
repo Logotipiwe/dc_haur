@@ -360,7 +360,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "The ID of the user.",
                         "name": "userId",
-                        "in": "query",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -386,6 +386,41 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Language code in upper case (RU, EN)",
                         "name": "languageCode",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/output.DeckDTO"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v3/decks": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get decks by lang code",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Language code in upper case (RU, EN)",
+                        "name": "languageCode",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "clientId",
                         "in": "query",
                         "required": true
                     }
@@ -477,6 +512,9 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "openedCount": {
+                    "type": "integer"
                 }
             }
         }

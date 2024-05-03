@@ -405,13 +405,16 @@ func (c Controller) DislikeDeck(ctx *gin.Context) error {
 // GetUserLikes godoc
 // @Summary      Get all likes made by a user
 // @Description  Retrieves all likes made by a user on questions and decks.
-// @Param 		 userId query string true "The ID of the user."
+// @Param 		 userId path string true "The ID of the user."
 // @Produce      json
 // @Success      200  {object} map[string]interface{}
 // @Router       /v1/user/{userId}/likes [get]
 func (c Controller) GetUserLikes(ctx *gin.Context) error {
 	//TODO cover with tests
 	userId := ctx.Query("userId")
+	if userId == "" {
+		userId = ctx.Param("userId")
+	}
 
 	if _, err := uuid.Parse(userId); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
