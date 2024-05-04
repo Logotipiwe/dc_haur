@@ -19,6 +19,7 @@ import (
 	"image/png"
 	"log"
 	"net/http"
+	"strings"
 )
 
 const IntegrationTestPrefix = "/api/v1/integration-test"
@@ -105,6 +106,7 @@ func StartServer(services *service.Services) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	apiV1.GET("/levels", doWithErr(controller.GetLevels))
+	apiV1.GET("/level/:id", doWithErr(controller.GetLevel))
 	apiV1.GET("/question", doWithErr(controller.GetQuestion))
 	apiV1.POST("/question/:questionId/like", doWithErr(controller.LikeQuestion))
 	apiV1.POST("/question/:questionId/dislike", doWithErr(controller.DislikeQuestion))
@@ -202,6 +204,42 @@ func (c Controller) GetLevels(ctx *gin.Context) error {
 		return err
 	}
 	ctx.JSON(http.StatusOK, levels)
+	return nil
+}
+
+// GetLevel godoc
+// @Summary      Get level by ID.
+// @Param 		 clientId query string false "id клиента. Обязателен если в features есть OPENED_COUNT"
+// @Param 		 features query string false "Список модификаций ответа через запятую. Доступны - OPENED_COUNT"
+// @Param 		 id path string true "id of level"
+// @Produce      json
+// @Success      200  {object} output.LevelDto
+// @Router       /v1/level/{id} [get]
+func (c Controller) GetLevel(ctx *gin.Context) error {
+	levelID := ctx.Param("id")
+	level, err := c.services.Repos.Levels.GetByID(levelID)
+	if err != nil {
+		return err
+	}
+
+	dto := output.LevelDto{Level: level}
+	dto, err = c.services.Levels.EnrichWithCount(dto)
+	if err != nil {
+		return err
+	}
+
+	features := strings.Split(ctx.Query("features"), ",")
+	if pkg.Includes("OPENED_COUNT", features) {
+		clientID := ctx.Query("clientId")
+		if clientID == "" {
+			return errors.New("client id is empty")
+		}
+		dto, err = c.services.Levels.EnrichWithOpenedCount(dto, clientID)
+		if err != nil {
+			return err
+		}
+	}
+	ctx.JSON(http.StatusOK, dto)
 	return nil
 }
 

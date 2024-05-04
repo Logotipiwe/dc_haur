@@ -172,6 +172,43 @@
                 }
             }
         },
+        "/v1/level/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get level by ID.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id клиента. Обязателен если в features есть OPENED_COUNT",
+                        "name": "clientId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Список модификаций ответа через запятую. Доступны - OPENED_COUNT",
+                        "name": "features",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "id of level",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/output.LevelDto"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/levels": {
             "get": {
                 "produces": [
@@ -506,6 +543,49 @@
                     "type": "string"
                 },
                 "openedCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "output.LevelDto": {
+            "type": "object",
+            "properties": {
+                "colorButton": {
+                    "type": "string"
+                },
+                "colorEnd": {
+                    "type": "string"
+                },
+                "colorStart": {
+                    "type": "string"
+                },
+                "counts": {
+                    "$ref": "#/definitions/output.QuestionsCounts"
+                },
+                "deckID": {
+                    "type": "string"
+                },
+                "emoji": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "levelOrder": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "output.QuestionsCounts": {
+            "type": "object",
+            "properties": {
+                "openedQuestionsCount": {
+                    "type": "integer"
+                },
+                "questionsCount": {
                     "type": "integer"
                 }
             }

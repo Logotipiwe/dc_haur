@@ -58,29 +58,29 @@ INSERT INTO vector_images values ('1', '<svg>1</svg>');
 INSERT INTO vector_images values ('2', '<svg>2</svg>');
 
 INSERT INTO levels (id, deck_id, level_order, name, emoji, color_start, color_end, color_button)
-VALUES ('4f84bde5-d6ad-4a2d-a2da-0553b4b281a2', 'd1', 1, 'l1', 'em1', '0,0,0', '255,255,255', '1,1,1'),
-       ('dae6f634-8a6c-42a7-8d25-6a44e91e6e21', 'd1', 2, 'l2', 'em1', '0,0,0', '255,255,255', '2,2,2'),
-       ('8e7e1f07-0292-4ef6-8529-fb92a0d4c1f6', 'd1', 3, 'l3', null, '0,0,0', '255,255,255', '3,3,3'),
+VALUES ('d1l1', 'd1', 1, 'l1', 'em1', '0,0,0', '255,255,255', '1,1,1'),
+       ('d1l2', 'd1', 2, 'l2', 'em1', '0,0,0', '255,255,255', '2,2,2'),
+       ('d1l3', 'd1', 3, 'l3', null, '0,0,0', '255,255,255', '3,3,3'),
 
-       ('de64eb23-9945-47fb-8da8-d8addac1dd47', 'd2', 1, 'l1', 'em2', '0,0,0', '255,255,255', '1,1,1'),
-       ('d56a54ba-aeda-4a64-b290-87029b4802d5', 'd2', 2, 'l2', null, '0,0,0', '255,255,255', '2,2,2'),
-       ('5b0da819-cf98-435a-adb5-d36bf0778a9a', 'd2', 3, 'l3', 'em2', '0,0,0', '255,255,255', '3,3,3'),
+       ('d2l1', 'd2', 1, 'l1', 'em2', '0,0,0', '255,255,255', '1,1,1'),
+       ('d2l2', 'd2', 2, 'l2', null, '0,0,0', '255,255,255', '2,2,2'),
+       ('d2l3', 'd2', 3, 'l3', 'em2', '0,0,0', '255,255,255', '3,3,3'),
 
-       ('f34d9384-9181-4d0d-aa89-6d066cf77d44', 'd3', 1, 'l1', 'em3', '0,0,0', '255,255,255', '1,1,1'),
-       ('95a7a834-8ff1-4ac2-a835-f75cf575697e', 'd3', 2, 'l2', null, '0,0,0', '255,255,255', '2,2,2');
+       ('d3l1', 'd3', 1, 'l1', 'em3', '0,0,0', '255,255,255', '1,1,1'),
+       ('d3l2', 'd3', 2, 'l2', null, '0,0,0', '255,255,255', '2,2,2');
 
 INSERT INTO questions
-values ('d1l1q1', '4f84bde5-d6ad-4a2d-a2da-0553b4b281a2', 'question d1l1q1 text', 'additional'),
-       ('d1l1q2', '4f84bde5-d6ad-4a2d-a2da-0553b4b281a2', 'question d1l1q2 text', 'additional'),
-       ('d1l1q3', '4f84bde5-d6ad-4a2d-a2da-0553b4b281a2', 'question d1l1q3 text', 'additional'),
-       ('d1l2q1', 'dae6f634-8a6c-42a7-8d25-6a44e91e6e21', 'question d1l2q1 text', 'additional'),
-       ('d1l2q2', 'dae6f634-8a6c-42a7-8d25-6a44e91e6e21', 'question d1l2q2 text', 'additional'),
-       ('d1l3q1', '8e7e1f07-0292-4ef6-8529-fb92a0d4c1f6', 'question d1l3q1 text', 'additional'),
-       ('d1l3q2', '8e7e1f07-0292-4ef6-8529-fb92a0d4c1f6', 'question d1l3q2 text', 'additional'),
-       ('d1l3q3', '8e7e1f07-0292-4ef6-8529-fb92a0d4c1f6', 'question d1l3q2 text', 'additional'),
-       ('d2l1q1', 'de64eb23-9945-47fb-8da8-d8addac1dd47', 'question d2l1q1 text', 'additional'),
-       ('d2l2q1', 'd56a54ba-aeda-4a64-b290-87029b4802d5', 'question d2l2q1 text', 'additional'),
-       ('d2l3q1', '5b0da819-cf98-435a-adb5-d36bf0778a9a', 'question d2l3q1 text', 'additional'),
-       ('d3l1q1', 'f34d9384-9181-4d0d-aa89-6d066cf77d44', 'question d3l1q1 text', 'additional'),
-       ('d3l1q2', 'f34d9384-9181-4d0d-aa89-6d066cf77d44', 'question d3l1q2 text', 'additional'),
-       ('d3l2q1', '95a7a834-8ff1-4ac2-a835-f75cf575697e', 'question d3l2q1 text', 'additional');
+values ('d1l1q1', 'd1l1', 'question d1l1q1 text', 'additional'),
+       ('d1l1q2', 'd1l1', 'question d1l1q2 text', 'additional'),
+       ('d1l1q3', 'd1l1', 'question d1l1q3 text', 'additional'),
+       ('d1l2q1', 'd1l2', 'question d1l2q1 text', 'additional'),
+       ('d1l2q2', 'd1l2', 'question d1l2q2 text', 'additional'),
+       ('d1l3q1', 'd1l3', 'question d1l3q1 text', 'additional'),
+       ('d1l3q2', 'd1l3', 'question d1l3q2 text', 'additional'),
+       ('d1l3q3', 'd1l3', 'question d1l3q2 text', 'additional'),
+       ('d2l1q1', 'd2l1', 'question d2l1q1 text', 'additional'),
+       ('d2l2q1', 'd2l2', 'question d2l2q1 text', 'additional'),
+       ('d2l3q1', 'd2l3', 'question d2l3q1 text', 'additional'),
+       ('d3l1q1', 'd3l1', 'question d3l1q1 text', 'additional'),
+       ('d3l1q2', 'd3l1', 'question d3l1q2 text', 'additional'),
+       ('d3l2q1', 'd3l2', 'question d3l2q1 text', 'additional');

@@ -23,8 +23,6 @@ import (
 	"time"
 )
 
-const d1l1QuestionID = "4f84bde5-d6ad-4a2d-a2da-0553b4b281a2"
-
 const (
 	d1   = "em1 deck d1 name"
 	d2   = "em2 deck d2 name"
@@ -300,13 +298,13 @@ func TestApplication(t *testing.T) {
 				defer failOnPanic(t)
 
 				//deck 1
-				getQuestionFromApi(t, "4f84bde5-d6ad-4a2d-a2da-0553b4b281a2", "1", appUrl+apiV1)
-				getQuestionFromApi(t, "4f84bde5-d6ad-4a2d-a2da-0553b4b281a2", "1", appUrl+apiV1)
-				getQuestionFromApi(t, "dae6f634-8a6c-42a7-8d25-6a44e91e6e21", "1", appUrl+apiV1)
+				getQuestionFromApi(t, "d1l1", "1", appUrl+apiV1)
+				getQuestionFromApi(t, "d1l1", "1", appUrl+apiV1)
+				getQuestionFromApi(t, "d1l2", "1", appUrl+apiV1)
 
 				//deck 2 (only one card of this level, so should be 1 opened)
-				getQuestionFromApi(t, "de64eb23-9945-47fb-8da8-d8addac1dd47", "1", appUrl+apiV1)
-				getQuestionFromApi(t, "de64eb23-9945-47fb-8da8-d8addac1dd47", "1", appUrl+apiV1)
+				getQuestionFromApi(t, "d2l1", "1", appUrl+apiV1)
+				getQuestionFromApi(t, "d2l1", "1", appUrl+apiV1)
 
 				result := getDecksFromApi(t, appUrl+apiV3, "EN", "1")
 
@@ -345,7 +343,7 @@ func TestApplication(t *testing.T) {
 				em11 := "em1"
 				expected := []model.Level{
 					{
-						ID:          "4f84bde5-d6ad-4a2d-a2da-0553b4b281a2",
+						ID:          "d1l1",
 						DeckID:      "d1",
 						LevelOrder:  1,
 						Name:        "l1",
@@ -355,7 +353,7 @@ func TestApplication(t *testing.T) {
 						ColorButton: "1,1,1",
 					},
 					{
-						ID:          "dae6f634-8a6c-42a7-8d25-6a44e91e6e21",
+						ID:          "d1l2",
 						DeckID:      "d1",
 						LevelOrder:  2,
 						Name:        "l2",
@@ -365,7 +363,7 @@ func TestApplication(t *testing.T) {
 						ColorButton: "2,2,2",
 					},
 					{
-						ID:          "8e7e1f07-0292-4ef6-8529-fb92a0d4c1f6",
+						ID:          "d1l3",
 						DeckID:      "d1",
 						LevelOrder:  3,
 						Name:        "l3",
@@ -392,9 +390,39 @@ func TestApplication(t *testing.T) {
 				}
 			})
 
+			t.Run("get level", func(t *testing.T) {
+				defer failOnPanic(t)
+				clearHistory(t)
+				z := 0
+				em11 := "em1"
+				expected := output.LevelDto{
+					Level: model.Level{
+						ID:          "d1l1",
+						DeckID:      "d1",
+						LevelOrder:  1,
+						Name:        "l1",
+						Emoji:       &em11,
+						ColorStart:  "0,0,0",
+						ColorEnd:    "255,255,255",
+						ColorButton: "1,1,1",
+					},
+					Counts: &output.QuestionsCounts{
+						QuestionsCount:       3,
+						OpenedQuestionsCount: &z,
+					},
+				}
+				result := getLevelFromApi(t, appUrl+apiV1, "d1l1")
+				assert.NotNil(t, result)
+				assert.Equal(t, expected.Level, result.Level)
+				assert.Equal(t, expected.Counts.QuestionsCount, result.Counts.QuestionsCount)
+				assert.Equal(t,
+					*expected.Counts.OpenedQuestionsCount,
+					*result.Counts.OpenedQuestionsCount)
+			})
+
 			t.Run("get question", func(t *testing.T) {
 				defer failOnPanic(t)
-				question := getQuestionFromApi(t, d1l1QuestionID, clientID, appUrl+apiV1)
+				question := getQuestionFromApi(t, "d1l1", clientID, appUrl+apiV1)
 				assert.Contains(t, []string{"question d1l1q1 text", "question d1l1q2 text", "question d1l1q3 text"}, question.Text)
 				assert.NotNil(t, question.ID)
 				assert.NotNil(t, question.Text)
@@ -415,17 +443,17 @@ func TestApplication(t *testing.T) {
 					go func() {
 						defer wg.Done()
 						for i := 0; i < 5; i++ {
-							question := getQuestionFromApi(t, d1l1QuestionID, clientID+clientNumStr, appUrl+apiV1)
+							question := getQuestionFromApi(t, "d1l1", clientID+clientNumStr, appUrl+apiV1)
 
 							ansIndex1 := utils.FindIndex(questions, question.Text)
 							assert.NotEqual(t, -1, ansIndex1)
 
-							question = getQuestionFromApi(t, d1l1QuestionID, clientID+clientNumStr, appUrl+apiV1)
+							question = getQuestionFromApi(t, "d1l1", clientID+clientNumStr, appUrl+apiV1)
 							ansIndex2 := utils.FindIndex(questions, question.Text)
 							assert.NotEqual(t, -1, ansIndex2)
 							assert.NotEqual(t, ansIndex1, ansIndex2)
 
-							question = getQuestionFromApi(t, d1l1QuestionID, clientID+clientNumStr, appUrl+apiV1)
+							question = getQuestionFromApi(t, "d1l1", clientID+clientNumStr, appUrl+apiV1)
 							ansIndex3 := utils.FindIndex(questions, question.Text)
 							assert.NotEqual(t, -1, ansIndex3)
 							assert.NotEqual(t, ansIndex1, ansIndex3)
@@ -521,6 +549,28 @@ func getQuestionFromApi(t *testing.T, levelID string, clientID string, url strin
 	err = response.Body.Close()
 	println("Got question " + result.Text + " for client " + clientID)
 	return &result
+}
+
+func getLevelFromApi(t *testing.T, url, id string) output.LevelDto {
+	fmt.Println("Getting level with id " + id)
+	request, err := http.NewRequest("GET", url+"/level/"+id, nil)
+	assert.NoError(t, err)
+
+	query := request.URL.Query()
+	query.Add("clientId", clientID)
+	query.Add("features", "OPENED_COUNT")
+	request.URL.RawQuery = query.Encode()
+	client := http.Client{}
+	response, err := client.Do(request)
+	assert.NoError(t, err)
+
+	assert.Equal(t, http.StatusOK, response.StatusCode)
+
+	var result output.LevelDto
+	err = json.NewDecoder(response.Body).Decode(&result)
+	assert.NoError(t, err)
+	err = response.Body.Close()
+	return result
 }
 
 func getLevelsFromApi(t *testing.T, deckID string, url string) []model.Level {

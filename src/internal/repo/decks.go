@@ -57,7 +57,10 @@ func (r *Decks) GetQuestionsCount(ID string) (int, error) {
 
 func (r *Decks) GetOpenedQuestionsCount(ID string, clientID string) (int, error) {
 	var opened int
-	err := r.db.Raw("SELECT count(distinct question_id) FROM questions_history where client_id = ? AND level_id in (select id from levels where deck_id = ?)",
-		clientID, ID).Row().Scan(&opened)
+	sql := `SELECT count(distinct question_id) FROM questions_history 
+		where client_id = ? 
+		AND level_id in (select id from levels where deck_id = ?)
+		AND question_id in (select id from questions)` //если вопросы будут удаляться, чтобы это учлось
+	err := r.db.Raw(sql, clientID, ID).Row().Scan(&opened)
 	return opened, err
 }

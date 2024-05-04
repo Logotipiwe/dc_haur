@@ -7,7 +7,7 @@ import (
 	"image/png"
 )
 
-func ExistsInArr(target string, array []string) bool {
+func Includes(target string, array []string) bool {
 	for _, element := range array {
 		if element == target {
 			return true

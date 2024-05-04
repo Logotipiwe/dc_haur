@@ -50,6 +50,34 @@ definitions:
       openedCount:
         type: integer
     type: object
+  output.LevelDto:
+    properties:
+      colorButton:
+        type: string
+      colorEnd:
+        type: string
+      colorStart:
+        type: string
+      counts:
+        $ref: '#/definitions/output.QuestionsCounts'
+      deckID:
+        type: string
+      emoji:
+        type: string
+      id:
+        type: string
+      levelOrder:
+        type: integer
+      name:
+        type: string
+    type: object
+  output.QuestionsCounts:
+    properties:
+      openedQuestionsCount:
+        type: integer
+      questionsCount:
+        type: integer
+    type: object
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -169,6 +197,30 @@ paths:
           schema:
             type: xml
       summary: Get code of vector image
+  /v1/level/{id}:
+    get:
+      parameters:
+      - description: id клиента. Обязателен если в features есть OPENED_COUNT
+        in: query
+        name: clientId
+        type: string
+      - description: Список модификаций ответа через запятую. Доступны - OPENED_COUNT
+        in: query
+        name: features
+        type: string
+      - description: id of level
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/output.LevelDto'
+      summary: Get level by ID.
   /v1/levels:
     get:
       parameters:

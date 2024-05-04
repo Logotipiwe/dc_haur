@@ -14,6 +14,7 @@ type Services struct {
 	TgBotInteractor  domain.BotInteractor
 	Decks            *DecksService
 	Questions        *QuestionsService
+	Levels           *LevelsService
 	Repos            *repo.Repositories
 	*servicedomain.DecksLikesService
 	*servicedomain.QuestionLikesService
@@ -27,6 +28,7 @@ func NewServices(repos *repo.Repositories, bot domain.BotInteractor) *Services {
 	tgHandler := NewHandler(tgMessages, cache)
 	deckLikesService := servicedomain.NewDeckLikesService(repos)
 	questionLikesService := servicedomain.NewQuestionLikesService(repos)
+	levelsService := NewLevelsService(repos.Levels)
 	return &Services{
 		Cache:                cache,
 		TgKeyboard:           tgKeyboard,
@@ -38,5 +40,6 @@ func NewServices(repos *repo.Repositories, bot domain.BotInteractor) *Services {
 		DecksLikesService:    deckLikesService,
 		QuestionLikesService: questionLikesService,
 		Repos:                repos,
+		Levels:               levelsService,
 	}
 }
