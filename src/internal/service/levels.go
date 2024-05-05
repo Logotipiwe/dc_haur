@@ -44,3 +44,19 @@ func (s *LevelsService) EnrichWithOpenedCount(dto output.LevelDto, clientID stri
 	dto.Counts.OpenedQuestionsCount = &count
 	return dto, nil
 }
+
+func (s *LevelsService) GetLevelsOfDeckWithCounts(deckID string, clientID string) ([]output.LevelDto, error) {
+	levels, err := s.repo.GetLevelsByDeckId(deckID)
+	if err != nil {
+		return nil, err
+	}
+	dtos := make([]output.LevelDto, len(levels))
+	for i, level := range levels {
+		dto, err := s.EnrichWithCounts(output.LevelDto{Level: *level}, clientID)
+		if err != nil {
+			return nil, err
+		}
+		dtos[i] = dto
+	}
+	return dtos, nil
+}

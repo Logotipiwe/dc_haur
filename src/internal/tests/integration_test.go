@@ -50,6 +50,41 @@ func TestApplication(t *testing.T) {
 
 	checkIfImagesEnabled(t)
 
+	/*DECLARATIONS*/
+	em11 := "em1"
+	expectedD1L1 := model.Level{
+		ID:          "d1l1",
+		DeckID:      "d1",
+		LevelOrder:  1,
+		Name:        "l1",
+		Emoji:       &em11,
+		ColorStart:  "0,0,0",
+		ColorEnd:    "255,255,255",
+		ColorButton: "1,1,1",
+	}
+
+	expectedD1L2 := model.Level{
+		ID:          "d1l2",
+		DeckID:      "d1",
+		LevelOrder:  2,
+		Name:        "l2",
+		Emoji:       &em11,
+		ColorStart:  "0,0,0",
+		ColorEnd:    "255,255,255",
+		ColorButton: "2,2,2",
+	}
+	expectedD1L3 := model.Level{
+		ID:          "d1l3",
+		DeckID:      "d1",
+		LevelOrder:  3,
+		Name:        "l3",
+		Emoji:       nil,
+		ColorStart:  "0,0,0",
+		ColorEnd:    "255,255,255",
+		ColorButton: "3,3,3",
+	}
+	/*END DECLARATIONS*/
+
 	checkTg, err := strconv.ParseBool(config.GetConfigOr("CHECK_TG", "true"))
 	assert.NoError(t, err)
 	if checkTg {
@@ -340,38 +375,10 @@ func TestApplication(t *testing.T) {
 
 			t.Run("get levels", func(t *testing.T) {
 				defer failOnPanic(t)
-				em11 := "em1"
 				expected := []model.Level{
-					{
-						ID:          "d1l1",
-						DeckID:      "d1",
-						LevelOrder:  1,
-						Name:        "l1",
-						Emoji:       &em11,
-						ColorStart:  "0,0,0",
-						ColorEnd:    "255,255,255",
-						ColorButton: "1,1,1",
-					},
-					{
-						ID:          "d1l2",
-						DeckID:      "d1",
-						LevelOrder:  2,
-						Name:        "l2",
-						Emoji:       &em11,
-						ColorStart:  "0,0,0",
-						ColorEnd:    "255,255,255",
-						ColorButton: "2,2,2",
-					},
-					{
-						ID:          "d1l3",
-						DeckID:      "d1",
-						LevelOrder:  3,
-						Name:        "l3",
-						Emoji:       nil,
-						ColorStart:  "0,0,0",
-						ColorEnd:    "255,255,255",
-						ColorButton: "3,3,3",
-					},
+					expectedD1L1,
+					expectedD1L2,
+					expectedD1L3,
 				}
 
 				decks := getDecksFromApi(t, appUrl+apiV3, "EN", "1")
@@ -387,6 +394,64 @@ func TestApplication(t *testing.T) {
 					if i == 0 {
 						assert.Equal(t, expected, result)
 					}
+				}
+			})
+
+			t.Run("/deck/:id/levels - get levels", func(t *testing.T) {
+				defer failOnPanic(t)
+				expected := []output.LevelDto{
+					{
+						Level: expectedD1L1,
+						Counts: &output.QuestionsCounts{
+							QuestionsCount:       3,
+							OpenedQuestionsCount: new(int),
+						},
+					},
+					{
+						Level: expectedD1L2,
+						Counts: &output.QuestionsCounts{
+							QuestionsCount:       2,
+							OpenedQuestionsCount: new(int),
+						},
+					},
+					{
+						Level: expectedD1L3,
+						Counts: &output.QuestionsCounts{
+							QuestionsCount:       3,
+							OpenedQuestionsCount: new(int),
+						},
+					},
+				}
+
+				result := getLevelsByDeckWithCountsFromApi(t, appUrl+apiV1, "d1", "1")
+
+				assert.NotNil(t, result)
+				for i, level := range result {
+					assert.Equal(t, expected[i].Level, level.Level)
+					assert.Equal(t, expected[i].Counts.QuestionsCount, level.Counts.QuestionsCount)
+					assert.Equal(t,
+						*expected[i].Counts.OpenedQuestionsCount,
+						*level.Counts.OpenedQuestionsCount)
+				}
+			})
+
+			t.Run("/deck/:id/levels - check counts", func(t *testing.T) {
+				defer failOnPanic(t)
+				expected := []int{2, 2, 0}
+
+				getQuestionFromApi(t, "d1l1", clientID, appUrl+apiV1)
+				getQuestionFromApi(t, "d1l1", clientID, appUrl+apiV1)
+				getQuestionFromApi(t, "d1l2", clientID, appUrl+apiV1)
+				getQuestionFromApi(t, "d1l2", clientID, appUrl+apiV1)
+				getQuestionFromApi(t, "d1l2", clientID, appUrl+apiV1) //not counted - more than in level
+
+				result := getLevelsByDeckWithCountsFromApi(t, appUrl+apiV1, "d1", "1")
+
+				assert.NotNil(t, result)
+				assert.NotEmpty(t, result)
+				for i, level := range result {
+					assert.NotNil(t, level)
+					assert.Equal(t, expected[i], *level.Counts.OpenedQuestionsCount)
 				}
 			})
 
@@ -588,6 +653,27 @@ func getLevelsFromApi(t *testing.T, deckID string, url string) []model.Level {
 	assert.Equal(t, http.StatusOK, response.StatusCode)
 
 	var result []model.Level
+	err = json.NewDecoder(response.Body).Decode(&result)
+	assert.NoError(t, err)
+	err = response.Body.Close()
+	return result
+}
+
+func getLevelsByDeckWithCountsFromApi(t *testing.T, url, deckID, userID string) []output.LevelDto {
+	fmt.Println("Getting levels of deck " + deckID + " for user " + userID)
+	request, err := http.NewRequest("GET", url+"/deck/"+deckID+"/levels", nil)
+	assert.NoError(t, err)
+
+	query := request.URL.Query()
+	query.Add("clientId", clientID)
+	request.URL.RawQuery = query.Encode()
+	client := http.Client{}
+	response, err := client.Do(request)
+	assert.NoError(t, err)
+
+	assert.Equal(t, http.StatusOK, response.StatusCode)
+
+	var result []output.LevelDto
 	err = json.NewDecoder(response.Body).Decode(&result)
 	assert.NoError(t, err)
 	err = response.Body.Close()

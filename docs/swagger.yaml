@@ -126,6 +126,29 @@ paths:
               type: string
             type: object
       summary: Dislike a deck
+  /v1/deck/{deckId}/levels:
+    get:
+      parameters:
+      - description: Id of deck for which selecting levels
+        in: path
+        name: deckId
+        required: true
+        type: string
+      - description: client id. Нужен чтобы получить количество открытых вопросов
+        in: query
+        name: clientId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Level'
+            type: array
+      summary: Уровни в колоде. С кличеством просмотренных карт.
   /v1/deck/{deckId}/like:
     post:
       description: Endpoint to like a specific deck. Gives 409 in case of duplicating
@@ -220,7 +243,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/output.LevelDto'
-      summary: Get level by ID.
+      summary: НЕ ИСПОЛЬЗУЕТСЯ. Получить уровень по id (с возможностью получить кол-во
+        просмотренных карт)
   /v1/levels:
     get:
       parameters:
@@ -238,7 +262,7 @@ paths:
             items:
               $ref: '#/definitions/model.Level'
             type: array
-      summary: Get levels from specified deck
+      summary: ПЕРЕХОДИТЬ НА /deck/:id/levels. Получить уровни в колоде.
   /v1/question:
     get:
       parameters:

@@ -73,6 +73,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/deck/{deckId}/levels": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Уровни в колоде. С кличеством просмотренных карт.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Id of deck for which selecting levels",
+                        "name": "deckId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "client id. Нужен чтобы получить количество открытых вопросов",
+                        "name": "clientId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Level"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/deck/{deckId}/like": {
             "post": {
                 "description": "Endpoint to like a specific deck. Gives 409 in case of duplicating like",
@@ -185,7 +220,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Get level by ID.",
+                "summary": "НЕ ИСПОЛЬЗУЕТСЯ. Получить уровень по id (с возможностью получить кол-во просмотренных карт)",
                 "parameters": [
                     {
                         "type": "string",
@@ -222,7 +257,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Get levels from specified deck",
+                "summary": "ПЕРЕХОДИТЬ НА /deck/:id/levels. Получить уровни в колоде.",
                 "parameters": [
                     {
                         "type": "string",

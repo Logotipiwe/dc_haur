@@ -106,6 +106,7 @@ func StartServer(services *service.Services) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	apiV1.GET("/levels", doWithErr(controller.GetLevels))
+	apiV1.GET("deck/:deckId/levels", doWithErr(controller.GetLevelsWithCounts))
 	apiV1.GET("/level/:id", doWithErr(controller.GetLevel))
 	apiV1.GET("/question", doWithErr(controller.GetQuestion))
 	apiV1.POST("/question/:questionId/like", doWithErr(controller.LikeQuestion))
@@ -189,7 +190,7 @@ func (c Controller) GetLocalizedDecksWithCounts(ctx *gin.Context) error {
 }
 
 // GetLevels godoc
-// @Summary      Get levels from specified deck
+// @Summary      ПЕРЕХОДИТЬ НА /deck/:id/levels. Получить уровни в колоде.
 // @Param 		 deckId query string true "Id of deck for which selecting levels"
 // @Produce      json
 // @Success      200  {array} model.Level
@@ -207,8 +208,29 @@ func (c Controller) GetLevels(ctx *gin.Context) error {
 	return nil
 }
 
+// GetLevelsWithCounts godoc
+// @Summary      Уровни в колоде. С кличеством просмотренных карт.
+// @Param 		 deckId path string true "Id of deck for which selecting levels"
+// @Param 		 clientId query string true "client id. Нужен чтобы получить количество открытых вопросов"
+// @Produce      json
+// @Success      200  {array} model.Level
+// @Router       /v1/deck/{deckId}/levels [get]
+func (c Controller) GetLevelsWithCounts(ctx *gin.Context) error {
+	deckId := ctx.Param("deckId")
+	clientId := ctx.Query("clientId")
+	dtos, err := c.services.Levels.GetLevelsOfDeckWithCounts(deckId, clientId)
+	if errors.Is(err, repo.NoLevelsErr) {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "No levels found by deck id " + deckId})
+		return nil
+	} else if err != nil {
+		return err
+	}
+	ctx.JSON(http.StatusOK, dtos)
+	return nil
+}
+
 // GetLevel godoc
-// @Summary      Get level by ID.
+// @Summary      НЕ ИСПОЛЬЗУЕТСЯ. Получить уровень по id (с возможностью получить кол-во просмотренных карт)
 // @Param 		 clientId query string false "id клиента. Обязателен если в features есть OPENED_COUNT"
 // @Param 		 features query string false "Список модификаций ответа через запятую. Доступны - OPENED_COUNT"
 // @Param 		 id path string true "id of level"
