@@ -58,3 +58,13 @@ func (s DecksService) EnrichDecksWithOpenedCardsCounts(dtos []output.DeckDTO, cl
 	}
 	return res, nil
 }
+
+func (s DecksService) TryUnlockDeck(promo, clientId string) (*model.Deck, error) {
+	found := s.Decks.GetHiddenDeckByPromo(promo, clientId)
+	if found != nil {
+		err := s.Decks.UnlockDeck(found.ID, clientId)
+		return found, err
+	} else {
+		return nil, nil
+	}
+}

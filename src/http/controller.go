@@ -78,6 +78,9 @@ func StartServer(services *service.Services) {
 		if err := services.Repos.UsedQuestions.Truncate(); err != nil {
 			return err
 		}
+		if err := services.Repos.Decks.TruncateUnlockedDecks(); err != nil {
+			return err
+		}
 		c.Status(http.StatusOK)
 		return nil
 	}))
@@ -115,12 +118,13 @@ func StartServer(services *service.Services) {
 	apiV1.POST("/deck/:deckId/like", doWithErr(controller.LikeDeck))
 	apiV1.POST("/deck/:deckId/dislike", doWithErr(controller.DislikeDeck))
 	apiV1.GET("/get-vector-image/:id", doWithErr(controller.GetImage))
+	apiV1.POST("/enter-promo/:promo", doWithErr(controller.EnterPromo))
 
 	apiV1.GET("/user/:userId/likes", doWithErr(controller.GetUserLikes))
 
 	apiV2.GET("/decks", doWithErr(controller.GetLocalizedDecks))
 
-	apiV3.GET("/decks", doWithErr(controller.GetLocalizedDecksWithCounts))
+	apiV3.GET("/decks", doWithErr(controller.GetLocalizedAvailableDecks))
 
 	port := config.GetConfigOr("CONTAINER_PORT", "80")
 	log.Println("Starting server on port " + port)
@@ -158,30 +162,31 @@ func (c Controller) GetLocalizedDecks(ctx *gin.Context) error {
 	return nil
 }
 
-// GetLocalizedDecksWithCounts godoc
+// GetLocalizedAvailableDecks godoc
 // @Summary      Get decks by lang code
 // @Param 		 languageCode query string true "Language code in upper case (RU, EN)"
-// @Param 		 clientId query string true "User ID"
+// @Param 		 clientId query string true "Language code in upper case (RU, EN)"
 // @Produce      json
 // @Success      200  {array} output.DeckDTO
 // @Router       /v3/decks [get]
-func (c Controller) GetLocalizedDecksWithCounts(ctx *gin.Context) error {
+func (c Controller) GetLocalizedAvailableDecks(ctx *gin.Context) error {
 	langCode := ctx.Query("languageCode")
 	if langCode == "" {
 		ctx.String(400, "Language not specified. "+
 			"Please specify languageCode query parameter as in the following: languageCode=EN")
 		return nil
 	}
-	clientId, _ := ctx.GetQuery("clientId")
-	if clientId == "" {
-		return errors.New("you must specify clientId")
+	clientID := ctx.Query("clientId")
+	if clientID == "" {
+		return errors.New("please specify clientId")
 	}
+
 	decksService := c.services.Decks
-	models, err := decksService.GetDecksByLanguage(langCode)
+	models, err := decksService.GetAvailableForUserDecksByLanguage(langCode, clientID)
 	if err != nil {
 		return err
 	}
-	decks, err := decksService.EnrichDecksWithCounts(models, clientId)
+	decks, err := decksService.EnrichDecksWithCounts(models, clientID)
 	if err != nil {
 		return err
 	}
@@ -497,6 +502,35 @@ func (c Controller) GetUserLikes(ctx *gin.Context) error {
 	answer["decks"] = dLikes
 
 	ctx.JSON(http.StatusOK, answer)
+	return nil
+}
+
+// EnterPromo godoc
+// @Summary      Отправить промокод. Если найдется скрытая колода с таким промо - она будет приходить в /decks
+// @Description  Если колода успешно разблокировалась - статус 201 (created) и колода в теле. Если нет промокода - статус 204 (No content) и пустое тело.
+// @Param 		 promo path string true "Промокод"
+// @Param 		 clientId query string true "Id клиента"
+// @Produce      json
+// @Success      200  {object} map[string]interface{}
+// @Router       /v1/enter-promo/{promo} [post]
+func (c Controller) EnterPromo(ctx *gin.Context) error {
+	promo := ctx.Param("promo")
+	clientID := ctx.Query("clientId")
+	if promo == "" {
+		return errors.New("promo required")
+	}
+	if clientID == "" {
+		return errors.New("clientId required")
+	}
+	unlockedDeck, err := c.services.Decks.TryUnlockDeck(promo, clientID)
+	if err != nil {
+		return err
+	}
+	if unlockedDeck != nil {
+		ctx.JSON(http.StatusCreated, unlockedDeck)
+	} else {
+		ctx.Status(http.StatusNoContent)
+	}
 	return nil
 }
 

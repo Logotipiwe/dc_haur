@@ -204,6 +204,31 @@ paths:
               $ref: '#/definitions/model.Question'
             type: array
       summary: Get all questions from specified deck
+  /v1/enter-promo/{promo}:
+    post:
+      description: Если колода успешно разблокировалась - статус 201 (created) и колода
+        в теле. Если нет промокода - статус 204 (No content) и пустое тело.
+      parameters:
+      - description: Промокод
+        in: path
+        name: promo
+        required: true
+        type: string
+      - description: Id клиента
+        in: query
+        name: clientId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Отправить промокод. Если найдется скрытая колода с таким промо - она
+        будет приходить в /decks
   /v1/get-vector-image/{id}:
     get:
       parameters:
@@ -402,7 +427,7 @@ paths:
         name: languageCode
         required: true
         type: string
-      - description: User ID
+      - description: Language code in upper case (RU, EN)
         in: query
         name: clientId
         required: true

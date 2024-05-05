@@ -27,6 +27,7 @@ const (
 	d1   = "em1 deck d1 name"
 	d2   = "em2 deck d2 name"
 	d3   = "deck d3 name"
+	d4   = "deck d4 name"
 	d1l1 = "em1 l1"
 	d1l2 = "em1 l2"
 	d1l3 = "l3"
@@ -101,10 +102,11 @@ func TestApplication(t *testing.T) {
 				update := createUpdateObject("/start")
 				ans := sendUpdate(t, update)
 				replyMarkup := toMarkup(t, ans.BaseChat.ReplyMarkup)
-				assert.Equal(t, 3, len(replyMarkup.Keyboard))
+				assert.Equal(t, 4, len(replyMarkup.Keyboard))
 				assert.Equal(t, d1, replyMarkup.Keyboard[0][0].Text)
 				assert.Equal(t, d2, replyMarkup.Keyboard[1][0].Text)
 				assert.Equal(t, d3, replyMarkup.Keyboard[2][0].Text)
+				assert.Equal(t, d4, replyMarkup.Keyboard[3][0].Text)
 				println(ans)
 			})
 
@@ -113,10 +115,11 @@ func TestApplication(t *testing.T) {
 				update := createUpdateObject("/start@HowAreYouReallyGameBot")
 				ans := sendUpdate(t, update)
 				replyMarkup := toMarkup(t, ans.BaseChat.ReplyMarkup)
-				assert.Equal(t, 3, len(replyMarkup.Keyboard))
+				assert.Equal(t, 4, len(replyMarkup.Keyboard))
 				assert.Equal(t, d1, replyMarkup.Keyboard[0][0].Text)
 				assert.Equal(t, d2, replyMarkup.Keyboard[1][0].Text)
 				assert.Equal(t, d3, replyMarkup.Keyboard[2][0].Text)
+				assert.Equal(t, d4, replyMarkup.Keyboard[3][0].Text)
 				println(ans)
 			})
 
@@ -269,7 +272,7 @@ func TestApplication(t *testing.T) {
 			appUrl := config.GetConfig("TEST_URL")
 			println("Url to test " + appUrl)
 			apiV1 := "/api/v1"
-			apiV3 := "/api/v3"
+			//apiV3 := "/api/v3"
 			apiIntegrationTest := apiV1 + "/integration-test"
 
 			t.Run("/test-image secured", func(t *testing.T) {
@@ -296,8 +299,8 @@ func TestApplication(t *testing.T) {
 			t.Run("get decks by language", func(t *testing.T) {
 				defer failOnPanic(t)
 
-				resultRu := getDecksFromApi(t, appUrl+apiV3, "RU", "1")
-				resultEn := getDecksFromApi(t, appUrl+apiV3, "EN", "1")
+				resultRu := getDecksFromApiV3(t, "RU", clientID)
+				resultEn := getDecksFromApiV3(t, "EN", clientID)
 
 				assert.Equal(t, 2, len(resultEn))
 				assert.Equal(t, 1, len(resultRu))
@@ -319,7 +322,7 @@ func TestApplication(t *testing.T) {
 			t.Run("check decks cards count field", func(t *testing.T) {
 				defer failOnPanic(t)
 
-				result := getDecksFromApi(t, appUrl+apiV3, "EN", "1")
+				result := getDecksFromApiV3(t, "EN", clientID)
 				assert.NotEmpty(t, result)
 
 				expectedCounts := []int{8, 3, 3}
@@ -333,15 +336,15 @@ func TestApplication(t *testing.T) {
 				defer failOnPanic(t)
 
 				//deck 1
-				getQuestionFromApi(t, "d1l1", "1", appUrl+apiV1)
-				getQuestionFromApi(t, "d1l1", "1", appUrl+apiV1)
-				getQuestionFromApi(t, "d1l2", "1", appUrl+apiV1)
+				getQuestionFromApi(t, "d1l1", clientID, appUrl+apiV1)
+				getQuestionFromApi(t, "d1l1", clientID, appUrl+apiV1)
+				getQuestionFromApi(t, "d1l2", clientID, appUrl+apiV1)
 
 				//deck 2 (only one card of this level, so should be 1 opened)
-				getQuestionFromApi(t, "d2l1", "1", appUrl+apiV1)
-				getQuestionFromApi(t, "d2l1", "1", appUrl+apiV1)
+				getQuestionFromApi(t, "d2l1", clientID, appUrl+apiV1)
+				getQuestionFromApi(t, "d2l1", clientID, appUrl+apiV1)
 
-				result := getDecksFromApi(t, appUrl+apiV3, "EN", "1")
+				result := getDecksFromApiV3(t, "EN", clientID)
 
 				expectedCounts := []int{3, 1, 0}
 
@@ -353,24 +356,43 @@ func TestApplication(t *testing.T) {
 				}
 			})
 
-			t.Run("get localized decks", func(t *testing.T) {
+			t.Run("get localized available decks", func(t *testing.T) {
 				defer failOnPanic(t)
 
 				languageCode := "EN"
-				result := getDecksFromApi(t, appUrl+apiV3, languageCode, "1")
+				result := getDecksFromApiV3(t, languageCode, clientID)
 
 				assert.Equal(t, 2, len(result))
 				for i := range result {
-					checkDeckFields(t, result[i])
+					checkDeckDTOFields(t, result[i])
 				}
 
 				languageCode = "RU"
-				result = getDecksFromApi(t, appUrl+apiV3, languageCode, "1")
+				result = getDecksFromApiV3(t, languageCode, clientID)
 
-				assert.Equal(t, 1, len(result))
+				assert.Equal(t, 1, len(result)) //hidden deck is absent
 				for i := range result {
-					checkDeckFields(t, result[i])
+					checkDeckDTOFields(t, result[i])
 				}
+			})
+
+			t.Run("get available decks after unlock", func(t *testing.T) {
+				defer failOnPanic(t)
+
+				promo := "pro"
+				hiddenDeckID := "d4"
+				languageCode := "RU"
+				result := getDecksFromApiV3(t, languageCode, clientID)
+				assert.Equal(t, 1, len(result)) //hidden deck is absent
+
+				deck, status := enterPromo(t, promo, clientID)
+				assert.NotNil(t, deck)
+				assert.Equal(t, status, http.StatusCreated)
+				checkDeckFields(t, deck)
+
+				result = getDecksFromApiV3(t, languageCode, clientID)
+				assert.Equal(t, 2, len(result))
+				assert.Equal(t, hiddenDeckID, result[1].ID)
 			})
 
 			t.Run("get levels", func(t *testing.T) {
@@ -381,7 +403,7 @@ func TestApplication(t *testing.T) {
 					expectedD1L3,
 				}
 
-				decks := getDecksFromApi(t, appUrl+apiV3, "EN", "1")
+				decks := getDecksFromApiV3(t, "EN", clientID)
 
 				for i, deck := range decks {
 					result := getLevelsFromApi(t, deck.ID, appUrl+apiV1)
@@ -399,6 +421,7 @@ func TestApplication(t *testing.T) {
 
 			t.Run("/deck/:id/levels - get levels", func(t *testing.T) {
 				defer failOnPanic(t)
+				clearHistory(t)
 				expected := []output.LevelDto{
 					{
 						Level: expectedD1L1,
@@ -423,7 +446,7 @@ func TestApplication(t *testing.T) {
 					},
 				}
 
-				result := getLevelsByDeckWithCountsFromApi(t, appUrl+apiV1, "d1", "1")
+				result := getLevelsByDeckWithCountsFromApi(t, appUrl+apiV1, "d1", clientID)
 
 				assert.NotNil(t, result)
 				for i, level := range result {
@@ -437,6 +460,7 @@ func TestApplication(t *testing.T) {
 
 			t.Run("/deck/:id/levels - check counts", func(t *testing.T) {
 				defer failOnPanic(t)
+				clearHistory(t)
 				expected := []int{2, 2, 0}
 
 				getQuestionFromApi(t, "d1l1", clientID, appUrl+apiV1)
@@ -445,7 +469,7 @@ func TestApplication(t *testing.T) {
 				getQuestionFromApi(t, "d1l2", clientID, appUrl+apiV1)
 				getQuestionFromApi(t, "d1l2", clientID, appUrl+apiV1) //not counted - more than in level
 
-				result := getLevelsByDeckWithCountsFromApi(t, appUrl+apiV1, "d1", "1")
+				result := getLevelsByDeckWithCountsFromApi(t, appUrl+apiV1, "d1", clientID)
 
 				assert.NotNil(t, result)
 				assert.NotEmpty(t, result)
@@ -699,9 +723,10 @@ func getLevelsByDeckWithCountsFromApi(t *testing.T, url, deckID, userID string) 
 	return result
 }*/
 
-func getDecksFromApi(t *testing.T, url string, languageCode string, clientId string) []output.DeckDTO {
+func getDecksFromApiV3(t *testing.T, languageCode string, clientId string) []output.DeckDTO {
 	fmt.Println("Getting localized decks...")
-	request, err := http.NewRequest("GET", url+"/decks?languageCode="+languageCode+"&clientId="+clientId, nil)
+	url := config.GetConfig("TEST_URL")
+	request, err := http.NewRequest("GET", url+"/api/v3/decks?languageCode="+languageCode+"&clientId="+clientId, nil)
 	assert.NoError(t, err)
 
 	client := http.Client{}
@@ -716,6 +741,30 @@ func getDecksFromApi(t *testing.T, url string, languageCode string, clientId str
 	err = response.Body.Close()
 
 	return result
+}
+
+func enterPromo(t *testing.T, promo, clientId string) (model.Deck, int) {
+	fmt.Println("Getting localized decks...")
+	url := getTestUrl()
+	request, err := http.NewRequest("POST", url+"/api/v1/enter-promo/"+promo+"?clientId="+clientId, nil)
+	assert.NoError(t, err)
+
+	client := http.Client{}
+	response, err := client.Do(request)
+	assert.NoError(t, err)
+
+	assert.Contains(t, []int{http.StatusCreated, http.StatusNoContent}, response.StatusCode)
+
+	var result model.Deck
+	err = json.NewDecoder(response.Body).Decode(&result)
+	assert.NoError(t, err)
+	err = response.Body.Close()
+
+	return result, response.StatusCode
+}
+
+func getTestUrl() string {
+	return config.GetConfig("TEST_URL")
 }
 
 func getResponseCode(method, url string) (int, error) {
@@ -734,12 +783,17 @@ func getResponseCode(method, url string) (int, error) {
 	return response.StatusCode, nil
 }
 
-func checkDeckFields(t *testing.T, deck output.DeckDTO) {
+func checkDeckFields(t *testing.T, deck model.Deck) {
 	assert.NotNil(t, deck.ID)
 	assert.NotNil(t, deck.LanguageCode)
 	assert.NotNil(t, deck.Name)
 	assert.NotNil(t, deck.Description)
 	assert.NotNil(t, deck.Labels)
+}
+func checkDeckDTOFields(t *testing.T, deck output.DeckDTO) {
+	checkDeckFields(t, deck.Deck)
+	assert.NotNil(t, deck.CardsCount)
+	assert.NotNil(t, deck.OpenedCount)
 }
 
 func failOnPanic(t *testing.T) {

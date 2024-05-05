@@ -190,6 +190,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/enter-promo/{promo}": {
+            "post": {
+                "description": "Если колода успешно разблокировалась - статус 201 (created) и колода в теле. Если нет промокода - статус 204 (No content) и пустое тело.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Отправить промокод. Если найдется скрытая колода с таким промо - она будет приходить в /decks",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Промокод",
+                        "name": "promo",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Id клиента",
+                        "name": "clientId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/v1/get-vector-image/{id}": {
             "get": {
                 "produces": [
@@ -491,7 +525,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "User ID",
+                        "description": "Language code in upper case (RU, EN)",
                         "name": "clientId",
                         "in": "query",
                         "required": true
