@@ -8,6 +8,8 @@ type Deck struct {
 	Description  string  `gorm:"column:description" json:"description,omitempty"`
 	Labels       string  `gorm:"column:labels;serializer:semicolonSeparated" json:"labels"`
 	ImageID      string  `gorm:"column:vector_image_id" json:"image_id"`
+	Hidden       bool    `gorm:"column:hidden" json:"hidden"`
+	Promo        string  `gorm:"column:promo" json:"promo"`
 }
 
 func (Deck) TableName() string {

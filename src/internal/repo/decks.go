@@ -13,8 +13,6 @@ func NewDecksRepo(db *gorm.DB) *Decks {
 	return &Decks{db: db}
 }
 
-// TODO тестить что не приходит скрытое в апи
-// TODO тестить что приходит если открыть
 func (r *Decks) GetDecks() ([]model.Deck, error) {
 	var decks []model.Deck
 	if err := r.db.Find(&decks).Error; err != nil {
