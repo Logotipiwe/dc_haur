@@ -10,12 +10,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/go-resty/resty/v2"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	config "github.com/logotipiwe/dc_go_config_lib"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"math/rand"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -39,6 +41,7 @@ const (
 )
 
 const clientID = "integrationTestsClient"
+const userID = "13060ce0-161c-4177-8f4d-f109909c04b7"
 
 func TestApplication(t *testing.T) {
 
@@ -272,6 +275,7 @@ func TestApplication(t *testing.T) {
 			appUrl := config.GetConfig("TEST_URL")
 			println("Url to test " + appUrl)
 			apiV1 := "/api/v1"
+			apiV2 := "/api/v2"
 			//apiV3 := "/api/v3"
 			apiIntegrationTest := apiV1 + "/integration-test"
 
@@ -576,8 +580,187 @@ func TestApplication(t *testing.T) {
 				imageContent = getVectorImage(t, "2", appUrl+apiV1)
 				assert.Equal(t, "<svg>2</svg>", imageContent)
 			})
+
+			t.Run("Reactions logic", func(t *testing.T) {
+				t.Run("Reactions to questions sets", func(t *testing.T) {
+					defer failOnPanic(t)
+					clearHistory(t)
+					assert.Nil(t, doLikeQuestion(userID, "q1", appUrl+apiV2))
+					assert.Nil(t, doLikeQuestion(userID, "q2", appUrl+apiV2))
+					assert.Nil(t, doDislikeQuestion(userID, "q3", appUrl+apiV2))
+					reactions, err := getReactions(userID, appUrl+apiV2)
+					assert.Nil(t, err)
+					assert.NotNil(t, reactions)
+					sortForTest(reactions)
+					expected := output.NewUserReactions(
+						make([]model.DeckLike, 0),
+						[]model.QuestionReaction{
+							{
+								ID:           reactions.QuestionReactions[0].ID,
+								QuestionID:   "q1",
+								UserID:       userID,
+								ReactionType: "LIKE",
+							},
+							{
+								ID:           reactions.QuestionReactions[1].ID,
+								QuestionID:   "q2",
+								UserID:       userID,
+								ReactionType: "LIKE",
+							},
+							{
+								ID:           reactions.QuestionReactions[2].ID,
+								QuestionID:   "q3",
+								UserID:       userID,
+								ReactionType: "DISLIKE",
+							},
+						},
+					)
+					assert.Equal(t, expected, *reactions)
+				})
+
+				t.Run("Likes to decks sets", func(t *testing.T) {
+					defer failOnPanic(t)
+					clearHistory(t)
+					assert.Nil(t, doLikeDeck(userID, "d1", appUrl+apiV1))
+					assert.Nil(t, doLikeDeck(userID, "d2", appUrl+apiV1))
+					reactions, err := getReactions(userID, appUrl+apiV2)
+					assert.Nil(t, err)
+					assert.NotNil(t, reactions)
+					expected := output.NewUserReactions(
+						[]model.DeckLike{
+							{
+								ID:     reactions.DeckLikes[0].ID,
+								DeckID: "d1",
+								UserID: userID,
+							},
+							{
+								ID:     reactions.DeckLikes[1].ID,
+								DeckID: "d2",
+								UserID: userID,
+							},
+						},
+						[]model.QuestionReaction{},
+					)
+					assert.Equal(t, expected, *reactions)
+				})
+
+				t.Run("Reactions switch", func(t *testing.T) {
+					defer failOnPanic(t)
+					clearHistory(t)
+					assert.Nil(t, doLikeQuestion(userID, "q1", appUrl+apiV2))
+					assert.Nil(t, doDislikeQuestion(userID, "q1", appUrl+apiV2))
+
+					assert.Nil(t, doDislikeQuestion(userID, "q2", appUrl+apiV2))
+					assert.Nil(t, doLikeQuestion(userID, "q2", appUrl+apiV2))
+
+					reactions, err := getReactions(userID, appUrl+apiV2)
+					assert.Nil(t, err)
+					assert.NotNil(t, reactions)
+					sortForTest(reactions)
+					expected := output.NewUserReactions(
+						make([]model.DeckLike, 0),
+						[]model.QuestionReaction{
+							{
+								ID:           reactions.QuestionReactions[0].ID,
+								QuestionID:   "q1",
+								UserID:       userID,
+								ReactionType: "DISLIKE",
+							},
+							{
+								ID:           reactions.QuestionReactions[1].ID,
+								QuestionID:   "q2",
+								UserID:       userID,
+								ReactionType: "LIKE",
+							},
+						},
+					)
+					assert.Equal(t, expected, *reactions)
+				})
+
+				t.Run("Reactions delete", func(t *testing.T) {
+					defer failOnPanic(t)
+					clearHistory(t)
+					assert.Nil(t, doLikeQuestion(userID, "q1", appUrl+apiV2))
+					assert.Nil(t, doDislikeQuestion(userID, "q2", appUrl+apiV2))
+
+					assert.Nil(t, doRemoveReaction(userID, "q1", appUrl+apiV2))
+					assert.Nil(t, doRemoveReaction(userID, "q2", appUrl+apiV2))
+
+					reactions, err := getReactions(userID, appUrl+apiV2)
+					assert.Nil(t, err)
+					assert.NotNil(t, reactions)
+					sortForTest(reactions)
+					expected := output.NewUserReactions(
+						[]model.DeckLike{},
+						[]model.QuestionReaction{},
+					)
+					assert.Equal(t, expected, *reactions)
+				})
+			})
 		})
 	}
+}
+
+func sortForTest(reactions *output.UserReactionsDTO) {
+	sort.Slice(reactions.QuestionReactions, func(i, j int) bool {
+		return reactions.QuestionReactions[i].QuestionID < reactions.QuestionReactions[j].QuestionID
+	})
+	sort.Slice(reactions.DeckLikes, func(i, j int) bool {
+		return reactions.DeckLikes[i].DeckID < reactions.DeckLikes[j].DeckID
+	})
+}
+
+func doRemoveReaction(userID string, questionID string, url string) error {
+	r, err := resty.New().R().
+		SetQueryParam("userId", userID).
+		Post(url + "/question/" + questionID + "/react-remove")
+	if r != nil && !r.IsSuccess() {
+		return errors.New("status" + r.Status())
+	}
+	return err
+}
+
+func doLikeDeck(userID string, deckID string, url string) error {
+	r, err := resty.New().R().
+		SetQueryParam("userId", userID).
+		Post(url + "/deck/" + deckID + "/like")
+	if r != nil && !r.IsSuccess() {
+		return errors.New("status" + r.Status())
+	}
+	return err
+}
+
+func doDislikeQuestion(userID string, questionID string, url string) error {
+	r, err := resty.New().R().
+		SetQueryParam("userId", userID).
+		Post(url + "/question/" + questionID + "/react-dislike")
+	if r != nil && !r.IsSuccess() {
+		return errors.New("status" + r.Status())
+	}
+	return err
+}
+
+func getReactions(userID string, url string) (*output.UserReactionsDTO, error) {
+	response, err := resty.New().R().
+		SetResult(output.UserReactionsDTO{}).
+		Get(url + "/user/" + userID + "/reactions")
+	if err != nil {
+		return nil, err
+	}
+	if response != nil && !response.IsSuccess() {
+		return nil, errors.New("status" + response.Status())
+	}
+	return response.Result().(*output.UserReactionsDTO), err
+}
+
+func doLikeQuestion(userID, questionID, url string) error {
+	r, err := resty.New().R().
+		SetQueryParam("userId", userID).
+		Post(url + "/question/" + questionID + "/react-like")
+	if r != nil && !r.IsSuccess() {
+		return errors.New("status" + r.Status())
+	}
+	return err
 }
 
 func getVectorImage(t *testing.T, id string, url string) string {
@@ -703,25 +886,6 @@ func getLevelsByDeckWithCountsFromApi(t *testing.T, url, deckID, userID string) 
 	err = response.Body.Close()
 	return result
 }
-
-/*func getDecksFromApi(t *testing.T, url string, lang string) []output.DeckDTO {
-	fmt.Println("Getting decks...")
-	request, err := http.NewRequest("GET", url+"/decks?languageCode="+lang, nil)
-	assert.NoError(t, err)
-
-	client := http.Client{}
-	response, err := client.Do(request)
-	assert.NoError(t, err)
-
-	assert.Equal(t, http.StatusOK, response.StatusCode)
-
-	var result []output.DeckDTO
-	err = json.NewDecoder(response.Body).Decode(&result)
-	assert.NoError(t, err)
-	err = response.Body.Close()
-
-	return result
-}*/
 
 func getDecksFromApiV3(t *testing.T, languageCode string, clientId string) []output.DeckDTO {
 	fmt.Println("Getting localized decks...")

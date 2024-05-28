@@ -30,7 +30,7 @@ type Repositories struct {
 	*Levels
 	*VectorImages
 	*DeckLikes
-	*QuestionLikes
+	*QuestionReactions
 	*UsedQuestions
 }
 
@@ -40,14 +40,14 @@ func NewRepositories(db *sql.DB) *Repositories {
 		log.Fatal(err)
 	}
 	return &Repositories{
-		Decks:         NewDecksRepo(gormDb),
-		Questions:     NewQuestionsRepo(gormDb),
-		History:       NewQuestionsHistoryRepo(gormDb),
-		Levels:        NewLevelRepository(gormDb),
-		VectorImages:  NewVectorImages(gormDb),
-		DeckLikes:     NewDeckLikes(gormDb),
-		QuestionLikes: NewQuestionLikes(gormDb),
-		UsedQuestions: NewUsedQuestionsRepo(gormDb),
+		Decks:             NewDecksRepo(gormDb),
+		Questions:         NewQuestionsRepo(gormDb),
+		History:           NewQuestionsHistoryRepo(gormDb),
+		Levels:            NewLevelRepository(gormDb),
+		VectorImages:      NewVectorImages(gormDb),
+		DeckLikes:         NewDeckLikes(gormDb),
+		QuestionReactions: NewQuestionLikes(gormDb),
+		UsedQuestions:     NewUsedQuestionsRepo(gormDb),
 	}
 }
 

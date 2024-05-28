@@ -38,12 +38,16 @@ func (r DeckLikes) DeleteByUserAndDeckId(userId string, deckId string) error {
 	return err
 }
 
-func (r DeckLikes) GetAllLikesByUser(userId string) ([]*model.DeckLike, error) {
+func (r DeckLikes) GetAllLikesByUser(userId string) ([]model.DeckLike, error) {
 	if userId == "" {
 		return nil, errors.New("userId is empty when getting question likes")
 	}
-	var res []*model.DeckLike
+	var res []model.DeckLike
 	where := model.DeckLike{UserID: userId}
 	err := r.db.Find(&res, where).Error
 	return res, err
+}
+
+func (r DeckLikes) Truncate() error {
+	return r.db.Exec("TRUNCATE TABLE deck_likes").Error
 }

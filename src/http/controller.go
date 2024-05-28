@@ -81,6 +81,12 @@ func StartServer(services *service.Services) {
 		if err := services.Repos.Decks.TruncateUnlockedDecks(); err != nil {
 			return err
 		}
+		if err := services.Repos.QuestionReactions.Truncate(); err != nil {
+			return err
+		}
+		if err := services.Repos.DeckLikes.Truncate(); err != nil {
+			return err
+		}
 		c.Status(http.StatusOK)
 		return nil
 	}))
@@ -120,9 +126,13 @@ func StartServer(services *service.Services) {
 	apiV1.GET("/get-vector-image/:id", doWithErr(controller.GetImage))
 	apiV1.POST("/enter-promo/:promo", doWithErr(controller.EnterPromo))
 
-	apiV1.GET("/user/:userId/likes", doWithErr(controller.GetUserLikes))
+	apiV1.GET("/user/:userId/likes", doWithErr(controller.GetUserLikesDEPRECATED))
 
 	apiV2.GET("/decks", doWithErr(controller.GetLocalizedDecks))
+	apiV2.POST("/question/:questionId/react-like", doWithErr(controller.LikeQuestion))
+	apiV2.POST("/question/:questionId/react-dislike", doWithErr(controller.DislikeQuestionV2))
+	apiV2.POST("/question/:questionId/react-remove", doWithErr(controller.RemoveReactionToQuestion))
+	apiV2.GET("/user/:userId/reactions", doWithErr(controller.GetUserReactions))
 
 	apiV3.GET("/decks", doWithErr(controller.GetLocalizedAvailableDecks))
 
@@ -341,8 +351,8 @@ func (c Controller) GetImage(ctx *gin.Context) error {
 // @Success      200 {object} map[string]string
 // @Failure      400,409 {object} map[string]string
 // @Router       /v1/question/{questionId}/like [post]
+// @Router       /v2/question/{questionId}/react-like [post]
 func (c Controller) LikeQuestion(ctx *gin.Context) error {
-	//TODO cover with tests
 	questionId := ctx.Param("questionId")
 	userId := ctx.Query("userId")
 
@@ -353,7 +363,7 @@ func (c Controller) LikeQuestion(ctx *gin.Context) error {
 		return nil
 	}
 
-	err := c.services.QuestionLikesService.Like(userId, questionId)
+	err := c.services.QuestionReactionsService.Like(userId, questionId)
 	if err != nil {
 		var driverErr *mysql.MySQLError
 		if errors.As(err, &driverErr) {
@@ -371,7 +381,7 @@ func (c Controller) LikeQuestion(ctx *gin.Context) error {
 }
 
 // DislikeQuestion godoc
-// @Summary      Dislike a question
+// @Summary      DislikeDEPRECATED a question
 // @Description  Endpoint remove like from a particular question
 // @Produce      json
 // @Param        questionId path string true "Question ID"
@@ -380,7 +390,6 @@ func (c Controller) LikeQuestion(ctx *gin.Context) error {
 // @Failure      400,500 {object} map[string]string
 // @Router       /v1/question/{questionId}/dislike [post]
 func (c Controller) DislikeQuestion(ctx *gin.Context) error {
-	//TODO cover with tests
 	questionId := ctx.Param("questionId")
 	userId := ctx.Query("userId")
 
@@ -391,8 +400,73 @@ func (c Controller) DislikeQuestion(ctx *gin.Context) error {
 		return nil
 	}
 
-	err := c.services.QuestionLikesService.Dislike(userId, questionId)
+	err := c.services.QuestionReactionsService.DislikeDEPRECATED(userId, questionId)
 	if err != nil {
+		return err
+	}
+	ctx.Status(http.StatusOK)
+	return nil
+}
+
+// RemoveReactionToQuestion godoc
+// @Summary      Undo like a question
+// @Description  Endpoint remove like from a particular question
+// @Produce      json
+// @Param        questionId path string true "Question ID"
+// @Param        userId query string true "User ID"
+// @Success      200 {object} map[string]string
+// @Failure      400,500 {object} map[string]string
+// @Router       /v2/question/{questionId}/react-remove [post]
+func (c Controller) RemoveReactionToQuestion(ctx *gin.Context) error {
+	questionId := ctx.Param("questionId")
+	userId := ctx.Query("userId")
+
+	if _, err := uuid.Parse(userId); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid UUID format for userId",
+		})
+		return nil
+	}
+
+	err := c.services.QuestionReactionsService.RemoveReaction(userId, questionId)
+	if err != nil {
+		return err
+	}
+	ctx.Status(http.StatusOK)
+	return nil
+}
+
+// DislikeQuestionV2 godoc
+// @Summary      Set dislike to a question
+// @Description  Endpoint to dislike a specific question. Gives 409 in case of duplicating dislike
+// @Produce      json
+// @Param        questionId path string true "question ID"
+// @Param        userId query string true "User ID"
+// @Success      200 {object} map[string]string
+// @Failure      400,409 {object} map[string]string
+// @Router       /v2/question/{questionId}/react-dislike [post]
+func (c Controller) DislikeQuestionV2(ctx *gin.Context) error {
+	questionId := ctx.Param("questionId")
+	userId := ctx.Query("userId")
+
+	if _, err := uuid.Parse(userId); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid UUID format for userId",
+		})
+		return nil
+	}
+
+	err := c.services.QuestionReactionsService.DislikeV2(userId, questionId)
+
+	if err != nil {
+		var driverErr *mysql.MySQLError
+		if errors.As(err, &driverErr) {
+			if driverErr.Number == pkg.SqlDuplicateErrState {
+				ctx.JSON(http.StatusConflict, gin.H{"error": "Like duplicated"})
+				return nil
+			}
+		}
+
 		return err
 	}
 	ctx.Status(http.StatusOK)
@@ -408,8 +482,8 @@ func (c Controller) DislikeQuestion(ctx *gin.Context) error {
 // @Success      200 {object} map[string]string
 // @Failure      400,409 {object} map[string]string
 // @Router       /v1/deck/{deckId}/like [post]
+// @Router       /v2/deck/{deckId}/like [post]
 func (c Controller) LikeDeck(ctx *gin.Context) error {
-	//TODO cover with tests
 	deckId := ctx.Param("deckId")
 	userId := ctx.Query("userId")
 
@@ -435,11 +509,10 @@ func (c Controller) LikeDeck(ctx *gin.Context) error {
 	}
 	ctx.Status(http.StatusOK)
 	return nil
-
 }
 
 // DislikeDeck godoc
-// @Summary      Dislike a deck
+// @Summary      DislikeDEPRECATED a deck
 // @Description  Endpoint to remove like from a specific deck
 // @Produce      json
 // @Param        deckId path string true "Deck ID"
@@ -448,7 +521,6 @@ func (c Controller) LikeDeck(ctx *gin.Context) error {
 // @Failure      400,500 {object} map[string]string
 // @Router       /v1/deck/{deckId}/dislike [post]
 func (c Controller) DislikeDeck(ctx *gin.Context) error {
-	//TODO cover with tests
 	deckId := ctx.Param("deckId")
 	userId := ctx.Query("userId")
 
@@ -467,15 +539,14 @@ func (c Controller) DislikeDeck(ctx *gin.Context) error {
 	return nil
 }
 
-// GetUserLikes godoc
+// GetUserLikesDEPRECATED godoc
 // @Summary      Get all likes made by a user
 // @Description  Retrieves all likes made by a user on questions and decks.
 // @Param 		 userId path string true "The ID of the user."
 // @Produce      json
 // @Success      200  {object} map[string]interface{}
 // @Router       /v1/user/{userId}/likes [get]
-func (c Controller) GetUserLikes(ctx *gin.Context) error {
-	//TODO cover with tests
+func (c Controller) GetUserLikesDEPRECATED(ctx *gin.Context) error {
 	userId := ctx.Query("userId")
 	if userId == "" {
 		userId = ctx.Param("userId")
@@ -493,13 +564,48 @@ func (c Controller) GetUserLikes(ctx *gin.Context) error {
 		return err
 	}
 
-	qLikes, err := c.services.Repos.QuestionLikes.GetAllLikesByUser(userId)
+	qLikes, err := c.services.Repos.QuestionReactions.GetAllLikesByUserDEPRECATED(userId)
 	if err != nil {
 		return err
 	}
 	answer := make(map[string]any)
 	answer["questions"] = qLikes
 	answer["decks"] = dLikes
+
+	ctx.JSON(http.StatusOK, answer)
+	return nil
+}
+
+// GetUserReactions godoc
+// @Summary      Get all reactions made by a user
+// @Description  Retrieves all reactions made by a user on questions and decks.
+// @Param 		 userId path string true "The ID of the user."
+// @Produce      json
+// @Success      200  {object} map[string]interface{}
+// @Router       /v2/user/{userId}/reactions [get]
+func (c Controller) GetUserReactions(ctx *gin.Context) error {
+	userId := ctx.Query("userId")
+	if userId == "" {
+		userId = ctx.Param("userId")
+	}
+
+	if _, err := uuid.Parse(userId); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid UUID format for userId",
+		})
+		return nil
+	}
+
+	dLikes, err := c.services.Repos.DeckLikes.GetAllLikesByUser(userId)
+	if err != nil {
+		return err
+	}
+
+	qLikes, err := c.services.Repos.QuestionReactions.GetAllReactionsByUser(userId)
+	if err != nil {
+		return err
+	}
+	answer := output.NewUserReactions(dLikes, qLikes)
 
 	ctx.JSON(http.StatusOK, answer)
 	return nil
