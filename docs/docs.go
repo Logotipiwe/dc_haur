@@ -481,60 +481,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/v2/deck/{deckId}/like": {
-            "post": {
-                "description": "Endpoint to like a specific deck. Gives 409 in case of duplicating like",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Like a deck",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Deck ID",
-                        "name": "deckId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "userId",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/v2/decks": {
             "get": {
                 "produces": [
@@ -848,7 +794,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "hidden": {
-                    "description": "TODO test value in api",
                     "type": "boolean"
                 },
                 "id": {
@@ -870,7 +815,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "promo": {
-                    "description": "TODO test value",
                     "type": "string"
                 }
             }

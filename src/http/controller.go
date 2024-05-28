@@ -482,7 +482,6 @@ func (c Controller) DislikeQuestionV2(ctx *gin.Context) error {
 // @Success      200 {object} map[string]string
 // @Failure      400,409 {object} map[string]string
 // @Router       /v1/deck/{deckId}/like [post]
-// @Router       /v2/deck/{deckId}/like [post]
 func (c Controller) LikeDeck(ctx *gin.Context) error {
 	deckId := ctx.Param("deckId")
 	userId := ctx.Query("userId")
