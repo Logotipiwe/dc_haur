@@ -21,6 +21,14 @@ func (r *Decks) GetDecks() ([]model.Deck, error) {
 	return decks, nil
 }
 
+func (r *Decks) GetPublicDecks() ([]model.Deck, error) {
+	var decks []model.Deck
+	if err := r.db.Where("not hidden").Find(&decks).Error; err != nil {
+		return nil, err
+	}
+	return decks, nil
+}
+
 func (r *Decks) GetDeckByName(name string) (*model.Deck, error) {
 	var deck model.Deck
 	if err := r.db.Where("name = ?", name).First(&deck).Error; err != nil {

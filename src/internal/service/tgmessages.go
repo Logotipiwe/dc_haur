@@ -53,7 +53,7 @@ func NewTgMessageService(tgKeyboardService TgKeyboardService, cache CacheService
 func (s *TgMessageService) HandleStart(update Update) (*MessageConfig, error) {
 	message := update.Message
 
-	decks, err := s.repos.Decks.GetDecks()
+	decks, err := s.repos.Decks.GetPublicDecks()
 	if err != nil {
 		return nil, err
 	}
