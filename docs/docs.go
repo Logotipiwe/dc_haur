@@ -78,7 +78,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Уровни в колоде. С кличеством просмотренных карт.",
+                "summary": "Уровни в колоде. С количеством просмотренных карт.",
                 "parameters": [
                     {
                         "type": "string",
@@ -750,6 +750,9 @@ const docTemplate = `{
                 "deckID": {
                     "type": "string"
                 },
+                "description": {
+                    "type": "string"
+                },
                 "emoji": {
                     "type": "string"
                 },
@@ -835,6 +838,9 @@ const docTemplate = `{
                     "$ref": "#/definitions/output.QuestionsCounts"
                 },
                 "deckID": {
+                    "type": "string"
+                },
+                "description": {
                     "type": "string"
                 },
                 "emoji": {
