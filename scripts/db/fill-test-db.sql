@@ -27,6 +27,7 @@ create table if not exists levels
     deck_id     varchar(255) not null references decks,
     level_order int          not null,
     name        varchar(255) not null,
+    description text not null,
     emoji        varchar(255),
     color_start varchar(255) not null,
     color_end   varchar(255) not null,
@@ -73,20 +74,20 @@ INSERT INTO decks values ('d4', 'RU', 'deck d4 name', null, 'Deck 4 desc', 'labe
 INSERT INTO vector_images values ('1', '<svg>1</svg>');
 INSERT INTO vector_images values ('2', '<svg>2</svg>');
 
-INSERT INTO levels (id, deck_id, level_order, name, emoji, color_start, color_end, color_button)
-VALUES ('d1l1', 'd1', 1, 'l1', 'em1', '0,0,0', '255,255,255', '1,1,1'),
-       ('d1l2', 'd1', 2, 'l2', 'em1', '0,0,0', '255,255,255', '2,2,2'),
-       ('d1l3', 'd1', 3, 'l3', null, '0,0,0', '255,255,255', '3,3,3'),
+INSERT INTO levels (id, deck_id, level_order, name, description, emoji, color_start, color_end, color_button)
+VALUES ('d1l1', 'd1', 1, 'l1', 'desc_d1l1', 'em1', '0,0,0', '255,255,255', '1,1,1'),
+       ('d1l2', 'd1', 2, 'l2', 'desc_d1l2', 'em1', '0,0,0', '255,255,255', '2,2,2'),
+       ('d1l3', 'd1', 3, 'l3', 'desc_d1l3', null, '0,0,0', '255,255,255', '3,3,3'),
 
-       ('d2l1', 'd2', 1, 'l1', 'em2', '0,0,0', '255,255,255', '1,1,1'),
-       ('d2l2', 'd2', 2, 'l2', null, '0,0,0', '255,255,255', '2,2,2'),
-       ('d2l3', 'd2', 3, 'l3', 'em2', '0,0,0', '255,255,255', '3,3,3'),
+       ('d2l1', 'd2', 1, 'l1', 'desc_d2l1', 'em2', '0,0,0', '255,255,255', '1,1,1'),
+       ('d2l2', 'd2', 2, 'l2', 'desc_d2l2', null, '0,0,0', '255,255,255', '2,2,2'),
+       ('d2l3', 'd2', 3, 'l3', 'desc_d2l3', 'em2', '0,0,0', '255,255,255', '3,3,3'),
 
-       ('d3l1', 'd3', 1, 'l1', 'em3', '0,0,0', '255,255,255', '1,1,1'),
-       ('d3l2', 'd3', 2, 'l2', null, '0,0,0', '255,255,255', '2,2,2'),
+       ('d3l1', 'd3', 1, 'l1', 'desc_d3l1', 'em3', '0,0,0', '255,255,255', '1,1,1'),
+       ('d3l2', 'd3', 2, 'l2', 'desc_d3l2', null, '0,0,0', '255,255,255', '2,2,2'),
 
-       ('d4l1', 'd4', 1, 'l1', null, '0,0,0', '255,255,255', '2,2,2'),
-       ('d4l2', 'd4', 2, 'l2', null, '0,0,0', '255,255,255', '2,2,2');
+       ('d4l1', 'd4', 1, 'l1', 'desc_d4l1', null, '0,0,0', '255,255,255', '2,2,2'),
+       ('d4l2', 'd4', 2, 'l2', 'desc_d4l2', null, '0,0,0', '255,255,255', '2,2,2');
 
 INSERT INTO questions
 values ('d1l1q1', 'd1l1', 'question d1l1q1 text', 'additional'),

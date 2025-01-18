@@ -5,6 +5,7 @@ type Level struct {
 	DeckID      string `gorm:"type:varchar(255);not null"`
 	LevelOrder  int
 	Name        string  `gorm:"type:varchar(255);not null"`
+	Description string  `gorm:"type:text;not null" json:"description"`
 	Emoji       *string `gorm:"column:emoji" json:"emoji"`
 	ColorStart  string  `gorm:"type:varchar(255);not null"`
 	ColorEnd    string  `gorm:"type:varchar(255);not null"`

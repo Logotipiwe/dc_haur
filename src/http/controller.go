@@ -224,7 +224,7 @@ func (c Controller) GetLevels(ctx *gin.Context) error {
 }
 
 // GetLevelsWithCounts godoc
-// @Summary      Уровни в колоде. С кличеством просмотренных карт.
+// @Summary      Уровни в колоде. С количеством просмотренных карт.
 // @Param 		 deckId path string true "Id of deck for which selecting levels"
 // @Param 		 clientId query string true "client id. Нужен чтобы получить количество открытых вопросов"
 // @Produce      json
